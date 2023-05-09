@@ -1,5 +1,5 @@
 <template>
-  <div class="w-96 bg-base-100 mt-8 mx-auto rounded shadow p-4">
+  <div class="w-[600px] h-[440px] bg-base-100 mt-8 mx-auto rounded-lg shadow-lg p-4">
     <div class="flex items-center justify-between mb-4">
       <div class="text-xl font-semibold flex-1">Swap</div>
       <div class="btn btn-ghost btn-sm">
