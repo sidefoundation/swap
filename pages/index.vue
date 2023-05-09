@@ -1,5 +1,11 @@
 <template>
-  <div class="text-4xl font-bold text-primary">SIDE SWAP</div>
-
-  <NuxtLink to="/swap" class="link link-primary">GO TO SWAP</NuxtLink>
+  <div></div>
 </template>
+
+<script setup>
+const router = useRouter();
+
+onMounted(() => {
+  router.push('/swap');
+});
+</script>
