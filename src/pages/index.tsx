@@ -7,18 +7,11 @@ const Index = () => {
   const router = useRouter();
 
   return (
-    <Main
-      meta={
-        <Meta
-          title="Next.js Boilerplate Presentation"
-          description="Next js Boilerplate is the perfect starter code for your project. Build your React application with the Next.js framework."
-        />
-      }
-    >
-      <a href="https://github.com/ixartz/Next-js-Boilerplate">
+    <Main meta={<Meta title="ibcswap" description="swap ui for sidechain" />}>
+      <a href="https://github.com/sidefoundation/swap">
         <img
-          src={`${router.basePath}/assets/images/nextjs-starter-banner.png`}
-          alt="Nextjs starter banner"
+          src={`${router.basePath}/assets/images/ibcswap.jpeg`}
+          alt="swapUI"
         />
       </a>
       <h2 className="text-2xl font-bold">
@@ -170,10 +163,8 @@ const Index = () => {
       </ul>
       <p>
         Check our GitHub project for more information about{' '}
-        <a href="https://github.com/ixartz/Next-js-Boilerplate">
-          Nextjs Boilerplate
-        </a>
-        . You can also browse our{' '}
+        <a href="https://github.com/ixartz/ibcswap">Nextjs Boilerplate</a>. You
+        can also browse our{' '}
         <a href="https://creativedesignsguru.com/category/nextjs/">
           Premium NextJS Templates
         </a>{' '}
