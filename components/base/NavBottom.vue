@@ -50,7 +50,10 @@
       </div>
     </div>
     <div>
-      <p>Copyright © 2023 - All right reserved by Side Protocol</p>
+      <p>
+        Copyright © 2023 - All right reserved by
+        <a href="https://side.one" target="_blank" class="text-primary">Side Protocol</a>
+      </p>
     </div>
   </footer>
 </template>
