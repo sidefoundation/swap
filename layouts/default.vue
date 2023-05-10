@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-gray-100 h-[100vh]">
+  <div class="bg-gray-100">
     <BaseNavTop />
-    <NuxtPage class="min-h-[calc(100vh-320px)]" />
+    <NuxtPage />
     <BaseNavBottom />
   </div>
 </template>
