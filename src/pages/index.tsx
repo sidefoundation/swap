@@ -1,33 +1,39 @@
-import { useEffect, useState } from 'react';
+import type { NextPage } from 'next'
+import Link from 'next/link'
+import WalletLoader from '@/components/WalletLoader'
+import useWalletStore from '@/store/wallet'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools'
+import { ILiquidityPool } from '@/shared/types/liquidity'
 
-import { PoolDetails } from '@/components/PoolDetails';
-import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
-import { Meta } from '@/layouts/Meta';
-import type { ILiquidityPool } from '@/shared/types/liquidity';
-import { Main } from '@/templates/Main';
+const Home: NextPage = () => {
+  const {loading, isConnected} = useWalletStore()
+  const router = useRouter()
 
-const Index = () => {
-  const [liquidityPools, setLiquidityPools] = useState<ILiquidityPool[]>([]);
-  const onGetLiquidityPools = (pools: ILiquidityPool[]) => {
-    console.log('data=>', pools);
-    setLiquidityPools(pools);
-  };
-  const { refetch } = useGetLiquidityPools({ onSuccess: onGetLiquidityPools });
-  useEffect(() => {
-    refetch();
-  }, []);
-
+  
+  useEffect(()=>{
+    if(isConnected){
+      router.push("/swap")
+    }
+  },[isConnected])
   return (
-    <Main meta={<Meta title="ibcswap" description="swap ui for sidechain" />}>
-      {liquidityPools.map((pool, index) => {
-        return (
-          <div key={index}>
-            <PoolDetails pool={pool}></PoolDetails>
-          </div>
-        );
-      })}
-    </Main>
-  );
-};
+    <WalletLoader loading={loading}>
+      <h1 className="text-6xl font-bold">
+        Welcome to {process.env.NEXT_PUBLIC_CHAIN_NAME} !
+      </h1>
+      <div className="flex flex-wrap items-center justify-around max-w-4xl max-w-full mt-6 sm:w-full">
+        <Link href="/swap" passHref>
+          <p className="p-6 mt-6 text-left border border-secondary hover:border-primary w-96 rounded-xl hover:text-primary focus:text-primary-focus">
+            <h3 className="text-2xl font-bold">Send to wallet &rarr;</h3>
+            <p className="mt-4 text-xl">
+              Execute a trasaction to send funds to a wallet address.
+            </p>
+          </p>
+        </Link>
+      </div>
+    </WalletLoader>
+  )
+}
 
-export default Index;
+export default Home

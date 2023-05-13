@@ -8,8 +8,8 @@ export const AppConfig = {
       chainID: 'sidechain_7070-1',
       name: 'sidechain1',
       prefix: 'side',
-      rpcUrl: 'http://45.63.52.25:1317/:26657',
-      restUrl: 'http://45.63.52.25:1317/:1317',
+      rpcUrl: 'http://45.63.52.25:26657',
+      restUrl: 'http://45.63.52.25:1317',
       denom: 'aside',
     },
     {

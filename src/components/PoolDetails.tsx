@@ -5,7 +5,7 @@ export type PoolDetailsProps = {
 };
 export function PoolDetails({ pool }: PoolDetailsProps) {
   return (
-    <div>
+    <div className='border'>
       <div className="flex gap-4">
         <div>ID:</div>
         <div>{pool.poolId}</div>

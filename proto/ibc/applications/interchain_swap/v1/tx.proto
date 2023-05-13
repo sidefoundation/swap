@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package ibc.applications.interchain_swap.v1;
+
+option go_package = "github.com/ibcswap/ibcswap/v6/modules/apps/101-interchain-swap/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/tx/v1beta1/tx.proto";
+import "ibc/core/client/v1/client.proto";
+
+
+
+// Msg defines the ibc/swap Msg service.
+// Msg defines the Msg service.
+// Msg defines the Msg service.
+service Msg {
+  rpc CreatePool (MsgCreatePoolRequest) returns (MsgCreatePoolResponse);
+  rpc SingleAssetDeposit    (MsgSingleAssetDepositRequest   ) returns (MsgSingleAssetDepositResponse   );
+  rpc MultiAssetDeposit    (MsgMultiAssetDepositRequest   ) returns (MsgMultiAssetDepositResponse   );
+  rpc SingleAssetWithdraw   (MsgSingleAssetWithdrawRequest  ) returns (MsgSingleAssetWithdrawResponse  );
+  rpc MultiAssetWithdraw   (MsgMultiAssetWithdrawRequest  ) returns (MsgMultiAssetWithdrawResponse  );
+  rpc Swap       (MsgSwapRequest             ) returns (MsgSwapResponse      );
+}
+message MsgCreatePoolRequest {
+           string sourcePort    = 1;
+           string sourceChannel = 2;
+           string sender        = 3;
+  repeated cosmos.base.v1beta1.Coin tokens = 4;
+  repeated uint32 decimals      = 5;
+           string weight        = 6;
+           ibc.core.client.v1.Height timeoutHeight =7 [(gogoproto.moretags) = "yaml:\"timeout_height\""];
+           uint64 timeoutTimeStamp  = 8;           
+}
+
+message MsgCreatePoolResponse {
+  string poolId = 1;
+}
+
+message MsgSingleAssetDepositRequest {
+           string                         poolId = 1 ;
+           string                         sender = 2 ;
+           cosmos.base.v1beta1.Coin       token = 3;
+           ibc.core.client.v1.Height timeoutHeight = 4;
+           uint64 timeoutTimeStamp  = 5;  
+}
+
+message MsgSingleAssetDepositResponse {
+  cosmos.base.v1beta1.Coin poolToken = 1;
+}
+
+// demo two side deposit
+message MsgMultiAssetDepositRequest {
+  string        poolId = 1;
+  LocalDeposit  localDeposit = 2;
+  RemoteDeposit remoteDeposit = 3;
+  ibc.core.client.v1.Height timeoutHeight = 4;
+  uint64 timeoutTimeStamp  = 5; 
+}
+message LocalDeposit {
+  string sender = 1;
+  cosmos.base.v1beta1.Coin token = 2;
+}
+
+message RemoteDeposit {
+  string sender = 1;
+  cosmos.base.v1beta1.Coin token = 2;
+  uint64 sequence = 3;
+  bytes signature = 4;
+}
+
+
+message MsgMultiAssetDepositResponse {
+  repeated cosmos.base.v1beta1.Coin poolTokens = 1;
+}
+
+
+message MsgMultiAssetWithdrawRequest {
+  MsgSingleAssetWithdrawRequest   localWithdraw = 1;
+  MsgSingleAssetWithdrawRequest remoteWithdraw = 2;
+  ibc.core.client.v1.Height timeoutHeight = 3;
+  uint64 timeoutTimeStamp  = 4;  
+}
+
+message MsgSingleAssetWithdrawRequest {
+  string sender = 1;
+  string denomOut = 2;
+  cosmos.base.v1beta1.Coin poolCoin = 3;
+  ibc.core.client.v1.Height timeoutHeight = 4;
+  uint64 timeoutTimeStamp  = 5;  
+}
+
+message MsgSingleAssetWithdrawResponse {
+  repeated cosmos.base.v1beta1.Coin tokens = 1;
+}
+
+message MsgMultiAssetWithdrawResponse {
+  repeated cosmos.base.v1beta1.Coin tokens = 1;
+}
+
+enum SwapMsgType {
+  LEFT = 0;
+  RIGHT = 1;
+}
+message MsgSwapRequest {
+  SwapMsgType swap_type = 1;
+  string sender    = 2;
+  cosmos.base.v1beta1.Coin tokenIn = 3;
+  cosmos.base.v1beta1.Coin tokenOut = 4;
+  uint64 slippage  = 5;
+  string recipient = 6;
+  ibc.core.client.v1.Height timeoutHeight = 7;
+  uint64 timeoutTimeStamp  = 8;   
+}
+
+message MsgSwapResponse {
+  SwapMsgType swap_type = 1;
+  repeated cosmos.base.v1beta1.Coin tokens = 2;
+}
+
+message PoolApprove {
+    string pool_id = 1;
+    string sender = 2;
+}

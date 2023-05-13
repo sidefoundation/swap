@@ -42,8 +42,8 @@ export const getSideChainInfo = (chain: BriefChainInfo): ChainInfo => ({
   stakeCurrency: {
     coinDenom: chain.denom,
     coinMinimalDenom: chain.denom,
-    coinDecimals: 10,
+    coinDecimals: 18,
   },
   coinType: 60,
-  features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx'],
+  features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx', "eth-address-gen","eth-key-sign"],
 });
