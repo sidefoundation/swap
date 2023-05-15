@@ -11,7 +11,8 @@ interface SwapControlsProps {
 
 const SwapControls: React.FC<SwapControlsProps> = ({ swapPair, updateFirstCoin, updateSecondCoin, onSwap }) => {
   return (
-    <div>
+    <div className="p-4 border rounded-md">
+      <div className="mb-4 text-white">Interchain swap</div>
       <div className="flex flex-col justify-between w-full max-w-xl mt-4 text-2xl md:flex-row">
         <div className="grid grid-rows-2 gap-4">
           <CoinInput coin={swapPair.first} placeholder="Amount ..."  onChange={updateFirstCoin} />

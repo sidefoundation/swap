@@ -184,8 +184,8 @@ export const AminoConverter = {
         poolId,
         sender,
         token: {
-          denom: token.denom,
-          amount: Long.fromValue(token.amount).toString()
+          denom: token!.denom,
+          amount: Long.fromValue(token!.amount).toString()
         },
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
@@ -228,20 +228,20 @@ export const AminoConverter = {
       return {
         poolId,
         localDeposit: {
-          sender: localDeposit.sender,
+          sender: localDeposit!.sender,
           token: {
-            denom: localDeposit.token.denom,
-            amount: Long.fromValue(localDeposit.token.amount).toString()
+            denom: localDeposit!.token!.denom,
+            amount: Long.fromValue(localDeposit!.token!.amount).toString()
           }
         },
         remoteDeposit: {
-          sender: remoteDeposit.sender,
+          sender: remoteDeposit!.sender,
           token: {
-            denom: remoteDeposit.token.denom,
-            amount: Long.fromValue(remoteDeposit.token.amount).toString()
+            denom: remoteDeposit!.token!.denom,
+            amount: Long.fromValue(remoteDeposit!.token!.amount).toString()
           },
-          sequence: remoteDeposit.sequence.toString(),
-          signature: remoteDeposit.signature
+          sequence: remoteDeposit!.sequence.toString(),
+          signature: remoteDeposit!.signature
         },
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
@@ -296,8 +296,8 @@ export const AminoConverter = {
         sender,
         denomOut,
         poolCoin: {
-          denom: poolCoin.denom,
-          amount: Long.fromValue(poolCoin.amount).toString()
+          denom: poolCoin!.denom,
+          amount: Long.fromValue(poolCoin!.amount).toString()
         },
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
@@ -338,30 +338,30 @@ export const AminoConverter = {
     }: MsgMultiAssetWithdrawRequest): MsgMultiAssetWithdrawRequestAminoType["value"] => {
       return {
         localWithdraw: {
-          sender: localWithdraw.sender,
-          denomOut: localWithdraw.denomOut,
+          sender: localWithdraw!.sender,
+          denomOut: localWithdraw!.denomOut,
           poolCoin: {
-            denom: localWithdraw.poolCoin.denom,
-            amount: Long.fromValue(localWithdraw.poolCoin.amount).toString()
+            denom: localWithdraw!.poolCoin!.denom,
+            amount: Long.fromValue(localWithdraw!.poolCoin!.amount).toString()
           },
-          timeoutHeight: localWithdraw.timeoutHeight ? {
-            revision_height: omitDefault(localWithdraw.timeoutHeight.revisionHeight)?.toString(),
-            revision_number: omitDefault(localWithdraw.timeoutHeight.revisionNumber)?.toString()
+          timeoutHeight: localWithdraw!.timeoutHeight ? {
+            revision_height: omitDefault(localWithdraw!.timeoutHeight.revisionHeight)?.toString(),
+            revision_number: omitDefault(localWithdraw!.timeoutHeight.revisionNumber)?.toString()
           } : {},
-          timeoutTimeStamp: localWithdraw.timeoutTimeStamp.toString()
+          timeoutTimeStamp: localWithdraw!.timeoutTimeStamp.toString()
         },
         remoteWithdraw: {
-          sender: remoteWithdraw.sender,
-          denomOut: remoteWithdraw.denomOut,
+          sender: remoteWithdraw!.sender,
+          denomOut: remoteWithdraw!.denomOut,
           poolCoin: {
-            denom: remoteWithdraw.poolCoin.denom,
-            amount: Long.fromValue(remoteWithdraw.poolCoin.amount).toString()
+            denom: remoteWithdraw!.poolCoin!.denom,
+            amount: Long.fromValue(remoteWithdraw!.poolCoin!.amount).toString()
           },
-          timeoutHeight: remoteWithdraw.timeoutHeight ? {
-            revision_height: omitDefault(remoteWithdraw.timeoutHeight.revisionHeight)?.toString(),
-            revision_number: omitDefault(remoteWithdraw.timeoutHeight.revisionNumber)?.toString()
+          timeoutHeight: remoteWithdraw!.timeoutHeight ? {
+            revision_height: omitDefault(remoteWithdraw!.timeoutHeight.revisionHeight)?.toString(),
+            revision_number: omitDefault(remoteWithdraw!.timeoutHeight.revisionNumber)?.toString()
           } : {},
-          timeoutTimeStamp: remoteWithdraw.timeoutTimeStamp.toString()
+          timeoutTimeStamp: remoteWithdraw!.timeoutTimeStamp.toString()
         },
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
@@ -427,12 +427,12 @@ export const AminoConverter = {
         swap_type: swapType,
         sender,
         tokenIn: {
-          denom: tokenIn.denom,
-          amount: Long.fromValue(tokenIn.amount).toString()
+          denom: tokenIn!.denom,
+          amount: Long.fromValue(tokenIn!.amount).toString()
         },
         tokenOut: {
-          denom: tokenOut.denom,
-          amount: Long.fromValue(tokenOut.amount).toString()
+          denom: tokenOut!.denom,
+          amount: Long.fromValue(tokenOut!.amount).toString()
         },
         slippage: slippage.toString(),
         recipient,

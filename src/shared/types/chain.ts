@@ -45,5 +45,5 @@ export const getSideChainInfo = (chain: BriefChainInfo): ChainInfo => ({
     coinDecimals: 18,
   },
   coinType: 60,
-  features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx', "eth-address-gen","eth-key-sign"],
+  features: ['stargate', 'ibc-transfer', "eth-address-gen","eth-key-sign"],
 });

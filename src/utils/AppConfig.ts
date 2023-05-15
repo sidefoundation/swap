@@ -6,7 +6,7 @@ export const AppConfig = {
   chains: [
     {
       chainID: 'sidechain_7070-1',
-      name: 'sidechain1',
+      name: 'sidechain-1',
       prefix: 'side',
       rpcUrl: 'http://45.63.52.25:26657',
       restUrl: 'http://45.63.52.25:1317',
@@ -14,7 +14,7 @@ export const AppConfig = {
     },
     {
       chainID: 'sidechain_7070-2',
-      name: 'sidechain2',
+      name: 'sidechain-2',
       prefix: 'side',
       rpcUrl: 'http://66.42.41.25:26657',
       restUrl: 'http://66.42.41.25:1317',

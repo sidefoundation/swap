@@ -6,7 +6,7 @@ export interface ILiquidityPool {
   assets: IAsset[];
   supply: ICoin;
   pool_price: string;
-  status: 'POOL_STATUS_READY' | 'POOL_STATUS_INIT';
+  status: 'POOL_STATUS_READY' | 'POOL_STATUS_INITIAL';
   encounterPartyPort: string;
   encounterPartyChannel: string;
 }

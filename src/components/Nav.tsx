@@ -3,13 +3,27 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import ThemeToggle from '@/components/ThemeToggle';
-import useWalletStore from '@/store/wallet';
+import useWalletStore, { Wallet } from '@/store/wallet';
+import { useEffect, useState } from 'react';
 
 function Nav() {
 
   const { isConnected, wallets, connectWallet, disconnect, charge } = useWalletStore();
   const PUBLIC_SITE_ICON_URL = process.env.NEXT_PUBLIC_SITE_ICON_URL || '';
 
+  const [connected, setConnected] = useState(false)
+  const [signers, setSigners] = useState<Wallet[]>([])
+
+
+  useEffect(()=>{
+    setConnected(isConnected)
+  },[isConnected])
+
+  useEffect(()=>{
+    setSigners(wallets)
+  },[wallets])
+
+  
   return (
     <div className="w-screen px-2 border-b md:px-16">
       <nav className="flex flex-row flex-wrap items-center justify-between w-full py-4 text-center md:flex md:text-left ">
@@ -34,7 +48,7 @@ function Nav() {
           </Link>
         </div>
         <ThemeToggle />
-        { isConnected && (<button
+        { connected && (<button
              className="block mx-4 mb-2 truncate btn-outline btn-secondary btn lg:mb-0"
              onClick={charge}
            >
@@ -44,7 +58,7 @@ function Nav() {
           
         <div className="flex max-w-full grow lg:grow-0">
          
-          {!isConnected ? (
+          {!connected ? (
             <button
              className="block w-full max-w-full truncate btn-outline btn-primary btn"
              onClick={connectWallet}
@@ -56,7 +70,7 @@ function Nav() {
               className="block w-full max-w-full truncate btn-outline btn-primary btn"
               onClick={disconnect}
             >
-              {wallets.map((wallet) => {
+              {signers.map((wallet) => {
                 return<p>{wallet.address}</p>
               })}
             </button>
