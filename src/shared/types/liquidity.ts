@@ -1,6 +1,7 @@
 import type { IAsset, ICoin } from './asset';
 
 export interface ILiquidityPool {
+  findAssetByDenom(denom: string): unknown;
   poolId: string;
   creator: string;
   assets: IAsset[];

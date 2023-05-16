@@ -8,7 +8,7 @@ import {
 import {
    SigningStargateClient, StdFee,
 } from '@cosmjs/stargate'
-import { OfflineDirectSigner } from '@keplr-wallet/types'
+import { OfflineDirectSigner, StdSignature } from '@keplr-wallet/types'
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx'
 import { Any } from 'cosmjs-types/google/protobuf/any'
@@ -52,7 +52,6 @@ export default class SigningKeplerEthermintClient {
       },
     }
 
-    console.log("account Info", accountInfo)
     const txBodyBytes = this.client.registry.encode(txBodyEncodeObject)
     const gasLimit = Int53.fromString(fee.gas).toNumber()
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubk, sequence: +accountInfo.base_account.sequence}], fee.amount, gasLimit)
@@ -69,7 +68,28 @@ export default class SigningKeplerEthermintClient {
       console.log("error", error)
       return undefined
     }
-    
+  }
+
+
+  async signToMsg(signerAddress: string, messages: Uint8Array, chain:BriefChainInfo): Promise<string|undefined> {
+    try {
+        const account = await this.offlineSigner.getAccounts()
+        const acc = account.find(x => x.address === signerAddress)
+      if (!acc) {
+        throw new Error('The signer address dose not exsits in Ledger!')
+      }
+      const { keplr } = window;
+      const sign:StdSignature = await keplr.signArbitrary(
+        chain.chainID,
+        signerAddress,
+        messages
+      )
+      console.log(sign)
+    return sign.signature
+    } catch (error) {
+      console.log("error", error)
+      return undefined
+    }
   }
 
   async broadCastTx(tx: Uint8Array): Promise<string> {

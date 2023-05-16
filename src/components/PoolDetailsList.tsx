@@ -101,57 +101,58 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     //setLoading(true)
     await suggestChain(AppConfig.chains[1]!)
     
-    //const wallet = signers[1]
-    // const timeoutTimeStamp = Long.fromNumber((Date.now() + 60  * 1000)*1000000); // 1 hour from now
-    // try {
+    const wallet = signers[1]
+    const timeoutTimeStamp = Long.fromNumber((Date.now() + 60  * 1000)*1000000); // 1 hour from now
+    try {
       
-    //   const client = await getClient(wallet!.chainInfo)
-    //   const singleDepositMsg:MsgSingleAssetDepositRequest = {
-    //     poolId: pool.poolId,
-    //     sender: wallet!.address,
-    //     token: {
-    //       denom: wallet!.chainInfo.denom, 
-    //       amount: pool.assets.find((item)=>item.balance.denom == wallet!.chainInfo.denom)!.balance.amount
-    //     },
-    //     timeoutHeight: {
-    //       revisionHeight: Long.fromInt(10),
-    //       revisionNumber: Long.fromInt(10000000000)
-    //     },
-    //     timeoutTimeStamp: timeoutTimeStamp
-    //   }
+      const client = await getClient(wallet!.chainInfo)
+      const singleDepositMsg:MsgSingleAssetDepositRequest = {
+        poolId: pool.poolId,
+        sender: wallet!.address,
+        token: {
+          denom: wallet!.chainInfo.denom, 
+          amount: pool.assets.find((item)=>item.balance.denom == wallet!.chainInfo.denom)!.balance.amount
+        },
+        timeoutHeight: {
+          revisionHeight: Long.fromInt(10),
+          revisionNumber: Long.fromInt(10000000000)
+        },
+        timeoutTimeStamp: timeoutTimeStamp
+      }
       
-    //   const msg = {
-    //     typeUrl: "/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest",
-    //     value: singleDepositMsg
-    //   }
-    //   console.log(client)
+      const msg = {
+        typeUrl: "/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest",
+        value: singleDepositMsg
+      }
+      console.log(client)
 
-    //   const fee: StdFee = {
-    //     amount: [{denom: wallet!.chainInfo.denom, amount: '0.01'}],
-    //     gas: "200000"
-    //   }
+      const fee: StdFee = {
+        amount: [{denom: wallet!.chainInfo.denom, amount: '0.01'}],
+        gas: "200000"
+      }
       
       
-    //   const data = await client!.signWithEthermint(
-    //     wallet!.address,
-    //     [msg], 
-    //     wallet!.chainInfo,
-    //     fee,"test"
-    //   )
-    //   console.log("Signed data", data)
-    //   if(data !== undefined) {
-    //     const txHash = await client!.broadCastTx(data) 
-    //     console.log("TxHash:", txHash)  
-    //   }else{
-    //     console.log("there are problem in encoding")
-    //   }
-    // } catch (error) {
-    //   console.log("error", error)
-    // }
-    // setLoading(false)
+      const data = await client!.signWithEthermint(
+        wallet!.address,
+        [msg], 
+        wallet!.chainInfo,
+        fee,"test"
+      )
+      client?.signToMsg
+      console.log("Signed data", data)
+      if(data !== undefined) {
+        const txHash = await client!.broadCastTx(data) 
+        console.log("TxHash:", txHash)  
+      }else{
+        console.log("there are problem in encoding")
+      }
+    } catch (error) {
+      console.log("error", error)
+    }
+    setLoading(false)
   }
   return (
-    <div className='p-4 border rounded'>
+    <div className='flex flex-col justify-center p-4 border rounded'>
       <div className="mb-4 text-white">Pools</div>
       {pools.length === 0 ? (
         <div className="grid items-center justify-center h-full gap-4">
@@ -166,7 +167,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 text-left lg:w-1/3">
+        <div className="grid gap-4 text-left">
           {pools.map((pool) => <PoolDetails key={pool.poolId} pool={pool} onEnablePool={onEnablePool} />)}
         </div>
       )}

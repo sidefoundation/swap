@@ -5,7 +5,7 @@ export const AppConfig = {
   locale: 'en',
   chains: [
     {
-      chainID: 'sidechain_7070-1',
+      chainID: 'sidehub_1818-1',
       name: 'sidechain-1',
       prefix: 'side',
       rpcUrl: 'http://45.63.52.25:26657',
@@ -13,7 +13,7 @@ export const AppConfig = {
       denom: 'aside',
     },
     {
-      chainID: 'sidechain_7070-2',
+      chainID: 'alice_1819-1',
       name: 'sidechain-2',
       prefix: 'side',
       rpcUrl: 'http://66.42.41.25:26657',

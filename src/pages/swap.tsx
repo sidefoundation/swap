@@ -2,7 +2,7 @@ import WalletLoader from "@/components/WalletLoader";
 import { useGetLiquidityPools } from "@/http/query/useGetLiquidityPools";
 import { ILiquidityPool } from "@/shared/types/liquidity";
 import useWalletStore from "@/store/wallet";
-import { Coin } from "@cosmjs/stargate";
+import { Coin, StdFee } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 
 import WalletDetails from "@/components/WalletDetails";
@@ -12,7 +12,7 @@ import { MsgSwapRequest, SwapMsgType } from "@/codegen/ibc/applications/intercha
 import Long from "long";
 
 const Swap = () => {
-  const { wallets, setLoading, loading } = useWalletStore();
+  const { wallets, setLoading, loading, getClient } = useWalletStore();
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => setPools(pools);
@@ -40,6 +40,9 @@ const Swap = () => {
   const onSwap = async(direction:'->'| '<-') => {
     setLoading(true)
     const wallet = direction === '->' ? wallets[0] : wallets[1]
+    const client = await getClient(wallet!.chainInfo)
+    const timeoutTimeStamp = Long.fromNumber((Date.now() + 60  * 1000)*1000000); // 1 hour from now
+
     try {
       
       const swapMsg:MsgSwapRequest = {
@@ -50,19 +53,37 @@ const Swap = () => {
         slippage: Long.fromInt(100),
         recipient: wallet!.address, 
         timeoutHeight: {
-          revisionHeight: Long.fromInt(10),
+          revisionHeight: Long.fromInt(11),
           revisionNumber: Long.fromInt(1000000000)
         },
-        timeoutTimeStamp: Long.fromNumber(10000)
+        timeoutTimeStamp: timeoutTimeStamp
       }
       
     
-      // const msg = {
-      //   typeUrl: "/ibc.applications.interchain_swap.v1.MsgSwapRequest",
-      //   value: swapMsg
-      // }
+      const msg = {
+        typeUrl: "/ibc.applications.interchain_swap.v1.MsgSwapRequest",
+        value: swapMsg
+      }
+      
+      const fee: StdFee = {
+        amount: [{denom: wallet!.chainInfo.denom, amount: '0.01'}],
+        gas: "200000"
+      }
       
       
+      const data = await client!.signWithEthermint(
+        wallet!.address,
+        [msg], 
+        wallet!.chainInfo,
+        fee,"test"
+      )
+      console.log("Signed data", data)
+      if(data !== undefined) {
+        const txHash = await client!.broadCastTx(data) 
+        console.log("TxHash:", txHash)  
+      }else{
+        console.log("there are problem in encoding")
+      }
      // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")      
     } catch (error) {
       console.log("error", error)

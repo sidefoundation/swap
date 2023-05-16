@@ -158,6 +158,7 @@ const useWalletStore = create<WalletState>(
             }
           )
           const newClient = new SigningKeplerEthermintClient(newSigningClient, offlineSigner)
+          console.log("New client", newClient)
           setLoading(false)
           return newClient
         } catch (error) {
@@ -196,6 +197,8 @@ const useWalletStore = create<WalletState>(
         setLoading(false)
         return res.results
       }
+
+
     }),
     { name: 'wallet-store', storage: createJSONStorage(() => sessionStorage) }
   )
