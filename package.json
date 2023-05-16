@@ -13,12 +13,17 @@
     "@nuxtjs/tailwindcss": "^6.6.7",
     "@pinia-plugin-persistedstate/nuxt": "^1.1.1",
     "@types/node": "^18",
+    "@types/semver": "^7.5.0",
     "nuxt": "^3.4.3",
     "nuxt-icon": "^0.4.0"
   },
   "dependencies": {
+    "@cosmjs/crypto": "^0.30.1",
+    "@cosmjs/encoding": "^0.30.1",
     "@pinia/nuxt": "^0.4.10",
+    "cross-fetch": "^3.1.6",
     "daisyui": "^2.51.6",
-    "pinia": "^2.0.36"
+    "pinia": "^2.0.36",
+    "semver": "^7.5.1"
   }
 }

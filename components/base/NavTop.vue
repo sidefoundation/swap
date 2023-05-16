@@ -22,8 +22,8 @@
           tabindex="0"
           class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
         >
-          <li v-for="(item, index) of menuLinks" :key="index">
-            <NuxtLink :to="item?.path">{{ item?.name }}</NuxtLink>
+          <li v-for="(item, index) of menuLinks" :key="index" class="mx-5">
+            <NuxtLink :to="item?.path" >{{ item?.name }}</NuxtLink>
           </li>
         </ul>
       </div>
@@ -49,7 +49,8 @@
 
 <script setup>
 const menuLinks = [
-  { name: 'Swap', path: '/swap' },
+  { name: 'Atomic Swap', path: '/atomic_swap' },
+  { name: 'Interchain Swap', path: '/swap' },
   { name: 'Dashboard', path: '/swap' },
 ];
 </script>
