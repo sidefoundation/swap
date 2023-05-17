@@ -15,7 +15,7 @@ module.exports = {
       {
         light: {
           ...require('daisyui/src/colors/themes')['[data-theme=light]'],
-          primary: '#5e72f5',
+          primary: '#000000',
           'base-200': '#F8F6FA',
         },
       },
