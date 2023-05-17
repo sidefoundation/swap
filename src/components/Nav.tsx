@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 import ThemeToggle from '@/components/ThemeToggle';
@@ -55,8 +56,17 @@ function Nav() {
               </li>
             </ul>
           </div>
-          <Link className="text-2xl font-bold" href="/">
-            {process.env.NEXT_PUBLIC_SITE_TITLE}
+          <Link href="/" className="flex items-center">
+            <Image
+              alt="logo"
+              src="/assets/images/Side.png"
+              width="24"
+              height="24"
+              className='w-8 mr-2'
+            />
+            <h1 className="text-2xl font-bold dark:text-white">
+              {process.env.NEXT_PUBLIC_SITE_TITLE}
+            </h1>
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex">

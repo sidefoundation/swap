@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
+import Image from 'next/image';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin };
@@ -57,6 +58,16 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             placeholder="Amount ..."
             onChange={updateFirstCoin}
           />
+
+          <div className="flex items-center justify-center">
+            <Image
+              alt="switch"
+              src="/assets/images/switch.png"
+              width="20"
+              height="20"
+              className="w-12 h-12"
+            />
+          </div>
           <CoinInput
             coin={swapPair.second}
             placeholder="Amount ..."
@@ -80,6 +91,10 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           </div>
         </div>
       </div>
+
+      <button className="btn btn-primary w-full mt-10 capitalize text-lg">
+        Swap
+      </button>
     </div>
   );
 };
