@@ -5,16 +5,16 @@ import Nav from './Nav';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-base-100 text-base-content">
+    <div className="bg-[#F2F2F2]  dark:bg-base-100  text-base-content">
       <Head>
-        <title>Side Protocol</title>
+        <title>Side</title>
         <meta name="description" content="Side chain swap" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Nav />
 
-      <main className="">{children}</main>
+      <main className="min-h-screen">{children}</main>
 
       <footer className="footer footer-center rounded bg-base-100 p-10 text-base-content">
         <div className="grid grid-flow-col gap-4">
@@ -68,7 +68,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               target="_blank"
               className=" ml-2 text-indigo-400"
             >
-              Side Protocol
+              Side
             </a>
           </p>
         </div>
