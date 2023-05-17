@@ -1,6 +1,6 @@
 import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import SwapControls from '@/components/SwapControls';
 import {
@@ -8,26 +8,57 @@ import {
   SwapMsgType,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
+import { getPoolId, MarketMaker } from '@/utils/swap';
+import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
+import { ILiquidityPool } from '@/shared/types/liquidity';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient } = useWalletStore();
+  const { wallets, setLoading,loading, getClient } = useWalletStore();
+
+  const [pools, setPools] = useState<ILiquidityPool[]>([]);
+
+  const getPools = (pools: ILiquidityPool[]) => setPools(pools);
+  const { refetch } = useGetLiquidityPools({ onSuccess: getPools });
+  
 
   const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
     first: { denom: 'aside', amount: '0' },
     second: { denom: 'bside', amount: '0' },
   });
 
-  const updateFirstCoin = (value: string) =>
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: { denom: 'aside', amount: value },
-    }));
+  useEffect(()=>{
+    refetch()
+  },[loading])
 
-  const updateSecondCoin = (value: string) =>
+  const updateFirstCoin = (value:string) => {
+    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom])
+    const pool = pools.find((pool)=>pool.poolId == poolId)
+    const tokenIn:Coin = {denom: "aside", amount: value}
+    const market = new MarketMaker(pool!,300)
+    const estimate = market.leftSwap(tokenIn, swapPair.second.denom)
+    
+    setSwapPair((swapPair) => ({
+    
+      ...swapPair,
+      first: {denom: "aside", amount: value},
+      second: estimate
+    }))
+  };
+
+  const updateSecondCoin = (value:string) => {
+    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom])
+    const pool = pools.find((pool)=>pool.poolId == poolId)
+    const tokenIn:Coin = {denom: "bside", amount: value}
+    const market = new MarketMaker(pool!,300)
+    const estimate = market.leftSwap(tokenIn, swapPair.first.denom)
+    
     setSwapPair((swapPair) => ({
       ...swapPair,
-      second: { denom: 'bside', amount: value },
-    }));
+      first: estimate,
+      second: {denom: "bside", amount: value},
+    }))
+  };
+
 
   const onSwap = async (direction: '->' | '<-') => {
     setLoading(true);
