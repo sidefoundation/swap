@@ -77,7 +77,7 @@ function Nav() {
             <ThemeToggle />
             {connected && (
               <button
-                className="block mx-4 mb-2 truncate btn-outline btn-secondary btn lg:mb-0"
+                className="mr-2 truncate btn-primary btn"
                 onClick={charge}
               >
                 Faucet
@@ -85,11 +85,11 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn" onClick={connectWallet}>
+              <button className="btn btn-primary" onClick={connectWallet}>
                 Connect Wallet
               </button>
             ) : (
-              <button className="btn w-[160px] truncate" onClick={disconnect}>
+              <button className="btn btn-primary truncate" onClick={disconnect}>
                 Disconnect
               </button>
             )}
