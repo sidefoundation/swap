@@ -5,8 +5,8 @@ import "../extensions/string"
 import crypto from 'crypto';
 
 export class MarketMaker {
-  pool:ILiquidityPool
-  fee: number = 300
+  private pool:ILiquidityPool
+  private fee: number = 300
   constructor(pool:ILiquidityPool, fee: number ) {
     this.pool = pool
     this.fee = fee
@@ -26,7 +26,7 @@ export class MarketMaker {
       const ratio = 1 +  parseFloat(tokenIn.amount) / parseFloat(asset.balance.amount);
       const factor:number = Math.pow(ratio, weight)-1;
       const issueAmount = factor * this.pool.supply.amount.parseToFloat()
-      return  {denom: this.pool.poolId, amount: `${issueAmount}`}
+      return  {denom: this.pool.poolId, amount: `${Math.floor(issueAmount)}`}
   }
 
   multiDeposit(tokenIns: Coin[]):Coin[] {
@@ -36,7 +36,7 @@ export class MarketMaker {
       const issueAmount = this.pool.supply.amount.parseToFloat() * ratio
       const poolToken:Coin = {
         denom: this.pool.poolId,
-        amount: `${issueAmount}`
+        amount: `${Math.floor(issueAmount)}`
       }
       return poolToken;
     })
