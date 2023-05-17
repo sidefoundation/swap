@@ -75,6 +75,15 @@ function Nav() {
         <div className="navbar-end">
           <div className="flex items-center">
             <ThemeToggle />
+            {connected && (
+              <button
+                className="block mx-4 mb-2 truncate btn-outline btn-secondary btn lg:mb-0"
+                onClick={charge}
+              >
+                Faucet
+              </button>
+            )}
+
             {!connected ? (
               <button className="btn" onClick={connectWallet}>
                 Connect Wallet
