@@ -62,13 +62,19 @@ function Nav() {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <Link href="/swap">Swap</Link>
+              <Link href="/swap" className="btn btn-ghost">
+                Swap
+              </Link>
             </li>
             <li>
-              <Link href="/pool">Pool</Link>
+              <Link href="/pool" className="btn btn-ghost">
+                Pool
+              </Link>
             </li>
             <li>
-              <Link href="/assets">Assets</Link>
+              <Link href="/assets" className="btn btn-ghost">
+                Assets
+              </Link>
             </li>
           </ul>
         </div>

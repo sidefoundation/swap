@@ -1,8 +1,19 @@
 import Image from 'next/image';
-import { relative } from 'path';
+import PoolDetailsList from '@/components/PoolDetailsList';
+import { ILiquidityPool } from '@/shared/types/liquidity';
+import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
+import { useEffect, useState } from 'react';
 import { MdList } from 'react-icons/md';
 
 export default function Pool() {
+  const [pools, setPools] = useState<ILiquidityPool[]>([]);
+  const getPools = (pools: ILiquidityPool[]) => setPools(pools);
+  const { refetch } = useGetLiquidityPools({ onSuccess: getPools });
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
   return (
     <div className="container mx-auto">
       <div className="relative mt-10 h-[138px] flex items-center justify-center rounded-lg overflow-hidden bg-[url(/assets/images/maskbg.png)] bg-cover">
@@ -82,6 +93,8 @@ export default function Pool() {
           <div>NEXT</div>
         </div>
       </div>
+
+      <PoolDetailsList pools={pools} />
     </div>
   );
 }
