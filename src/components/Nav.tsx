@@ -1,82 +1,94 @@
-
-import Image from 'next/image';
 import Link from 'next/link';
-
-import ThemeToggle from '@/components/ThemeToggle';
-import useWalletStore, { Wallet } from '@/store/wallet';
 import { useEffect, useState } from 'react';
 
-function Nav() {
+import ThemeToggle from '@/components/ThemeToggle';
+import type { Wallet } from '@/store/wallet';
+import useWalletStore from '@/store/wallet';
 
-  const { isConnected, wallets, connectWallet, disconnect, charge } = useWalletStore();
+function Nav() {
+  const { isConnected, wallets, connectWallet, disconnect, charge } =
+    useWalletStore();
   const PUBLIC_SITE_ICON_URL = process.env.NEXT_PUBLIC_SITE_ICON_URL || '';
 
-  const [connected, setConnected] = useState(false)
-  const [signers, setSigners] = useState<Wallet[]>([])
+  const [connected, setConnected] = useState(false);
+  const [signers, setSigners] = useState<Wallet[]>([]);
 
+  useEffect(() => {
+    setConnected(isConnected);
+  }, [isConnected]);
 
-  useEffect(()=>{
-    setConnected(isConnected)
-  },[isConnected])
+  useEffect(() => {
+    setSigners(wallets);
+  }, [wallets]);
 
-  useEffect(()=>{
-    setSigners(wallets)
-  },[wallets])
-
-  
   return (
-    <div className="w-screen px-2 border-b md:px-16">
-      <nav className="flex flex-row flex-wrap items-center justify-between w-full py-4 text-center md:flex md:text-left ">
-        <div className="flex items-center">
-          <Link href="/">
-            {PUBLIC_SITE_ICON_URL.length > 0 ? (
-              <Image
-                src={PUBLIC_SITE_ICON_URL}
-                height={32}
-                width={32}
-                alt="Logo"
-              />
-            ) : (
-              <span className="text-2xl text-white">⚛️ Side Protocol Labs </span>
-            )}
-          </Link>
-          <Link
-            href="/"
-            className="ml-1 text-xl font-semibold align-top link-hover link md:ml-2 md:text-2xl"
-          >
+    <div className="">
+      <div className="navbar bg-base-100">
+        <div className="navbar-start">
+          <div className="dropdown">
+            <label tabIndex={0} className="btn-ghost btn lg:hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h8m-8 6h16"
+                />
+              </svg>
+            </label>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
+            >
+              <li>
+                <Link href="/swap">Swap</Link>
+              </li>
+              <li>
+                <Link href="/pool">Pool</Link>
+              </li>
+              <li>
+                <Link href="/assets">Assets</Link>
+              </li>
+            </ul>
+          </div>
+          <Link className="btn-ghost btn text-xl normal-case" href="/">
             {process.env.NEXT_PUBLIC_SITE_TITLE}
           </Link>
         </div>
-        <ThemeToggle />
-        { connected && (<button
-             className="block mx-4 mb-2 truncate btn-outline btn-secondary btn lg:mb-0"
-             onClick={charge}
-           >
-             Faucet
-          </button>)
-        }
-          
-        <div className="flex max-w-full grow lg:grow-0">
-         
-          {!connected ? (
-            <button
-             className="block w-full max-w-full truncate btn-outline btn-primary btn"
-             onClick={connectWallet}
-           >
-             Connect Wallet
-           </button>
-          ) : (
-            <button
-              className="block w-full max-w-full truncate btn-outline btn-primary btn"
-              onClick={disconnect}
-            >
-              {signers.map((wallet) => {
-                return<p>{wallet.address}</p>
-              })}
-            </button>
-          )}
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal px-1">
+            <li>
+              <Link href="/swap">Swap</Link>
+            </li>
+            <li>
+              <Link href="/pool">Pool</Link>
+            </li>
+            <li>
+              <Link href="/assets">Assets</Link>
+            </li>
+          </ul>
         </div>
-      </nav>
+        <div className="navbar-end">
+          <div className="flex items-center">
+            <ThemeToggle />
+            {!connected ? (
+              <button className="btn" onClick={connectWallet}>
+                Connect Wallet
+              </button>
+            ) : (
+              <button className="btn w-[160px] truncate" onClick={disconnect}>
+                Disconnect
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
