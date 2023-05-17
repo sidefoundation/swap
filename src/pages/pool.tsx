@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function Pool() {
   return (
     <div className="container mx-auto">
-      <div className="mt-10 h-[138px] flex items-center justify-center rounded-lg overflow-hidden bg-[url(/assets/images/maskbg.png)] bg-cover">
+      <div className="relative mt-10 h-[138px] flex items-center justify-center rounded-lg overflow-hidden bg-[url(/assets/images/maskbg.png)] bg-cover">
         <div className="text-5xl font-bold text-white">
           Scalable, Bridgeless
         </div>
