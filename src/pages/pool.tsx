@@ -3,7 +3,7 @@ import PoolDetailsList from '@/components/PoolDetailsList';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { useEffect, useState } from 'react';
-import { MdList } from 'react-icons/md';
+import { MdList, MdSearch } from 'react-icons/md';
 
 export default function Pool() {
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
@@ -23,10 +23,14 @@ export default function Pool() {
       </div>
       <div className=" mt-10 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
         <div className="w-full flex mb-6">
-          <input
-            className="w-full flex-1 input input-bordered"
-            placeholder="Search token name"
-          />
+          <div className="w-full flex-1 relative">
+            <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl" />
+            <input
+              className="w-full flex-1 input input-bordered pl-10"
+              placeholder="Search token name"
+            />
+          </div>
+
           <div className="ml-4">
             <button className="btn text-3xl">
               <MdList />
@@ -87,8 +91,17 @@ export default function Pool() {
         </div>
 
         <div className="flex items-center justify-end">
-          <div>Rows per page: 10</div>
-          <div>1-10 of 299</div>
+          <div>
+            <span className="mr-2">Rows per page: </span>
+            <select className="select select-bordered select-sm max-w-xs">
+              <option selected>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select>
+          </div>
+          <div className="mr-2 ml-2">
+            {'1-10'} of {'299'}
+          </div>
           <div>PREV</div>
           <div>NEXT</div>
         </div>
