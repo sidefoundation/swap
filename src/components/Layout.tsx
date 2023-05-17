@@ -5,7 +5,7 @@ import Nav from './Nav';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-base-100 px-4 text-base-content">
+    <div className="bg-base-100 text-base-content">
       <Head>
         <title>Side Protocol</title>
         <meta name="description" content="Side chain swap" />

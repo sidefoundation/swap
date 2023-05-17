@@ -12,11 +12,11 @@ function ThemeToggle() {
   const isDark =
     (systemTheme === 'dark' && theme === 'system') || theme === 'dark';
   return (
-    <label className="swap-rotate swap px-4">
+    <label className="swap swap-rotate px-4">
       <input
         type="checkbox"
         checked={isDark}
-        onClick={() => {
+        onChange={() => {
           if (isDark) {
             setTheme('light');
           } else {
