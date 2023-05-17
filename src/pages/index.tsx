@@ -1,35 +1,52 @@
-import type { NextPage } from 'next'
-import Link from 'next/link'
-import WalletLoader from '@/components/WalletLoader'
-import useWalletStore from '@/store/wallet'
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import type { NextPage } from 'next';
+
+import useWalletStore from '@/store/wallet';
 
 const Home: NextPage = () => {
-  const {loading, isConnected} = useWalletStore()
-  const router = useRouter()
-  useEffect(()=>{
-    if(isConnected){
-      router.push("/swap")
-    }
-  },[isConnected])
-  return (
-    <WalletLoader loading={loading}>
-      <h1 className="text-6xl font-bold">
-        Welcome to {process.env.NEXT_PUBLIC_CHAIN_NAME} !
-      </h1>
-      <div className="flex flex-wrap items-center justify-around max-w-4xl max-w-full mt-6 sm:w-full">
-        <Link href="/swap" passHref>
-          <p className="p-6 mt-6 text-left border border-secondary hover:border-primary w-96 rounded-xl hover:text-primary focus:text-primary-focus">
-            <h3 className="text-2xl font-bold">Send to wallet &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Execute a transaction to send funds to a wallet address.
-            </p>
-          </p>
-        </Link>
-      </div>
-    </WalletLoader>
-  )
-}
+  const { loading, isConnected, connectWallet, disconnect } = useWalletStore();
 
-export default Home
+  return (
+    <div className="max-w-full">
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content flex-col lg:flex-row">
+          <img
+            src="https://daisyui.com/images/stock/photo-1635805737707-575885ab0820.jpg"
+            className="max-w-sm rounded-lg shadow-2xl"
+          />
+          <div className="ml-10">
+            <h1 className="text-5xl font-bold">
+              Welcome to{' '}
+              <a
+                className="link-hover link-primary link"
+                href="https://side.one"
+              >
+                SideLabs
+              </a>
+            </h1>
+            <p className="py-6">
+              Get started by installing{' '}
+              <a
+                className="link-hover link-primary link pl-1"
+                href="https://keplr.app/"
+                target="_blank"
+              >
+                Keplr wallet
+              </a>
+            </p>
+            {!isConnected ? (
+              <button className="btn-primary btn" onClick={connectWallet}>
+                Connect your wallet &rarr;
+              </button>
+            ) : (
+              <button className="btn w-[160px] truncate" onClick={disconnect}>
+                Disconnect
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
