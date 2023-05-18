@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react';
 import { MdOutlineMenu } from 'react-icons/md';
 import { TokenInput } from './TokenInput';
 import { IAtomicSwapOrder } from '@/shared/types/order';
+import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
+import { AppConfig } from '@/utils/AppConfig';
+import { timestampToDate } from '@/utils/utils';
 
 const TabItem = ({
   value,
@@ -29,19 +32,21 @@ const TabItem = ({
 };
 
 export type OrderCardProps = {
+  order:IAtomicSwapOrder
   tab:string
   onTake:(order:IAtomicSwapOrder)=>void
   onCancel:(order:IAtomicSwapOrder)=>void
 }
 
-function OrderCard({tab, onTake,onCancel}:OrderCardProps) {
+function OrderCard({order,tab, onTake,onCancel}:OrderCardProps) {
   return (
     <div className="p-5 mb-4 rounded-lg bg-base-200">
       <div className="flex items-center justify-between">
         <div className="px-4 text-sm capitalize border rounded-full border-primary">
           {tab}
         </div>
-        <div className="text-sm">TxHash: 3B1A3...26F6A</div>
+        <div className="text-sm">{order.id.slice(0,10)}...{order.id.slice(-10)}</div>
+
       </div>
       <div className="mt-4 mb-2">
         <div className="text-base font-semibold">
@@ -50,11 +55,11 @@ function OrderCard({tab, onTake,onCancel}:OrderCardProps) {
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>You will pay</div>
-        <div>125.88 SIDE</div>
+        <div>{order.maker.buy_token.amount} {order.maker.buy_token.denom}</div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>To receive</div>
-        <div>12.111 ATOM</div>
+        <div>{order.maker.sell_token.amount} {order.maker.sell_token.denom}</div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>SIDE per ATOM</div>
@@ -62,33 +67,20 @@ function OrderCard({tab, onTake,onCancel}:OrderCardProps) {
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>Sender(Maker)</div>
-        <div>cosmos12s...saxa</div>
+        <div>{order.maker.maker_address}</div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>Date</div>
-        <div>2023-02-15 9:12:12</div>
+        <div>{timestampToDate(+order.maker.create_timestamp)}</div>
       </div>
       <div className="flex items-center justify-between text-sm">
         <div>Expires in</div>
-        <div>36 mins</div>
+        <div>{timestampToDate(+order.maker.expiration_timestamp)}</div>
       </div>
 
       <div className="flex items-center justify-between mt-4 text-sm">
-        <button className='btn btn-primary' onClick={()=>onTake({
-          orderId: "test",
-          sellToken: {denom:"bside", amount: "1000"},
-          buyToken: {denom:"aside", amount: "1000"},
-          sender: "side18mjgj6h5qswu8tclu26jsvntsa8zmztq979zth",
-          makerReceivingAddress: "side18mjgj6h5qswu8tclu26jsvntsa8zmztq979zth",
-        })}>Take</button>
-
-        <button className='btn btn-primary' onClick={()=>onCancel({
-          orderId: "test",
-          sellToken: {denom:"bside", amount: "1000"},
-          buyToken: {denom:"aside", amount: "1000"},
-          sender: "side18mjgj6h5qswu8tclu26jsvntsa8zmztq979zth",
-          makerReceivingAddress: "side18mjgj6h5qswu8tclu26jsvntsa8zmztq979zth",
-        })}>Cancel</button>
+        <button className='btn btn-primary' onClick={()=>onTake(order)}>Take</button>
+        <button className='btn btn-primary' onClick={()=>onCancel(order)}>Cancel</button>
       </div>
     </div>
   );
@@ -108,6 +100,8 @@ export default function SwapOrder() {
 
   const [sender, setSender] = useState(wallets[0]?.chainInfo.chainID);
   const [tokenPair, setTokenPair] = useState<Map<number, Coin>>(new Map());
+  const [orders, setOrders] = useState<IAtomicSwapOrder[]>([])
+  
 
   const fetchBalances = async () => {
     const balance = await getBalance();
@@ -115,8 +109,14 @@ export default function SwapOrder() {
     setBalances(balance);
   };
 
+  const fetchOrders = async (rpcUrl:string) => {
+    const orders = await fetchAtomicSwapOrders(rpcUrl)
+    setOrders(orders)
+  };
+
   useEffect(() => {
     fetchBalances();
+    fetchOrders(AppConfig.chains[0]!.restUrl);
   }, []);
 
   const onMakeOrder = async () => {
@@ -221,7 +221,7 @@ export default function SwapOrder() {
 
   const onTakeOrder = async (order:IAtomicSwapOrder) => {
 
-    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.buyToken.denom)))?.id
+    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.maker.buy_token.denom)))?.id
     const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === chainID)
     if(wallet === undefined) {
       alert("You don't have wallet about this token")
@@ -234,13 +234,13 @@ export default function SwapOrder() {
     ); //
     
     const makeOrderMsg: TakeSwapMsg = {
-      orderId: order.orderId,
+      orderId: order.id,
       /** the tokens to be sell */
-      sellToken: order.sellToken,
+      sellToken: order.maker.sell_token,
       /** the sender address */
-      takerAddress: order.sender,
+      takerAddress: order.maker.maker_address,
       /** the sender's address on the destination chain */
-      takerReceivingAddress: order.makerReceivingAddress,
+      takerReceivingAddress: order.maker.maker_receiving_address,
       createTimestamp: Long.fromInt(Date.now()*1000),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
@@ -278,7 +278,7 @@ export default function SwapOrder() {
 
   const onCancelOrder = async (order:IAtomicSwapOrder) => {
 
-    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.buyToken.denom)))?.id
+    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.maker.sell_token.denom)))?.id
     const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === chainID)
     if(wallet === undefined) {
       alert("You don't have wallet about this token")
@@ -291,9 +291,9 @@ export default function SwapOrder() {
     ); //
     
     const cancelOrderMsg: CancelSwapMsg = {
-      orderId: order.orderId,
+      orderId: order.id,
       /** the sender address */
-      makerAddress: order.sender,
+      makerAddress: order.maker.maker_address,
       createTimestamp: Long.fromInt(Date.now()*1000),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
@@ -375,8 +375,8 @@ export default function SwapOrder() {
           </div>
 
           <div className="">
-            {[1, 2, 3, 4, 5, 6].map((item, index) => (
-              <OrderCard key={index} tab={tab} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
+            {orders.map((order, index) => (
+              <OrderCard order={order} key={index} tab={tab} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
             ))}
           </div>
         </div>
