@@ -14,6 +14,14 @@ import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
 import { AppConfig } from '@/utils/AppConfig';
 
+import {
+  MdList,
+  MdSearch,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdAddToQueue,
+} from 'react-icons/md';
+
 interface PoolDetailsListProps {
   pools: ILiquidityPool[];
 }
@@ -153,39 +161,103 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     setLoading(false);
   };
   return (
-    <div className="flex flex-col justify-center p-4 border rounded">
-      <div className="mb-4 text-white">Pools</div>
-      {pools.length === 0 ? (
-        <div className="grid items-center justify-center h-full gap-4">
-          <CoinInput
-            coin={swapPair.first}
-            placeholder="Amount ..."
-            onChange={(value) => handleCoinUpdate('first', value)}
-          />
-          <CoinInput
-            coin={swapPair.second}
-            placeholder="Amount ..."
-            onChange={(value) => handleCoinUpdate('second', value)}
-          />
-
-          <button
-            className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
-            onClick={onCreatePool}
-          >
-            Create Pool
-          </button>
+    <div>
+      <div className="relative mt-10 h-[138px] flex items-center justify-center rounded-lg overflow-hidden bg-[url(/assets/images/maskbg.png)] bg-cover">
+        <div className="text-5xl font-bold text-white">
+          Scalable, Bridgeless
         </div>
-      ) : (
-        <div className="grid gap-4 text-left">
-          {pools.map((pool) => (
-            <PoolDetails
-              key={pool.poolId}
-              pool={pool}
-              onEnablePool={onEnablePool}
+      </div>
+      <div className=" mt-10 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
+        <div className="w-full flex mb-5">
+          <div className="w-full flex-1 relative">
+            <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl text-gray-300 dark:text-gray-400" />
+            <input
+              className="w-full flex-1 input input-bordered pl-10"
+              placeholder="Search token name"
             />
-          ))}
+          </div>
+
+          <div className="ml-4">
+            <button className="btn text-2xl mr-2">
+              <MdList />
+            </button>
+
+            <label htmlFor="modal-pool-create" className="btn text-2xl">
+              <MdAddToQueue />
+            </label>
+          </div>
         </div>
-      )}
+        <div className="overflow-x-auto border dark:border-none rounded-lg mb-5">
+          <table className="table w-full">
+            {/* head */}
+            <thead>
+              <tr>
+                <th>Pair / Chain</th>
+                <th>Liquidity</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pools.map((pool) => (
+                <PoolDetails
+                  key={pool.poolId}
+                  pool={pool}
+                  onEnablePool={onEnablePool}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-end">
+          <div>
+            <span className="mr-2">Rows per page: </span>
+            <select
+              value="10"
+              className="select select-bordered select-sm max-w-xs"
+            >
+              <option>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select>
+          </div>
+          <div className="mx-4">
+            {'1-10'} of {'299'}
+          </div>
+          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-1 py-1 rounded cursor-pointer">
+            <MdKeyboardArrowLeft className="text-2xl" />
+          </div>
+          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-1 py-1 rounded cursor-pointer">
+            <MdKeyboardArrowRight className="text-2xl" />
+          </div>
+        </div>
+      </div>
+
+      <input type="checkbox" id="modal-pool-create" className="modal-toggle" />
+      <label className="modal cursor-pointer" htmlFor="modal-pool-create">
+        <label className="modal-box relative" htmlFor="">
+          <div className="grid items-center justify-center h-full gap-4">
+            <CoinInput
+              coin={swapPair.first}
+              placeholder="Amount ..."
+              onChange={(value) => handleCoinUpdate('first', value)}
+            />
+            <CoinInput
+              coin={swapPair.second}
+              placeholder="Amount ..."
+              onChange={(value) => handleCoinUpdate('second', value)}
+            />
+
+            <button
+              className="btn"
+              onClick={onCreatePool}
+            >
+              Create Pool
+            </button>
+          </div>
+        </label>
+      </label>
     </div>
   );
 };

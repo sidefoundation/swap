@@ -62,7 +62,7 @@ function Nav() {
               src="/assets/images/Side.png"
               width="24"
               height="24"
-              className='w-8 mr-2'
+              className="w-8 mr-2"
             />
             <h1 className="text-2xl font-bold dark:text-white">
               {process.env.NEXT_PUBLIC_SITE_TITLE}
@@ -82,10 +82,17 @@ function Nav() {
               </Link>
             </li>
             <li>
-              <Link href="/assets" className="btn btn-ghost">
-                Assets
+              <Link href="/stake" className="btn btn-ghost">
+                Stake
               </Link>
             </li>
+            {isConnected ? (
+              <li>
+                <Link href="/assets" className="btn btn-ghost">
+                  Assets
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </div>
         <div className="navbar-end">
