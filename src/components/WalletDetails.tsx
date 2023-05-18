@@ -53,18 +53,24 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
           <tbody>
             {balances.map((balance, index) => (
               <tr className="" key={index}>
-                {balance.balances.map((coin) => {
+                {balance.balances.map((coin, key) => {
                   return (
-                    <td className="capitalize dark:text-white font-semibold">
+                    <td
+                      key={key}
+                      className="capitalize dark:text-white font-semibold"
+                    >
                       {coin.denom.includes('pool')
                         ? coin.denom.slice(0, 10) + '...'
                         : coin.denom}
                     </td>
                   );
                 })}
-                {balance.balances.map((coin) => {
+                {balance.balances.map((coin, key) => {
                   return (
-                    <td className="text-base font-semibold dark:text-white">
+                    <td
+                      key={key}
+                      className="text-base font-semibold dark:text-white"
+                    >
                       {coin.amount}
                     </td>
                   );
