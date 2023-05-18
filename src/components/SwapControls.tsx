@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import Image from 'next/image';
 
 interface SwapControlsProps {
@@ -71,8 +72,19 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
 
         <div className="flex items-center mb-2">
-          <div className="bg-base-100 font-semibold capitalize mr-4 px-4 rounded-full h-8 w-[120px] flex items-center justify-center">
-            {swapPair.first?.denom}
+          <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+            <Image
+              alt="logo"
+              src="/assets/images/Side.png"
+              width={20}
+              height={20}
+              className="w-7 h-7"
+            />
+            <div className="font-semibold capitalize flex-1 text-center">
+              {swapPair.first?.denom}
+            </div>
+
+            <MdKeyboardArrowDown className="text-base" />
           </div>
           <CoinInput
             coin={swapPair.first}
@@ -82,7 +94,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
 
         <div className="flex items-center text-gray-500 dark:text-gray-400">
-          <div className="flex-1">Cosmos Hub</div>
+          <div className="flex-1">Side Hub</div>
           <div>~$9999</div>
         </div>
       </div>
@@ -104,8 +116,19 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
 
         <div className="flex items-center mb-2">
-          <div className="bg-base-100 font-semibold capitalize mr-4 px-4 rounded-full h-8 w-[120px] flex items-center justify-center">
-            {swapPair.second?.denom}
+          <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+            <Image
+              alt="logo"
+              src="/assets/images/Side.png"
+              width={20}
+              height={20}
+              className="w-7 h-7"
+            />
+            <div className="font-semibold capitalize flex-1 text-center">
+              {swapPair.second?.denom}
+            </div>
+
+            <MdKeyboardArrowDown className="text-base" />
           </div>
           <CoinInput
             coin={swapPair.second}
@@ -115,7 +138,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
 
         <div className="flex items-center text-gray-500 dark:text-gray-400">
-          <div className="flex-1">Cosmos Hub</div>
+          <div className="flex-1">Side Hub</div>
           <div>~$9999</div>
         </div>
       </div>
@@ -140,6 +163,28 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       >
         {'SWAP <-'}
       </button> */}
+
+      <div className="border dark:border-gray-600 rounded-lg mt-5 pb-3">
+        <div className="px-4 py-2 font-semibold border-b dark:border-gray-600">
+          Details
+        </div>
+        <div className="flex items-center justify-between pt-3 pb-1 px-4 text-sm">
+          <div>You will receive</div>
+          <div>≈ 99.99 SIDE</div>
+        </div>
+        <div className="flex items-center justify-between pb-1 px-4 text-sm">
+          <div>Minimum received after slippage (1%)</div>
+          <div>≈ 99.89 SIDE</div>
+        </div>
+        <div className="flex items-center justify-between pb-1 px-4 text-sm">
+          <div>Price impact</div>
+          <div>{`< 0.0002%`}</div>
+        </div>
+        <div className="flex items-center justify-between pb-1 px-4 text-sm">
+          <div>Swap fees</div>
+          <div>≈ $ 0.1739</div>
+        </div>
+      </div>
     </div>
   );
 };
