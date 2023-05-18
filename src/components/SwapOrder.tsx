@@ -169,7 +169,12 @@ export default function SwapOrder() {
     if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
       return;
     }
+    const currentDate = new Date();
+    // Get current timestamp in milliseconds
+    const createTimestamp = currentDate.getTime();
 
+    const expireTime = createTimestamp + 24 * 3600*1000
+    
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
@@ -183,13 +188,13 @@ export default function SwapOrder() {
 
       makerReceivingAddress: sourceWallet.address,
       desiredTaker: '',
-      createTimestamp: Long.fromInt(Date.now()*1000),
+      createTimestamp: Long.fromNumber(createTimestamp),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimestamp: timeoutTimeStamp,
-      expirationTimestamp: Long.fromInt(10000000000),
+      expirationTimestamp: Long.fromInt(expireTime),
     };
 
     const msg = {
