@@ -174,6 +174,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <input
               className="w-full flex-1 input input-bordered pl-10"
               placeholder="Search token name"
+              onChange={() => {}}
             />
           </div>
 
@@ -216,6 +217,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <select
               value="10"
               className="select select-bordered select-sm max-w-xs"
+              onChange={()=>{}}
             >
               <option>10</option>
               <option>20</option>
@@ -249,10 +251,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               onChange={(value) => handleCoinUpdate('second', value)}
             />
 
-            <button
-              className="btn"
-              onClick={onCreatePool}
-            >
+            <button className="btn" onClick={onCreatePool}>
               Create Pool
             </button>
           </div>

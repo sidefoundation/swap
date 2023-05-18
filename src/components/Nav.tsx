@@ -86,7 +86,7 @@ function Nav() {
                 Stake
               </Link>
             </li>
-            {isConnected ? (
+            {connected ? (
               <li>
                 <Link href="/assets" className="btn btn-ghost">
                   Assets
