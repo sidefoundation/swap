@@ -174,8 +174,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         {'SWAP <-'}
       </button> */}
 
-      <div className="border dark:border-gray-600 rounded-lg mt-5 pb-3">
-        <div className="px-4 py-2 font-semibold border-b dark:border-gray-600">
+      <div className="border dark:border-gray-700 rounded-lg mt-5 pb-3">
+        <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
           Details
         </div>
         <div className="flex items-center justify-between pt-3 pb-1 px-4 text-sm">
