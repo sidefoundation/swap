@@ -22,10 +22,37 @@ export type PoolDetailsProps = {
   pool: ILiquidityPool;
   onEnablePool: (pool: ILiquidityPool) => void;
 };
+const TabItem = ({
+  tab,
+  setTab,
+  title,
+  value,
+}: {
+  tab: string;
+  setTab: Function;
+  title: string;
+  value: string;
+}) => {
+  return (
+    <div
+      className={`tab tab-sm px-4  ${
+        tab === value
+          ? 'bg-primary text-white rounded-full'
+          : 'dark:text-gray-400'
+      }`}
+      onClick={() => {
+        setTab(value);
+      }}
+    >
+      {title}
+    </div>
+  );
+};
 export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
   const { wallets, getClient, setLoading } = useWalletStore();
 
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
+  const [tab, setTab] = useState('deposit');
   const market = new MarketMaker(pool, 300);
   const onSingleDeposit = async (denom: string) => {
     const wallet = wallets.find((wallet) => wallet.chainInfo.denom === denom);
@@ -453,15 +480,114 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
         >
           Manage
         </label>
-
+        {/* dialog */}
         <input
           type="checkbox"
           id="modal-pool-manage"
           className="modal-toggle"
         />
         <label className="modal cursor-pointer" htmlFor="modal-pool-manage">
-          <label className="modal-box relative" htmlFor="">
-            <div>
+          <label className="modal-box relative max-w-modal w-full"  htmlFor="">
+            <div className="w-full max-w-modal">
+              {/* tabs */}
+              <div className="mb-4 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
+                <TabItem
+                  tab={tab}
+                  setTab={setTab}
+                  title="Deposit"
+                  value="deposit"
+                />
+                <TabItem
+                  tab={tab}
+                  setTab={setTab}
+                  title="Withdraw"
+                  value="withdraw"
+                />
+              </div>
+              {/* deposit */}
+              {/* all assets */}
+              {pool.status === 'POOL_STATUS_READY' &&
+                pool.assets.map((item, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="flex w-full flex-col gap-1 rounded-2xl border border-osmoverse-700 p-4 md:rounded-xl md:p-3 mb-4"
+                    >
+                      <div className="flex w-full place-content-between items-center">
+                        <div className="flex gap-2 my-auto">
+                          <div
+                            class="radial-progress bg-primary text-primary-content border-4 border-primary"
+                            style={{ '--value': item.weight }}
+                          >
+                            {item.weight}%
+                          </div>
+                          <div className="flex flex-col place-content-center text-left">
+                            <h5 className="capitalize">
+                              {item?.balance?.denom}
+                            </h5>
+                            <span className="subtitle2 text-osmoverse-400">
+                              name
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex justify-end gap-2 text-caption font-caption">
+                            <span className="my-auto">Available</span>
+                            <span className="my-auto text-wosmongton-300 opacity-70">
+                              aeests
+                            </span>
+                          </div>
+                          <div className="flex place-content-end items-center gap-1">
+                            <div className="flex flex-col rounded-lg bg-osmoverse-1000 p-1">
+                              <div className="flex h-fit w-full flex-nowrap justify-between rounded-lg bg-osmoverse-1000 px-2 text-white-high">
+                                <div className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400">
+                                  <CoinInput
+                                    key={index}
+                                    placeholder="Amount ..."
+                                    coin={{
+                                      denom: item.balance.denom,
+                                      amount:
+                                        depositCoin?.get(item.balance.denom)
+                                          ?.amount ?? '0',
+                                    }}
+                                    onChange={(coin) => {
+                                      setDepositCoin((prevDepositCoin) => {
+                                        // Create a new Map object
+                                        const newDepositCoin = new Map(
+                                          prevDepositCoin
+                                        );
+                                        newDepositCoin.set(item.balance.denom, {
+                                          denom: item.balance.denom,
+                                          amount: coin,
+                                        });
+                                        return newDepositCoin;
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400">
+                                {' '}
+                                ~{' '}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              {pool.status === 'POOL_STATUS_READY' && (
+                <button
+                  className="btn btn-primary w-full"
+                  onClick={() => onDoubleWithdraw('aside', 'bside')}
+                >
+                  Multi-Withdraw
+                </button>
+              )}
+
+              {/* single asset */}
+              {/* withdraw */}
               <div className="grid justify-between w-full gap-4 mt-6">
                 {pool.status === 'POOL_STATUS_READY' && (
                   <div className="flex justify-between gap-4">
@@ -512,6 +638,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                     );
                   })}
                 </div>
+
                 {pool.status === 'POOL_STATUS_READY' && (
                   <div className="flex justify-between gap-4">
                     {pool.assets.map((asset) => {
