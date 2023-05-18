@@ -10,7 +10,6 @@ import useWalletStore from '@/store/wallet';
 function Nav() {
   const { isConnected, wallets, connectWallet, disconnect, charge } =
     useWalletStore();
-  console.log(wallets, 'wallets');
   const [connected, setConnected] = useState(false);
   const [signers, setSigners] = useState<Wallet[]>([]);
 
@@ -22,6 +21,14 @@ function Nav() {
     setSigners(wallets);
   }, [wallets]);
 
+  // TODO: add icon to show success or error
+  const copyAddress = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+    } catch (err) {
+      //
+    }
+  };
   return (
     <div className="bg-base-100 shadow">
       <div className="navbar container mx-auto">
@@ -114,7 +121,7 @@ function Nav() {
                 Connect Wallet
               </button>
             ) : (
-              <div className="dropdown dropdown-end dropdown-hover">
+              <div className="dropdown dropdown-end ml-2">
                 <label tabIndex={0} className="text-3xl">
                   <MdPerson />
                 </label>
@@ -124,12 +131,16 @@ function Nav() {
                 >
                   {wallets.map((item, index) => {
                     return (
-                      <div key={index} className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">
+                      <div
+                        key={index}
+                        className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold block py-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        onClick={() => copyAddress(item.address)}
+                      >
                         {item.address}
                       </div>
                     );
                   })}
-                  <div className="divider"></div>
+                  <div className="divider my-1"></div>
                   <button
                     className="btn btn-primary truncate"
                     onClick={disconnect}
