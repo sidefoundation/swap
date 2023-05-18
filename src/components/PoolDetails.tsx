@@ -487,7 +487,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
           className="modal-toggle"
         />
         <label className="modal cursor-pointer" htmlFor="modal-pool-manage">
-          <label className="modal-box relative max-w-modal w-full"  htmlFor="">
+          <label className="modal-box relative max-w-modal w-full" htmlFor="">
             <div className="w-full max-w-modal">
               {/* tabs */}
               <div className="mb-4 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
@@ -516,7 +516,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                       <div className="flex w-full place-content-between items-center">
                         <div className="flex gap-2 my-auto">
                           <div
-                            class="radial-progress bg-primary text-primary-content border-4 border-primary"
+                            className="radial-progress bg-primary text-primary-content border-4 border-primary"
                             style={{ '--value': item.weight }}
                           >
                             {item.weight}%
@@ -591,9 +591,9 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
               <div className="grid justify-between w-full gap-4 mt-6">
                 {pool.status === 'POOL_STATUS_READY' && (
                   <div className="flex justify-between gap-4">
-                    {pool.assets.map((asset) => {
+                    {pool.assets.map((asset, index) => {
                       return (
-                        <div className="ml-4">
+                        <div className="ml-4" key={index}>
                           <button
                             className="btn btn-primary"
                             onClick={() => onSingleDeposit(asset.balance.denom)}

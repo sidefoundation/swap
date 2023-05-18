@@ -200,9 +200,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               </tr>
             </thead>
             <tbody>
-              {pools.map((pool) => (
+              {pools.map((pool, index) => (
                 <PoolDetails
-                  key={pool.poolId}
+                  key={index}
                   pool={pool}
                   onEnablePool={onEnablePool}
                 />
@@ -217,7 +217,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <select
               value="10"
               className="select select-bordered select-sm max-w-xs"
-              onChange={()=>{}}
+              onChange={() => {}}
             >
               <option>10</option>
               <option>20</option>
