@@ -130,12 +130,14 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             </div>
           </div>
 
-          <button
-            className="btn btn-primary w-full mt-6 capitalize text-lg"
-            onClick={() => onSwap('->')}
-          >
-            Swap
-          </button>
+          {tab === 'swap' ? (
+            <button
+              className="btn btn-primary w-full mt-6 capitalize text-lg"
+              onClick={() => onSwap('->')}
+            >
+              Swap
+            </button>
+          ) : null}
 
           {/* <button
         className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
@@ -150,6 +152,60 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       >
         {'SWAP <-'}
       </button> */}
+
+          {tab === 'limit' ? (
+            <div>
+              <div className="bg-base-200 rounded-lg p-5 mt-4">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <div>Sell ATOM at rate</div>
+                  <div className="font-semibold">Set to maket</div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-semibold">10.000</div>
+                  <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                    <Image
+                      alt="logo"
+                      src="/assets/images/Side.png"
+                      width={20}
+                      height={20}
+                      className="w-7 h-7"
+                    />
+                    <div className="font-semibold capitalize flex-1 text-center">
+                      {swapPair.second?.denom}
+                    </div>
+
+                    <MdKeyboardArrowDown className="text-base" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center mt-4">
+                <div className="bg-base-200 px-5 pt-3 pb-2 rounded-lg mr-4">
+                  <div className="text-sm mb-1">Taker Address (optional)</div>
+                  <input
+                    className="focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                    placeholder="NONE"
+                  />
+                </div>
+                <div className="bg-base-200 px-5 pt-3 pb-2 rounded-lg">
+                  <div className="text-right mb-1 text-sm">Expires in</div>
+                  <div className="flex items-center">
+                    <input
+                      className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                      placeholder="12"
+                    />
+                    <div className="bg-base-100 px-4 flex-1 rounded-full text-base">
+                      Hour
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button className="btn btn-primary w-full mt-6 capitalize text-lg">
+                Make Order
+              </button>
+            </div>
+          ) : null}
 
           <div className="border dark:border-gray-700 rounded-lg mt-5 pb-3">
             <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
