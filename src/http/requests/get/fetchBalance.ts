@@ -6,9 +6,9 @@ interface FetchBalanceResponse extends ResponseMessage {
   balances: Coin[];
 }
 
-const fetchBalances = async (rpc:string,acc: string) => {
+const fetchBalances = async (restUrl:string,acc: string) => {
   const { data } = await axios.get<FetchBalanceResponse>(
-    `${rpc}/cosmos/bank/v1beta1/balances/${acc}`
+    `${restUrl}/cosmos/bank/v1beta1/balances/${acc}`
   );
   
   return data.balances;
