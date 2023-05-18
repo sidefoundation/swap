@@ -167,7 +167,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           Scalable, Bridgeless
         </div>
       </div>
-      <div className=" mt-10 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
+      <div className=" mt-5 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
         <div className="w-full flex mb-5">
           <div className="w-full flex-1 relative">
             <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl text-gray-300 dark:text-gray-400" />

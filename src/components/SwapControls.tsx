@@ -7,6 +7,7 @@ import {
   MdOutlineClose,
 } from 'react-icons/md';
 import Image from 'next/image';
+import SwapOrder from './SwapOrder';
 import TabItem from './TabItem';
 
 interface SwapControlsProps {
@@ -48,93 +49,95 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </label>
       </div>
 
-      <div className="bg-base-200 rounded-lg p-5">
-        <div className="flex items-center mb-2">
-          <div className="flex-1">Sell</div>
-          <div className="mr-2">Balance: 99999</div>
-          <div className="font-semibold">Max</div>
-        </div>
-
-        <div className="flex items-center mb-2">
-          <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-            <Image
-              alt="logo"
-              src="/assets/images/Side.png"
-              width={20}
-              height={20}
-              className="w-7 h-7"
-            />
-            <div className="font-semibold capitalize flex-1 text-center">
-              {swapPair.first?.denom}
+      {tab === 'swap' || tab === 'limit' ? (
+        <div>
+          <div className="bg-base-200 rounded-lg p-5">
+            <div className="flex items-center mb-2">
+              <div className="flex-1">Sell</div>
+              <div className="mr-2">Balance: 99999</div>
+              <div className="font-semibold">Max</div>
             </div>
 
-            <MdKeyboardArrowDown className="text-base" />
-          </div>
-          <CoinInput
-            coin={swapPair.first}
-            placeholder="Amount"
-            onChange={updateFirstCoin}
-          />
-        </div>
+            <div className="flex items-center mb-2">
+              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                <Image
+                  alt="logo"
+                  src="/assets/images/Side.png"
+                  width={20}
+                  height={20}
+                  className="w-7 h-7"
+                />
+                <div className="font-semibold capitalize flex-1 text-center">
+                  {swapPair.first?.denom}
+                </div>
 
-        <div className="flex items-center text-gray-500 dark:text-gray-400">
-          <div className="flex-1">Side Hub</div>
-          <div>~$9999</div>
-        </div>
-      </div>
-      <div className="flex items-center justify-center -mt-5 -mb-5">
-        <Image
-          alt="switch"
-          src="/assets/images/switch.png"
-          width="20"
-          height="20"
-          className="w-14 h-14 shadow bg-white rounded-full cursor-pointer "
-          onClick={() => switchSwap()}
-        />
-      </div>
-      <div className="bg-base-200 rounded-lg p-5">
-        <div className="flex items-center mb-2">
-          <div className="flex-1">Buy</div>
-          <div className="mr-2">Balance: 99999</div>
-          <div className="font-semibold">Max</div>
-        </div>
-
-        <div className="flex items-center mb-2">
-          <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-            <Image
-              alt="logo"
-              src="/assets/images/Side.png"
-              width={20}
-              height={20}
-              className="w-7 h-7"
-            />
-            <div className="font-semibold capitalize flex-1 text-center">
-              {swapPair.second?.denom}
+                <MdKeyboardArrowDown className="text-base" />
+              </div>
+              <CoinInput
+                coin={swapPair.first}
+                placeholder="Amount"
+                onChange={updateFirstCoin}
+              />
             </div>
 
-            <MdKeyboardArrowDown className="text-base" />
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
+              <div className="flex-1">Side Hub</div>
+              <div>~$9999</div>
+            </div>
           </div>
-          <CoinInput
-            coin={swapPair.second}
-            placeholder="Amount"
-            onChange={updateSecondCoin}
-          />
-        </div>
+          <div className="flex items-center justify-center -mt-5 -mb-5">
+            <Image
+              alt="switch"
+              src="/assets/images/switch.png"
+              width="20"
+              height="20"
+              className="w-14 h-14 shadow bg-white rounded-full cursor-pointer "
+              onClick={() => switchSwap()}
+            />
+          </div>
+          <div className="bg-base-200 rounded-lg p-5">
+            <div className="flex items-center mb-2">
+              <div className="flex-1">Buy</div>
+              <div className="mr-2">Balance: 99999</div>
+              <div className="font-semibold">Max</div>
+            </div>
 
-        <div className="flex items-center text-gray-500 dark:text-gray-400">
-          <div className="flex-1">Side Hub</div>
-          <div>~$9999</div>
-        </div>
-      </div>
+            <div className="flex items-center mb-2">
+              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                <Image
+                  alt="logo"
+                  src="/assets/images/Side.png"
+                  width={20}
+                  height={20}
+                  className="w-7 h-7"
+                />
+                <div className="font-semibold capitalize flex-1 text-center">
+                  {swapPair.second?.denom}
+                </div>
 
-      <button
-        className="btn btn-primary w-full mt-6 capitalize text-lg"
-        onClick={() => onSwap('->')}
-      >
-        Swap
-      </button>
+                <MdKeyboardArrowDown className="text-base" />
+              </div>
+              <CoinInput
+                coin={swapPair.second}
+                placeholder="Amount"
+                onChange={updateSecondCoin}
+              />
+            </div>
 
-      {/* <button
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
+              <div className="flex-1">Side Hub</div>
+              <div>~$9999</div>
+            </div>
+          </div>
+
+          <button
+            className="btn btn-primary w-full mt-6 capitalize text-lg"
+            onClick={() => onSwap('->')}
+          >
+            Swap
+          </button>
+
+          {/* <button
         className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
         onClick={() => onSwap('->')}
       >
@@ -148,31 +151,35 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         {'SWAP <-'}
       </button> */}
 
-      <div className="border dark:border-gray-700 rounded-lg mt-5 pb-3">
-        <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
-          Details
+          <div className="border dark:border-gray-700 rounded-lg mt-5 pb-3">
+            <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
+              Details
+            </div>
+            <div className="flex items-center justify-between pt-3 pb-1 px-4 text-sm">
+              <div>You will receive</div>
+              <div>≈ 99.99 SIDE</div>
+            </div>
+            <div className="flex items-center justify-between pb-1 px-4 text-sm">
+              <div>Minimum received after slippage (1%)</div>
+              <div>≈ 99.89 SIDE</div>
+            </div>
+            <div className="flex items-center justify-between pb-1 px-4 text-sm">
+              <div>Price impact</div>
+              <div>{`< 0.0002%`}</div>
+            </div>
+            <div className="flex items-center justify-between pb-1 px-4 text-sm">
+              <div>Swap fees</div>
+              <div>≈ $ 0.1739</div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-between pt-3 pb-1 px-4 text-sm">
-          <div>You will receive</div>
-          <div>≈ 99.99 SIDE</div>
-        </div>
-        <div className="flex items-center justify-between pb-1 px-4 text-sm">
-          <div>Minimum received after slippage (1%)</div>
-          <div>≈ 99.89 SIDE</div>
-        </div>
-        <div className="flex items-center justify-between pb-1 px-4 text-sm">
-          <div>Price impact</div>
-          <div>{`< 0.0002%`}</div>
-        </div>
-        <div className="flex items-center justify-between pb-1 px-4 text-sm">
-          <div>Swap fees</div>
-          <div>≈ $ 0.1739</div>
-        </div>
-      </div>
+      ) : null}
+
+      {tab === 'order' ? <SwapOrder /> : null}
 
       <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
       <label htmlFor="modal-swap-setting" className="modal cursor-pointer">
-        <label htmlFor="" className="modal-box relative p-4">
+        <label htmlFor="" className="modal-box relative p-4 rounded-lg">
           <div>
             <div className="flex items-center justify-between">
               <div className="font-semibold">Transaction settings</div>
