@@ -51,46 +51,47 @@ export default function SwapOrder() {
         </div>
       </div>
 
-          <div className="capitalize border-primary border px-4 text-sm rounded-full">
-      {[1, 2, 3, 4, 5, 6].map((item, index) => (
-        <div key={index} className="bg-base-200 p-5 rounded-lg mb-4">
-          <div className="flex items-center justify-between">
-            <div className="capitalize border-primary border px-4 text-sm rounded-full">
-              {tab}
+      <div className="">
+        {[1, 2, 3, 4, 5, 6].map((item, index) => (
+          <div key={index} className="bg-base-200 p-5 rounded-lg mb-4">
+            <div className="flex items-center justify-between">
+              <div className="capitalize border-primary border px-4 text-sm rounded-full">
+                {tab}
+              </div>
+              <div className="text-sm">TxHash: 3B1A3...26F6A</div>
             </div>
-            <div className="text-sm">TxHash: 3B1A3...26F6A</div>
-          </div>
-          <div className="mt-4 mb-2">
-            <div className="text-base font-semibold">
-              ATOM (Cosmos Hub) / SIDE (Side Hub)
+            <div className="mt-4 mb-2">
+              <div className="text-base font-semibold">
+                ATOM (Cosmos Hub) / SIDE (Side Hub)
+              </div>
+            </div>
+            <div className="flex items-center justify-between mb-1 text-sm">
+              <div>You will pay</div>
+              <div>125.88 SIDE</div>
+            </div>
+            <div className="flex items-center justify-between mb-1 text-sm">
+              <div>To receive</div>
+              <div>12.111 ATOM</div>
+            </div>
+            <div className="flex items-center justify-between mb-1 text-sm">
+              <div>SIDE per ATOM</div>
+              <div>10.2123</div>
+            </div>
+            <div className="flex items-center justify-between mb-1 text-sm">
+              <div>Sender(Maker)</div>
+              <div>cosmos12s...saxa</div>
+            </div>
+            <div className="flex items-center justify-between mb-1 text-sm">
+              <div>Date</div>
+              <div>2023-02-15 9:12:12</div>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <div>Expires in</div>
+              <div>36 mins</div>
             </div>
           </div>
-          <div className="flex items-center justify-between mb-1 text-sm">
-            <div>You will pay</div>
-            <div>125.88 SIDE</div>
-          </div>
-          <div className="flex items-center justify-between mb-1 text-sm">
-            <div>To receive</div>
-            <div>12.111 ATOM</div>
-          </div>
-          <div className="flex items-center justify-between mb-1 text-sm">
-            <div>SIDE per ATOM</div>
-            <div>10.2123</div>
-          </div>
-          <div className="flex items-center justify-between mb-1 text-sm">
-            <div>Sender(Maker)</div>
-            <div>cosmos12s...saxa</div>
-          </div>
-          <div className="flex items-center justify-between mb-1 text-sm">
-            <div>Date</div>
-            <div>2023-02-15 9:12:12</div>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <div>Expires in</div>
-            <div>36 mins</div>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
