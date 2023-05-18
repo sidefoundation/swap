@@ -1,26 +1,18 @@
-import { Coin } from "@cosmjs/stargate";
-import { useEffect, useState } from "react";
+import { Coin } from '@cosmjs/stargate';
 
 export type CoinInputProps = {
-  placeholder: string
-  coin: Coin, 
-  onChange:(value: string)=>void
-}
-export function CoinInput({placeholder,coin, onChange}:CoinInputProps) {
+  placeholder: string;
+  coin: Coin;
+  onChange: (value: string) => void;
+};
+export function CoinInput({ placeholder, coin, onChange }: CoinInputProps) {
   return (
-    <div className="relative rounded-full shadow-sm md:mr-2">
-      <input
-        type="number"
-        id="send-amount"
-        className="w-full pr-24 font-mono text-lg text-center rounded-full input input-bordered focus:input-primary input-lg "
-        placeholder={placeholder}
-        step="5" 
-        onChange={(event) => onChange(event.target.value)}
-        value={coin.amount}
-      />
-      <span className="absolute top-0 bottom-0 right-0 px-4 py-5 text-sm rounded-r-full bg-secondary text-base-100">
-        {coin.denom}
-      </span>
-    </div>
+    <input
+      type="number"
+      className="text-right h-10 flex-1 bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
+      placeholder={placeholder}
+      onChange={(event) => onChange(event.target.value)}
+      value={coin.amount}
+    />
   );
 }

@@ -14,7 +14,9 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       <Nav />
 
-      <main className="min-h-screen">{children}</main>
+      <main className="" style={{ minHeight: 'calc(100vh - 200px)' }}>
+        {children}
+      </main>
 
       <footer className="footer footer-center rounded bg-base-100 p-10 text-base-content">
         <div className="grid grid-flow-col gap-4">

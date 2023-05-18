@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { MdPerson } from 'react-icons/md';
 import { useEffect, useState } from 'react';
 
 import ThemeToggle from '@/components/ThemeToggle';
@@ -9,6 +10,7 @@ import useWalletStore from '@/store/wallet';
 function Nav() {
   const { isConnected, wallets, connectWallet, disconnect, charge } =
     useWalletStore();
+  console.log(wallets, 'wallets');
   const [connected, setConnected] = useState(false);
   const [signers, setSigners] = useState<Wallet[]>([]);
 
@@ -62,7 +64,7 @@ function Nav() {
               src="/assets/images/Side.png"
               width="24"
               height="24"
-              className='w-8 mr-2'
+              className="w-8 mr-2"
             />
             <h1 className="text-2xl font-bold dark:text-white">
               {process.env.NEXT_PUBLIC_SITE_TITLE}
@@ -82,10 +84,17 @@ function Nav() {
               </Link>
             </li>
             <li>
-              <Link href="/assets" className="btn btn-ghost">
-                Assets
+              <Link href="/stake" className="btn btn-ghost">
+                Stake
               </Link>
             </li>
+            {connected ? (
+              <li>
+                <Link href="/assets" className="btn btn-ghost">
+                  Assets
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </div>
         <div className="navbar-end">
@@ -105,9 +114,30 @@ function Nav() {
                 Connect Wallet
               </button>
             ) : (
-              <button className="btn btn-primary truncate" onClick={disconnect}>
-                Disconnect
-              </button>
+              <div className="dropdown dropdown-end dropdown-hover">
+                <label tabIndex={0} className="text-3xl">
+                  <MdPerson />
+                </label>
+                <div
+                  tabIndex={0}
+                  className="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
+                >
+                  {wallets.map((item, index) => {
+                    return (
+                      <div key={index} className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">
+                        {item.address}
+                      </div>
+                    );
+                  })}
+                  <div className="divider"></div>
+                  <button
+                    className="btn btn-primary truncate"
+                    onClick={disconnect}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>

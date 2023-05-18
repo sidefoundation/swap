@@ -2,12 +2,7 @@
 module.exports = {
   darkMode: ['class', '[data-theme="dark"]'],
   mode: 'jit',
-  purge: {
-    content: ['./src/**/*.{js,ts,jsx,tsx}'],
-    options: {
-      safelist: [/data-theme$/],
-    },
-  },
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {},
   plugins: [require('daisyui')],
   daisyui: {
