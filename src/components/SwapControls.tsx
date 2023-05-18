@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import {
+  MdKeyboardArrowDown,
+  MdOutlineSettings,
+  MdOutlineClose,
+} from 'react-icons/md';
 import Image from 'next/image';
 
 interface SwapControlsProps {
@@ -58,10 +62,16 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   };
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
-      <div className="mb-5 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
-        <TabItem tab={tab} setTab={setTab} title="Swap" value="swap" />
-        <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" />
-        <TabItem tab={tab} setTab={setTab} title="Order" value="order" />
+      <div className="mb-5 flex items-center justify-between">
+        <div className="tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
+          <TabItem tab={tab} setTab={setTab} title="Swap" value="swap" />
+          <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" />
+          <TabItem tab={tab} setTab={setTab} title="Order" value="order" />
+        </div>
+
+        <label htmlFor="modal-swap-setting">
+          <MdOutlineSettings className="cursor-pointer text-xl" />
+        </label>
       </div>
 
       <div className="bg-base-200 rounded-lg p-5">
@@ -185,6 +195,39 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <div>≈ $ 0.1739</div>
         </div>
       </div>
+
+      <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
+      <label htmlFor="modal-swap-setting" className="modal cursor-pointer">
+        <label htmlFor="" className="modal-box relative p-4">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="font-semibold">Transaction settings</div>
+              <label htmlFor="modal-swap-setting" className="cursor-pointer">
+                <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
+              </label>
+            </div>
+            <div className="text-sm mt-3 mb-3 text-gray-500 dark:text-gray-400">
+              Slippage tolerance
+            </div>
+            <div className="grid grid-cols-4 gap-4 mb-2">
+              <div className="bg-gray-100 dark:bg-gray-600 text-center py-1 rounded">
+                1%
+              </div>
+              <div className="bg-gray-100 dark:bg-gray-600 text-center py-1 rounded">
+                3%
+              </div>
+              <div className="bg-gray-100 dark:bg-gray-600 text-center py-1 rounded">
+                5%
+              </div>
+              <input
+                className="bg-gray-100 dark:bg-gray-600 text-center py-1 rounded"
+                type="number"
+                placeholder="2.5%"
+              />
+            </div>
+          </div>
+        </label>
+      </label>
     </div>
   );
 };
