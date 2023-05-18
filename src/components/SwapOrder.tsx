@@ -169,12 +169,16 @@ export default function SwapOrder() {
     if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
       return;
     }
+   // Get current date
     const currentDate = new Date();
-    // Get current timestamp in milliseconds
-    const createTimestamp = currentDate.getTime();
 
-    const expireTime = createTimestamp + 24 * 3600*1000
-    
+    // Get current timestamp in milliseconds
+    const currentTimestamp = currentDate.getTime();
+
+    // Calculate the timestamp for 24 hours from now
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
+
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
@@ -188,13 +192,13 @@ export default function SwapOrder() {
 
       makerReceivingAddress: sourceWallet.address,
       desiredTaker: '',
-      createTimestamp: Long.fromNumber(createTimestamp),
+      createTimestamp: Long.fromNumber(currentTimestamp),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimestamp: timeoutTimeStamp,
-      expirationTimestamp: Long.fromInt(expireTime),
+      expirationTimestamp: Long.fromInt(expirationTimestamp),
     };
 
     const msg = {
@@ -241,7 +245,7 @@ export default function SwapOrder() {
     const makeOrderMsg: TakeSwapMsg = {
       orderId: order.id,
       /** the tokens to be sell */
-      sellToken: order.maker.sell_token,
+      sellToken: order.maker.buy_token,
       /** the sender address */
       takerAddress: order.maker.maker_address,
       /** the sender's address on the destination chain */
@@ -294,12 +298,15 @@ export default function SwapOrder() {
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
-    
+    const currentDate = new Date();
+    // Get current timestamp in milliseconds
+    const createTimestamp = currentDate.getTime();
+
     const cancelOrderMsg: CancelSwapMsg = {
       orderId: order.id,
       /** the sender address */
       makerAddress: order.maker.maker_address,
-      createTimestamp: Long.fromInt(Date.now()*1000),
+      createTimestamp: Long.fromInt(createTimestamp),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
