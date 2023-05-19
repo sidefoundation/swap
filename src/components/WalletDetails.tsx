@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Wallet } from '@/store/wallet';
 import { Coin } from '@cosmjs/stargate';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import { AppConfig } from '@/utils/AppConfig';
 
 interface WalletDetailsProps {
   wallets: Wallet[];
@@ -47,7 +48,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
             <tr>
               <th>Asset / Chain</th>
               <th>Balance</th>
-              <th>Actions</th>
+              {/* <th>Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -55,13 +56,19 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
               <tr className="" key={index}>
                 {balance.balances.map((coin, key) => {
                   return (
-                    <td
-                      key={key}
-                      className="capitalize dark:text-white font-semibold"
-                    >
-                      {coin.denom.includes('pool')
-                        ? coin.denom.slice(0, 10) + '...'
-                        : coin.denom}
+                    <td key={key} className="capitalize dark:text-white ">
+                      <div className="font-semibold">
+                        {coin.denom.includes('pool')
+                          ? coin.denom.slice(0, 10) + '...'
+                          : coin.denom}
+                      </div>
+                      <div className="text-sm">
+                        {
+                          AppConfig.chains.find((item) => {
+                            return item.denom === coin.denom;
+                          })?.chainID
+                        }
+                      </div>
                     </td>
                   );
                 })}
@@ -76,14 +83,14 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
                   );
                 })}
 
-                <td>
+                {/* <td>
                   <label className="link link-primary no-underline mr-4">
                     Deposit
                   </label>
                   <label className="link link-primary no-underline">
                     Withdraw
                   </label>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
