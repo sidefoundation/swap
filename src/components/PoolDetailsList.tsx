@@ -196,6 +196,8 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <tr>
                 <th>Pair / Chain</th>
                 <th>Liquidity</th>
+                <th>Pool Price</th>
+                <th>Amount</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>

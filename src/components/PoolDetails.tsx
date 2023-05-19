@@ -485,6 +485,10 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
         </div>
       </td>
       <td>
+        {pool.pool_price}
+      </td>
+      <td>{pool.supply.amount}</td>
+      <td>
         {pool.status === 'POOL_STATUS_READY' && (
           <div className="text-green-500">POOL_STATUS_READY</div>
         )}
