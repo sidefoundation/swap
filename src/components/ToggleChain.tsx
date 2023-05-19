@@ -23,7 +23,7 @@ export function ToggleChain() {
             {selectedChain?.name}
             <MdKeyboardArrowDown className="fill-current" />
           </a>
-          {/* <ul className="p-2 bg-base-100">
+          <ul className="p-2 bg-base-100">
             {AppConfig?.chains?.map((item, index) => {
               return (
                 <li key={index}>
@@ -31,7 +31,7 @@ export function ToggleChain() {
                 </li>
               );
             })}
-          </ul> */}
+          </ul>
         </li>
       </ul>
     </div>
