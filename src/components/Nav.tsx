@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
 import { useEffect, useState } from 'react';
-
 import ThemeToggle from '@/components/ThemeToggle';
 import type { Wallet } from '@/store/wallet';
+
 import useWalletStore from '@/store/wallet';
 
 function Nav() {
   const { isConnected, wallets, connectWallet, disconnect, charge } =
     useWalletStore();
-  console.log(wallets, 'wallets');
   const [connected, setConnected] = useState(false);
   const [signers, setSigners] = useState<Wallet[]>([]);
 
@@ -22,9 +22,19 @@ function Nav() {
     setSigners(wallets);
   }, [wallets]);
 
+  // TODO: add icon to show success or error
+  const copyAddress = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+    } catch (err) {
+      //
+    }
+  };
+  console.log(wallets, 'setSigners')
   return (
     <div className="bg-base-100 shadow">
       <div className="navbar container mx-auto">
+        {/* navbar-start */}
         <div className="navbar-start">
           <div className="dropdown">
             <label tabIndex={0} className="btn-ghost btn lg:hidden">
@@ -71,6 +81,7 @@ function Nav() {
             </h1>
           </Link>
         </div>
+        {/* center */}
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li>
@@ -81,11 +92,6 @@ function Nav() {
             <li>
               <Link href="/pool" className="btn btn-ghost">
                 Pool
-              </Link>
-            </li>
-            <li>
-              <Link href="/stake" className="btn btn-ghost">
-                Stake
               </Link>
             </li>
             {connected ? (
@@ -100,6 +106,8 @@ function Nav() {
         <div className="navbar-end">
           <div className="flex items-center">
             <ThemeToggle />
+              <ToggleChain />
+            
             {connected && (
               <button
                 className="mr-2 truncate btn-primary btn"
@@ -114,7 +122,7 @@ function Nav() {
                 Connect Wallet
               </button>
             ) : (
-              <div className="dropdown dropdown-end dropdown-hover">
+              <div className="dropdown dropdown-end ml-2">
                 <label tabIndex={0} className="text-3xl">
                   <MdPerson />
                 </label>
@@ -124,12 +132,16 @@ function Nav() {
                 >
                   {wallets.map((item, index) => {
                     return (
-                      <div key={index} className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">
+                      <div
+                        key={index}
+                        className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold block py-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        onClick={() => copyAddress(item.address)}
+                      >
                         {item.address}
                       </div>
                     );
                   })}
-                  <div className="divider"></div>
+                  <div className="divider my-1"></div>
                   <button
                     className="btn btn-primary truncate"
                     onClick={disconnect}

@@ -1,4 +1,8 @@
-import { CancelSwapMsg, MakeSwapMsg, TakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
+import {
+  CancelSwapMsg,
+  MakeSwapMsg,
+  TakeSwapMsg,
+} from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
@@ -32,38 +36,50 @@ const TabItem = ({
 };
 
 export type OrderCardProps = {
-  order:IAtomicSwapOrder
-  tab:string
-  onTake:(order:IAtomicSwapOrder)=>void
-  onCancel:(order:IAtomicSwapOrder)=>void
-}
+  order: IAtomicSwapOrder;
+  tab: string;
+  onTake: (order: IAtomicSwapOrder) => void;
+  onCancel: (order: IAtomicSwapOrder) => void;
+  wallets: any;
+};
 
-function OrderCard({order,tab, onTake,onCancel}:OrderCardProps) {
+function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
   return (
     <div className="p-5 mb-4 rounded-lg bg-base-200">
       <div className="flex items-center justify-between">
         <div className="px-4 text-sm capitalize border rounded-full border-primary">
           {tab}
         </div>
-        <div className="text-sm">{order.id.slice(0,10)}...{order.id.slice(-10)}</div>
-
+        <div className="text-sm">
+          {order.id.slice(0, 10)}...{order.id.slice(-10)}
+        </div>
       </div>
       <div className="mt-4 mb-2">
         <div className="text-base font-semibold">
-          ATOM (Cosmos Hub) / SIDE (Side Hub)
+          {order.maker.sell_token.denom}/{order.maker.buy_token.denom}
         </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>You will pay</div>
-        <div>{order.maker.buy_token.amount} {order.maker.buy_token.denom}</div>
+        <div>
+          {order.maker.sell_token.amount} {order.maker.sell_token.denom}
+        </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>To receive</div>
-        <div>{order.maker.sell_token.amount} {order.maker.sell_token.denom}</div>
+        <div>
+          {order.maker.buy_token.amount} {order.maker.buy_token.denom}
+        </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
-        <div>SIDE per ATOM</div>
-        <div>10.2123</div>
+        <div>
+          {order.maker.sell_token.denom} per {order.maker.buy_token.denom}
+        </div>
+        <div>
+          {(
+            order.maker.sell_token.amount/ order.maker.buy_token.amount
+          ).toFixed(6)}
+        </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>Sender(Maker)</div>
@@ -75,12 +91,28 @@ function OrderCard({order,tab, onTake,onCancel}:OrderCardProps) {
       </div>
       <div className="flex items-center justify-between text-sm">
         <div>Expires in</div>
-        <div>{timestampToDate(+order.maker.expiration_timestamp)}</div>
+        <div>
+          {timestampToDate(
+            +(
+              Number(order.maker.expiration_timestamp) +
+              Number(order.maker.create_timestamp)
+            )
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-4 text-sm">
-        <button className='btn btn-primary' onClick={()=>onTake(order)}>Take</button>
-        <button className='btn btn-primary' onClick={()=>onCancel(order)}>Cancel</button>
+        {(order.maker.desired_taker === wallets[0].address ||
+          !order.maker.desired_taker) && (
+          <button className="btn btn-primary" onClick={() => onTake(order)}>
+            Take
+          </button>
+        )}
+        {order.maker.maker_address === wallets[0].address && (
+          <button className="btn btn-primary" onClick={() => onCancel(order)}>
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );
@@ -100,8 +132,7 @@ export default function SwapOrder() {
 
   const [sender, setSender] = useState(wallets[0]?.chainInfo.chainID);
   const [tokenPair, setTokenPair] = useState<Map<number, Coin>>(new Map());
-  const [orders, setOrders] = useState<IAtomicSwapOrder[]>([])
-  
+  const [orders, setOrders] = useState<IAtomicSwapOrder[]>([]);
 
   const fetchBalances = async () => {
     const balance = await getBalance();
@@ -109,9 +140,9 @@ export default function SwapOrder() {
     setBalances(balance);
   };
 
-  const fetchOrders = async (rpcUrl:string) => {
-    const orders = await fetchAtomicSwapOrders(rpcUrl)
-    setOrders(orders)
+  const fetchOrders = async (rpcUrl: string) => {
+    const orders = await fetchAtomicSwapOrders(rpcUrl);
+    setOrders(orders);
   };
 
   useEffect(() => {
@@ -169,7 +200,7 @@ export default function SwapOrder() {
     if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
       return;
     }
-   // Get current date
+    // Get current date
     const currentDate = new Date();
 
     // Get current timestamp in milliseconds
@@ -228,20 +259,25 @@ export default function SwapOrder() {
     }
   };
 
-  const onTakeOrder = async (order:IAtomicSwapOrder) => {
-
-    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.maker.buy_token.denom)))?.id
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === chainID)
-    if(wallet === undefined) {
-      alert("You don't have wallet about this token")
-      return 
+  const onTakeOrder = async (order: IAtomicSwapOrder) => {
+    const chainID = balances.find((bal) =>
+      bal.balances
+        .map((item) => item.denom)
+        .includes(order.maker.buy_token.denom)
+    )?.id;
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === chainID
+    );
+    if (wallet === undefined) {
+      alert("You don't have wallet about this token");
+      return;
     }
-    
+
     const client = await getClient(wallet.chainInfo);
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
-    
+
     const makeOrderMsg: TakeSwapMsg = {
       orderId: order.id,
       /** the tokens to be sell */
@@ -250,12 +286,12 @@ export default function SwapOrder() {
       takerAddress: order.maker.maker_address,
       /** the sender's address on the destination chain */
       takerReceivingAddress: order.maker.maker_receiving_address,
-      createTimestamp: Long.fromInt(Date.now()*1000),
+      createTimestamp: Long.fromInt(Date.now() * 1000),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
-      timeoutTimestamp: timeoutTimeStamp
+      timeoutTimestamp: timeoutTimeStamp,
     };
 
     const msg = {
@@ -285,15 +321,20 @@ export default function SwapOrder() {
     }
   };
 
-  const onCancelOrder = async (order:IAtomicSwapOrder) => {
-
-    const chainID = (balances.find((bal)=>bal.balances.map((item)=>item.denom).includes(order.maker.sell_token.denom)))?.id
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === chainID)
-    if(wallet === undefined) {
-      alert("You don't have wallet about this token")
-      return 
+  const onCancelOrder = async (order: IAtomicSwapOrder) => {
+    const chainID = balances.find((bal) =>
+      bal.balances
+        .map((item) => item.denom)
+        .includes(order.maker.sell_token.denom)
+    )?.id;
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === chainID
+    );
+    if (wallet === undefined) {
+      alert("You don't have wallet about this token");
+      return;
     }
-    
+
     const client = await getClient(wallet.chainInfo);
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
@@ -311,7 +352,7 @@ export default function SwapOrder() {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
-      timeoutTimestamp: timeoutTimeStamp
+      timeoutTimestamp: timeoutTimeStamp,
     };
 
     const msg = {
@@ -349,7 +390,7 @@ export default function SwapOrder() {
     <div>
       {!openOrder && (
         <div>
-          <div className="tabs">
+          <div className="tabs hidden">
             <TabItem tab={tab} setTab={setTab} title="All" value="all" />
             <TabItem
               tab={tab}
@@ -388,7 +429,14 @@ export default function SwapOrder() {
 
           <div className="">
             {orders.map((order, index) => (
-              <OrderCard order={order} key={index} tab={tab} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
+              <OrderCard
+                order={order}
+                key={index}
+                tab={order.status}
+                onTake={(order) => onTakeOrder(order)}
+                onCancel={(order) => onCancelOrder(order)}
+                wallets={wallets}
+              ></OrderCard>
             ))}
           </div>
         </div>

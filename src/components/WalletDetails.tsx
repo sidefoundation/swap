@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { Wallet } from '@/store/wallet';
 import { Coin } from '@cosmjs/stargate';
 import { useGetBalances } from '@/http/query/useGetBalances';
-
+import { AppConfig } from '@/utils/AppConfig';
+import useWalletStore from '@/store/wallet';
 interface WalletDetailsProps {
   wallets: Wallet[];
 }
 
 const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
+  const { selectedChain } = useWalletStore();
+
   const onSuccess = (
     data: {
       address: string;
@@ -20,7 +23,9 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
   };
   const { refetch } = useGetBalances({
     wallets: wallets.map((wallet) => {
-      return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
+      // if(wallet.chainInfo.chainID === selectedChain.chainID ) {
+        return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
+      // }
     }),
     onSuccess: onSuccess,
   });
@@ -35,6 +40,8 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
     refetch();
   }, []);
 
+  console.log(balances, 'balancesbalancesbalancesbalances');
+
   return (
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">
@@ -47,45 +54,39 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
             <tr>
               <th>Asset / Chain</th>
               <th>Balance</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {balances.map((balance, index) => (
-              <tr className="" key={index}>
-                {balance.balances.map((coin, key) => {
-                  return (
-                    <td
-                      key={key}
-                      className="capitalize dark:text-white font-semibold"
-                    >
-                      {coin.denom.includes('pool')
-                        ? coin.denom.slice(0, 10) + '...'
-                        : coin.denom}
-                    </td>
-                  );
-                })}
-                {balance.balances.map((coin, key) => {
-                  return (
-                    <td
-                      key={key}
-                      className="text-base font-semibold dark:text-white"
-                    >
-                      {coin.amount}
-                    </td>
-                  );
-                })}
-
-                <td>
-                  <label className="link link-primary no-underline mr-4">
-                    Deposit
-                  </label>
-                  <label className="link link-primary no-underline">
-                    Withdraw
-                  </label>
-                </td>
-              </tr>
-            ))}
+            {balances.map((balance, index) => {
+              const currentAssetChain = AppConfig.chains.find((item) => {
+                return item.denom === balance.balances?.[0]?.denom;
+              })?.chainID
+              if (currentAssetChain === selectedChain.chainID){
+                console.log(3)
+                return  <tr key={index}>
+                 <td className="">
+                   <div className="font-semibold capitalize dark:text-white ">
+                     {balance.balances?.[0]?.denom}
+                   </div>
+                   <div className="text-sm">
+                     {
+                       AppConfig.chains.find((item) => {
+                         return item.denom === balance.balances?.[0]?.denom;
+                       })?.name
+                     }
+                   </div>
+                 </td>
+                 <td className="capitalize dark:text-white ">
+                   <div className="font-semibold">
+                     {balance.balances?.[0]?.amount}
+                   </div>
+                 </td>
+               </tr>
+              } else {
+                return null
+              }
+             
+            })}
           </tbody>
         </table>
         {balances.length === 0 ? (

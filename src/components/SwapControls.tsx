@@ -32,15 +32,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 }) => {
   const [tab, setTab] = useState('swap');
 
-  const switchSwap = () => {
-    const oldFirst = JSON.parse(JSON.stringify(swapPair.first));
-    const oldSecond = JSON.parse(JSON.stringify(swapPair.second));
-    setSwapPair({
-      first: oldSecond,
-      second: oldFirst,
-    });
-  };
-  
+  const switchSwap = () => {};
 
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
@@ -87,7 +79,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               />
             </div>
 
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
+            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
               <div className="flex-1">Side Hub</div>
               <div>~$9999</div>
             </div>
@@ -98,7 +90,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               src="/assets/images/switch.png"
               width="20"
               height="20"
-              className="bg-white rounded-full shadow cursor-pointer w-14 h-14 "
+              className="bg-white rounded-full shadow w-14 h-14 "
               onClick={() => switchSwap()}
             />
           </div>
@@ -131,7 +123,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               />
             </div>
 
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
+            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
               <div className="flex-1">Side Hub</div>
               <div>~$9999</div>
             </div>
@@ -165,11 +157,11 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <div className="p-5 mt-4 rounded-lg bg-base-200">
                 <div className="flex items-center justify-between mb-2 text-sm">
                   <div>Sell ATOM at rate</div>
-                  <div className="font-semibold">Set to maket</div>
+                  <div className="font-semibold hidden">Set to maket</div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-2xl font-semibold">10.000</div>
-                  <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                  <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
                     <Image
                       alt="logo"
                       src="/assets/images/Side.png"

@@ -44,7 +44,7 @@ export default function Stake() {
           />
         </div>
 
-        <div className="flex items-center text-gray-500 dark:text-gray-400">
+        <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
           <div className="flex-1">Side Hub</div>
           <div>~$9999</div>
         </div>
@@ -88,7 +88,7 @@ export default function Stake() {
           />
         </div>
 
-        <div className="flex items-center text-gray-500 dark:text-gray-400">
+        <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
           <div className="flex-1">Side Hub</div>
           <div>~$9999</div>
         </div>

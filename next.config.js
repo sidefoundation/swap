@@ -4,6 +4,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 module.exports = withBundleAnalyzer({
+  images: {
+    unoptimized: true,
+  },
   eslint: {
     dirs: ['.'],
   },
