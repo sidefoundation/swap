@@ -40,9 +40,10 @@ export type OrderCardProps = {
   tab: string;
   onTake: (order: IAtomicSwapOrder) => void;
   onCancel: (order: IAtomicSwapOrder) => void;
+  wallets: any;
 };
 
-function OrderCard({ order, tab, onTake, onCancel }: OrderCardProps) {
+function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
   return (
     <div className="p-5 mb-4 rounded-lg bg-base-200">
       <div className="flex items-center justify-between">
@@ -55,24 +56,30 @@ function OrderCard({ order, tab, onTake, onCancel }: OrderCardProps) {
       </div>
       <div className="mt-4 mb-2">
         <div className="text-base font-semibold">
-          ATOM (Cosmos Hub) / SIDE (Side Hub)
+          {order.maker.sell_token.denom}/{order.maker.buy_token.denom}
         </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>You will pay</div>
         <div>
-          {order.maker.buy_token.amount} {order.maker.buy_token.denom}
+          {order.maker.sell_token.amount} {order.maker.sell_token.denom}
         </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>To receive</div>
         <div>
-          {order.maker.sell_token.amount} {order.maker.sell_token.denom}
+          {order.maker.buy_token.amount} {order.maker.buy_token.denom}
         </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
-        <div>SIDE per ATOM</div>
-        <div>10.2123</div>
+        <div>
+          {order.maker.sell_token.denom} per {order.maker.buy_token.denom}
+        </div>
+        <div>
+          {(
+            order.maker.sell_token.amount/ order.maker.buy_token.amount
+          ).toFixed(6)}
+        </div>
       </div>
       <div className="flex items-center justify-between mb-1 text-sm">
         <div>Sender(Maker)</div>
@@ -84,16 +91,28 @@ function OrderCard({ order, tab, onTake, onCancel }: OrderCardProps) {
       </div>
       <div className="flex items-center justify-between text-sm">
         <div>Expires in</div>
-        <div>{timestampToDate(+order.maker.expiration_timestamp)}</div>
+        <div>
+          {timestampToDate(
+            +(
+              Number(order.maker.expiration_timestamp) +
+              Number(order.maker.create_timestamp)
+            )
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-4 text-sm">
-        <button className="btn btn-primary" onClick={() => onTake(order)}>
-          Take
-        </button>
-        <button className="btn btn-primary" onClick={() => onCancel(order)}>
-          Cancel
-        </button>
+        {(order.maker.desired_taker === wallets[0].address ||
+          !order.maker.desired_taker) && (
+          <button className="btn btn-primary" onClick={() => onTake(order)}>
+            Take
+          </button>
+        )}
+        {order.maker.maker_address === wallets[0].address && (
+          <button className="btn btn-primary" onClick={() => onCancel(order)}>
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );
@@ -410,7 +429,14 @@ export default function SwapOrder() {
 
           <div className="">
             {orders.map((order, index) => (
-              <OrderCard order={order} key={index} tab={order.status} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
+              <OrderCard
+                order={order}
+                key={index}
+                tab={order.status}
+                onTake={(order) => onTakeOrder(order)}
+                onCancel={(order) => onCancelOrder(order)}
+                wallets={wallets}
+              ></OrderCard>
             ))}
           </div>
         </div>
