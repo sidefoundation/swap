@@ -69,7 +69,7 @@ type WalletPersist = (
   config: StateCreator<WalletState>,
   options: PersistOptions<WalletState>
 ) => StateCreator<WalletState>;
-console.log(AppConfig.chains, 'AppConfig.chains')
+console.log(AppConfig.chains, 'AppConfig.chains');
 const useWalletStore = create<WalletState>(
   (persist as WalletPersist)(
     (set, get) => ({
@@ -91,6 +91,10 @@ const useWalletStore = create<WalletState>(
         }
         const chainInfo = getSideChainInfo(chain);
         await keplr.experimentalSuggestChain(chainInfo);
+        set((state) => ({
+          ...state,
+          selectedChain: chain,
+        }));
       },
       connectWallet: async () => {
         const { setLoading, suggestChain } = get();
