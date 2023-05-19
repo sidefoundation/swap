@@ -20,6 +20,7 @@ import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
   MdAddToQueue,
+  MdOutlineClose,
 } from 'react-icons/md';
 
 interface PoolDetailsListProps {
@@ -239,21 +240,46 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       <input type="checkbox" id="modal-pool-create" className="modal-toggle" />
       <label className="modal cursor-pointer" htmlFor="modal-pool-create">
         <label className="modal-box relative" htmlFor="">
-          <div className="grid items-center justify-center h-full gap-4">
-            <CoinInput
-              coin={swapPair.first}
-              placeholder="Amount ..."
-              onChange={(value) => handleCoinUpdate('first', value)}
-            />
-            <CoinInput
-              coin={swapPair.second}
-              placeholder="Amount ..."
-              onChange={(value) => handleCoinUpdate('second', value)}
-            />
+          <div className="">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-lg font-bold">Create New Pool</div>
+              <label htmlFor="modal-pool-create" className="cursor-pointer">
+                <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
+              </label>
+            </div>
+            <div className="bg-base-200 flex items-center px-4 rounded mb-3 py-1">
+              <div className="capitalize font-semibold text-base">
+                {swapPair.first?.denom}
+              </div>
+              <CoinInput
+                coin={swapPair.first}
+                placeholder="Amount ..."
+                onChange={(value) => handleCoinUpdate('first', value)}
+              />
+            </div>
+            <div className="bg-base-200 flex items-center px-4 rounded py-1">
+              <div className="capitalize font-semibold text-base">
+                {swapPair.second?.denom}
+              </div>
+              <CoinInput
+                coin={swapPair.second}
+                placeholder="Amount ..."
+                onChange={(value) => handleCoinUpdate('second', value)}
+              />
+            </div>
 
-            <button className="btn" onClick={onCreatePool}>
-              Create Pool
-            </button>
+            <div className="mt-6">
+              <button
+                disabled={
+                  !Number(swapPair.second?.amount || 0) ||
+                  !Number(swapPair.first?.amount || 0)
+                }
+                className="btn btn-primary w-full"
+                onClick={onCreatePool}
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </label>
       </label>
