@@ -465,6 +465,9 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
               <div className="capitalize">
                 {pool?.assets?.[1]?.balance.denom}
               </div>
+              <div className="ml-4 text-xs">
+                {pool?.assets?.[0]?.weight}:{pool?.assets?.[1]?.weight}
+              </div>
             </div>
             <div className="text-sm opacity-50 truncate w-[200px]">
               {pool.poolId}
@@ -484,9 +487,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
           })}
         </div>
       </td>
-      <td>
-        {pool.pool_price}
-      </td>
+      <td>{pool.pool_price}</td>
       <td>{pool.supply.amount}</td>
       <td>
         {pool.status === 'POOL_STATUS_READY' && (
@@ -647,28 +648,28 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                   tabDeposit === 'single' && (
                     <div className="flex w-full flex-col gap-1 rounded-2xl border border-osmoverse-700 p-4 md:rounded-xl md:p-3 mb-4">
                       <div className="flex w-full place-content-between items-center">
-                          {pool.assets.map((item, index) => {
-                            return (
-                                <div className="flex w-full place-content-between items-center">
-                                  <div className="flex gap-2 my-auto">
-                                    <div
-                                      className="radial-progress bg-primary text-primary-content border-4 border-primary"
-                                      style={{ '--value': item.weight }}
-                                    >
-                                      {item.weight}%
-                                    </div>
-                                    <div className="flex flex-col place-content-center text-left">
-                                      <h5 className="capitalize">
-                                        {item?.balance?.denom}
-                                      </h5>
-                                      <span className="subtitle2 text-osmoverse-400">
-                                        name
-                                      </span>
-                                    </div>
-                                  </div>
+                        {pool.assets.map((item, index) => {
+                          return (
+                            <div className="flex w-full place-content-between items-center">
+                              <div className="flex gap-2 my-auto">
+                                <div
+                                  className="radial-progress bg-primary text-primary-content border-4 border-primary"
+                                  style={{ '--value': item.weight }}
+                                >
+                                  {item.weight}%
                                 </div>
-                            );
-                          })}
+                                <div className="flex flex-col place-content-center text-left">
+                                  <h5 className="capitalize">
+                                    {item?.balance?.denom}
+                                  </h5>
+                                  <span className="subtitle2 text-osmoverse-400">
+                                    name
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-end gap-2 text-caption font-caption">
                             <span className="my-auto">Available</span>
