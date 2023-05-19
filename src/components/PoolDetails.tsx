@@ -15,6 +15,7 @@ import {
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import { TextEncoder } from 'text-encoding';
 import { MarketMaker } from '@/utils/swap';
+import { MdOutlineClose } from 'react-icons/md';
 
 import Image from 'next/image';
 
@@ -22,32 +23,7 @@ export type PoolDetailsProps = {
   pool: ILiquidityPool;
   onEnablePool: (pool: ILiquidityPool) => void;
 };
-const TabItem = ({
-  tab,
-  setTab,
-  title,
-  value,
-}: {
-  tab: string;
-  setTab: Function;
-  title: string;
-  value: string;
-}) => {
-  return (
-    <div
-      className={`tab tab-sm px-4  ${
-        tab === value
-          ? 'bg-primary text-white rounded-full'
-          : 'dark:text-gray-400'
-      }`}
-      onClick={() => {
-        setTab(value);
-      }}
-    >
-      {title}
-    </div>
-  );
-};
+
 const TabDepositItem = ({
   tabDeposit,
   setDepositTab,
@@ -549,27 +525,15 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
         <label className="modal cursor-pointer" htmlFor="modal-pool-manage">
           <label className="modal-box relative max-w-modal w-full" htmlFor="">
             <div className="w-full max-w-modal overflow-auto">
-              {/* tabs */}
-              <div className="mb-4 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
-                <TabItem
-                  tab={tab}
-                  setTab={setTab}
-                  title="Deposit"
-                  value="deposit"
-                />
-                <TabItem
-                  tab={tab}
-                  setTab={setTab}
-                  title="Withdraw"
-                  value="withdraw"
-                />
-              </div>
               {/* deposit */}
               <div className="">
-                <h2 className="mx-auto text-center font-medium  text-xl">
-                  Add liquidity to pool
-                  <p className="truncate"> {pool.poolId}</p>
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-bold  text-lg">Add liquidity</h2>
+                  <label className="cursor-pointer" htmlFor="modal-pool-manage">
+                    <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
+                  </label>
+                </div>
+                <div className=""> {pool.poolId}</div>
                 <div className="text-center mt-4">
                   <div className="mb-4 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
                     <TabDepositItem
