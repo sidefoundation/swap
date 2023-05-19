@@ -112,6 +112,7 @@ export default function SwapOrder() {
   const fetchOrders = async (rpcUrl:string) => {
     const orders = await fetchAtomicSwapOrders(rpcUrl)
     setOrders(orders)
+    console.log(orders, 'orders')
   };
 
   useEffect(() => {
@@ -349,7 +350,7 @@ export default function SwapOrder() {
     <div>
       {!openOrder && (
         <div>
-          <div className="tabs">
+          <div className="tabs hidden">
             <TabItem tab={tab} setTab={setTab} title="All" value="all" />
             <TabItem
               tab={tab}
@@ -388,7 +389,7 @@ export default function SwapOrder() {
 
           <div className="">
             {orders.map((order, index) => (
-              <OrderCard order={order} key={index} tab={tab} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
+              <OrderCard order={order} key={index} tab={order.status} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
             ))}
           </div>
         </div>
