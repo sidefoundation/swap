@@ -32,15 +32,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 }) => {
   const [tab, setTab] = useState('swap');
 
-  const switchSwap = () => {
-    const oldFirst = JSON.parse(JSON.stringify(swapPair.first));
-    const oldSecond = JSON.parse(JSON.stringify(swapPair.second));
-    setSwapPair({
-      first: oldSecond,
-      second: oldFirst,
-    });
-  };
-  
+  const switchSwap = () => {};
 
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
@@ -98,7 +90,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               src="/assets/images/switch.png"
               width="20"
               height="20"
-              className="bg-white rounded-full shadow cursor-pointer w-14 h-14 "
+              className="bg-white rounded-full shadow w-14 h-14 "
               onClick={() => switchSwap()}
             />
           </div>
