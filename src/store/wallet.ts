@@ -48,6 +48,7 @@ interface WalletState {
   loading: boolean;
   isConnected: boolean;
   wallets: Wallet[];
+  selectedChain: BriefChainInfo;
   setLoading: (isLoad: boolean) => void;
   connectWallet: () => Promise<void>;
   suggestChain: (chain: BriefChainInfo) => Promise<void>;
@@ -68,13 +69,14 @@ type WalletPersist = (
   config: StateCreator<WalletState>,
   options: PersistOptions<WalletState>
 ) => StateCreator<WalletState>;
-
+console.log(AppConfig.chains, 'AppConfig.chains')
 const useWalletStore = create<WalletState>(
   (persist as WalletPersist)(
     (set, get) => ({
       loading: false,
       isConnected: false,
       wallets: [],
+      selectedChain: {},
       setLoading: (isLoad: boolean) => {
         set((state) => ({
           ...state,

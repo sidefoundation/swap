@@ -486,11 +486,11 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
       </td>
       <td>
         {pool.status === 'POOL_STATUS_READY' && (
-          <div className="text-green-500">Active</div>
+          <div className="text-green-500">POOL_STATUS_READY</div>
         )}
         {pool.status === 'POOL_STATUS_INITIAL' && (
           <div className="flex items-center justify-between w-full">
-            <div className="text-red-500">Inactive</div>
+            <div className="text-red-500">POOL_STATUS_INITIAL</div>
             <button
               className="btn btn-primary"
               onClick={() => {
@@ -643,10 +643,8 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                   tabDeposit === 'single' && (
                     <div className="flex w-full flex-col gap-1 rounded-2xl border border-osmoverse-700 p-4 md:rounded-xl md:p-3 mb-4">
                       <div className="flex w-full place-content-between items-center">
-                        <select class="select w-full max-w-xs">
                           {pool.assets.map((item, index) => {
                             return (
-                              <option selected>
                                 <div className="flex w-full place-content-between items-center">
                                   <div className="flex gap-2 my-auto">
                                     <div
@@ -665,10 +663,8 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                     </div>
                                   </div>
                                 </div>
-                              </option>
                             );
                           })}
-                        </select>
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-end gap-2 text-caption font-caption">
                             <span className="my-auto">Available</span>

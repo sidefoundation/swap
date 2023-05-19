@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
 import { useEffect, useState } from 'react';
-
 import ThemeToggle from '@/components/ThemeToggle';
 import type { Wallet } from '@/store/wallet';
+
 import useWalletStore from '@/store/wallet';
 
 function Nav() {
@@ -29,9 +30,11 @@ function Nav() {
       //
     }
   };
+  console.log(wallets, 'setSigners')
   return (
     <div className="bg-base-100 shadow">
       <div className="navbar container mx-auto">
+        {/* navbar-start */}
         <div className="navbar-start">
           <div className="dropdown">
             <label tabIndex={0} className="btn-ghost btn lg:hidden">
@@ -78,6 +81,7 @@ function Nav() {
             </h1>
           </Link>
         </div>
+        {/* center */}
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li>
@@ -107,6 +111,8 @@ function Nav() {
         <div className="navbar-end">
           <div className="flex items-center">
             <ThemeToggle />
+              <ToggleChain />
+            
             {connected && (
               <button
                 className="mr-2 truncate btn-primary btn"
