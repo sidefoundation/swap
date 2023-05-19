@@ -95,6 +95,7 @@ const useWalletStore = create<WalletState>(
           ...state,
           selectedChain: chain,
         }));
+        
       },
       connectWallet: async () => {
         const { setLoading, suggestChain } = get();
