@@ -36,6 +36,8 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
     refetch();
   }, []);
 
+  console.log(balances);
+
   return (
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">
@@ -48,49 +50,28 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
             <tr>
               <th>Asset / Chain</th>
               <th>Balance</th>
-              {/* <th>Actions</th> */}
             </tr>
           </thead>
           <tbody>
             {balances.map((balance, index) => (
-              <tr className="" key={index}>
-                {balance.balances.map((coin, key) => {
-                  return (
-                    <td key={key} className="capitalize dark:text-white ">
-                      <div className="font-semibold">
-                        {coin.denom.includes('pool')
-                          ? coin.denom.slice(0, 10) + '...'
-                          : coin.denom}
-                      </div>
-                      <div className="text-sm">
-                        {
-                          AppConfig.chains.find((item) => {
-                            return item.denom === coin.denom;
-                          })?.chainID
-                        }
-                      </div>
-                    </td>
-                  );
-                })}
-                {balance.balances.map((coin, key) => {
-                  return (
-                    <td
-                      key={key}
-                      className="text-base font-semibold dark:text-white"
-                    >
-                      {coin.amount}
-                    </td>
-                  );
-                })}
-
-                {/* <td>
-                  <label className="link link-primary no-underline mr-4">
-                    Deposit
-                  </label>
-                  <label className="link link-primary no-underline">
-                    Withdraw
-                  </label>
-                </td> */}
+              <tr key={index}>
+                <td className="">
+                  <div className="font-semibold capitalize dark:text-white ">
+                    {balance.balances?.[0]?.denom}
+                  </div>
+                  <div className="text-sm">
+                    {
+                      AppConfig.chains.find((item) => {
+                        return item.denom === balance.balances?.[0]?.denom;
+                      })?.chainID
+                    }
+                  </div>
+                </td>
+                <td className="capitalize dark:text-white ">
+                  <div className="font-semibold">
+                    {balance.balances?.[0]?.amount}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

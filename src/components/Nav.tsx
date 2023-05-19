@@ -90,11 +90,6 @@ function Nav() {
                 Pool
               </Link>
             </li>
-            <li>
-              <Link href="/stake" className="btn btn-ghost">
-                Stake
-              </Link>
-            </li>
             {connected ? (
               <li>
                 <Link href="/assets" className="btn btn-ghost">
