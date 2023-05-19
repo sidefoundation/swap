@@ -371,6 +371,34 @@ export default function SwapOrder() {
     <div>
       {!openOrder && (
         <div>
+          <div className="tabs hidden">
+            <TabItem tab={tab} setTab={setTab} title="All" value="all" />
+            <TabItem
+              tab={tab}
+              setTab={setTab}
+              title="Inbound"
+              value="inbound"
+            />
+            <TabItem
+              tab={tab}
+              setTab={setTab}
+              title="Outbound"
+              value="outbound"
+            />
+            <TabItem
+              tab={tab}
+              setTab={setTab}
+              title="Completed"
+              value="completed"
+            />
+            <TabItem
+              tab={tab}
+              setTab={setTab}
+              title="Cancelled"
+              value="cancelled"
+            />
+          </div>
+
           <div className="flex items-center justify-center mt-4 mb-4">
             <div className="inline-flex items-center px-4 py-1 text-white rounded-full cursor-pointer bg-primary">
               <MdOutlineMenu className="mr-2 text-base" />
@@ -382,13 +410,7 @@ export default function SwapOrder() {
 
           <div className="">
             {orders.map((order, index) => (
-              <OrderCard
-                order={order}
-                key={index}
-                tab={tab}
-                onTake={(order) => onTakeOrder(order)}
-                onCancel={(order) => onCancelOrder(order)}
-              ></OrderCard>
+              <OrderCard order={order} key={index} tab={order.status} onTake={(order)=>onTakeOrder(order)} onCancel={(order)=>onCancelOrder(order)}></OrderCard>
             ))}
           </div>
         </div>
