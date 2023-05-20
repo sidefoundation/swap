@@ -258,6 +258,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <input
                 className="py-1 text-center bg-gray-100 rounded dark:bg-gray-600"
                 type="number"
+                min="0"
                 placeholder="2.5%"
               />
             </div>
