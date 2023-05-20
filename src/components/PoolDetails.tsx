@@ -621,10 +621,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                     />
                                   </div>
                                 </div>
-                                <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400">
-                                  {' '}
-                                  ~{' '}
-                                </span>
+                                {/* <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400"></span> */}
                               </div>
                             </div>
                           </div>
@@ -706,10 +703,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                   /> */}
                                 </div>
                               </div>
-                              <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400">
-                                {' '}
-                                ~{' '}
-                              </span>
+                              {/* <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400"></span> */}
                             </div>
                           </div>
                         </div>

@@ -11,6 +11,7 @@ export function TokenInput({placeholder,coin, onChange}:CoinInputProps) {
         step="5" 
         onChange={(event) => onChange(event.target.value)}
         value={coin.amount}
+        min="0"
       />
       <span className="absolute top-0 bottom-0 right-0 px-4 py-5 text-sm rounded-r-full bg-secondary text-base-100">
         {coin.denom}
