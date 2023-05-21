@@ -30,7 +30,6 @@ function Nav() {
       //
     }
   };
-  console.log(wallets, 'setSigners')
   return (
     <div className="bg-base-100 shadow">
       <div className="navbar container mx-auto">

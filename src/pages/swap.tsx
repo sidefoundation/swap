@@ -13,32 +13,63 @@ import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient } = useWalletStore();
+  const { wallets, setLoading, loading, getClient, selectedChain } =
+    useWalletStore();
 
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
-  const getPools = (pools: ILiquidityPool[]) => setPools(pools);
-  const { refetch } = useGetLiquidityPools({ onSuccess: getPools });
-
+  const getPools = (pools: ILiquidityPool[]) => {
+    setPools(pools)
+    console.log(pools, 'dfhjkfhjskhfjdskfhjsdhfjak')
+    setSwapPair((swapPair) => ({
+      ...swapPair,
+      first: {
+        denom:
+          pools[0]?.assets?.find((asset) => {
+            return asset.side === 'NATIVE';
+          })?.balance?.denom || '',
+        amount: swapPair.first.amount,
+      },
+      second: {
+        denom:
+          pools[0]?.assets?.find((asset) => {
+            return asset.side === 'REMOTE';
+          })?.balance?.denom ||'',
+        amount: swapPair.second.amount,
+      },
+    }));
+  };
+  const { refetch } = useGetLiquidityPools({
+    restUrl: selectedChain.restUrl,
+    onSuccess: getPools,
+  });
+  console.log(pools, 'pools');
   const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
-    first: { denom: 'aside', amount: '0' },
-    second: { denom: 'bside', amount: '0' },
+    first: {
+      denom: '',
+      amount: '0',
+    },
+    second: {
+      denom: '',
+      amount: '0',
+    },
   });
 
+  console.log(swapPair, 'swapPair');
   useEffect(() => {
     refetch();
-  }, [loading]);
+  }, [loading, selectedChain]);
 
   const updateFirstCoin = (value: string) => {
     const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
     const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: 'aside', amount: value };
+    const tokenIn: Coin = { denom: swapPair.first.denom, amount: value };
     const market = new MarketMaker(pool!, 300);
     const estimate = market.leftSwap(tokenIn, swapPair.second.denom);
 
     setSwapPair((swapPair) => ({
       ...swapPair,
-      first: { denom: 'aside', amount: value },
+      first: { denom: swapPair.first.denom, amount: value },
       second: estimate,
     }));
   };
@@ -46,14 +77,14 @@ const Swap = () => {
   const updateSecondCoin = (value: string) => {
     const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
     const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: 'bside', amount: value };
+    const tokenIn: Coin = { denom: swapPair.second.denom, amount: value };
     const market = new MarketMaker(pool!, 300);
     const estimate = market.leftSwap(tokenIn, swapPair.first.denom);
 
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: estimate,
-      second: { denom: 'bside', amount: value },
+      second: { denom: swapPair.second.denom, amount: value },
     }));
   };
 

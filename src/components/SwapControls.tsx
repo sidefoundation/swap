@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin, Coin } from '@cosmjs/stargate';
+import { Coin } from '@cosmjs/stargate';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -9,11 +10,12 @@ import {
 import Image from 'next/image';
 import SwapOrder from './SwapOrder';
 import TabItem from './TabItem';
+import { useGetBalances } from '@/http/query/useGetBalances';
 import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import { Height } from '@/codegen/ibc/core/client/v1/client';
 import Long from 'long';
-import { Coin } from '@/codegen/cosmos/base/v1beta1/coin';
+// import { Coin } from '@/codegen/cosmos/base/v1beta1/coin';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin };
@@ -30,9 +32,65 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   updateSecondCoin,
   onSwap,
 }) => {
-  const [tab, setTab] = useState('swap');
+  const {
+    selectedChain,
+    setBalance,
+    balanceList,
+    wallets,
+    isConnected,
+    connectWallet,
+  } = useWalletStore();
+  const [connected, setConnected] = useState(false);
+  console.log(swapPair, 'swapPairswapPair');
+  const onSuccess = (
+    data: {
+      address: string;
+      balances: Coin[];
+    }[]
+  ) => {
+    setBalance(data);
+  };
+  const { refetch } = useGetBalances({
+    wallets: wallets
+      .map((wallet) => {
+        if (wallet.chainInfo.chainID === selectedChain.chainID) {
+          return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
+        }
+      })
+      .filter((item) => item),
+    onSuccess: onSuccess,
+  });
+  useEffect(() => {
+    refetch();
+  }, []);
+  useEffect(() => {
+    setConnected(isConnected);
+  }, [isConnected]);
 
+  useEffect(() => {
+    if (isConnected) {
+      setBalance({ address: '', balances: [] });
+      refetch();
+    }
+    if (!isConnected) {
+      setBalance({ address: '', balances: [] });
+    }
+  }, [selectedChain, isConnected]);
+
+  const [tab, setTab] = useState('swap');
   const switchSwap = () => {};
+
+  console.log(balanceList, 'balanceListbalanceListbalanceListbalanceList');
+
+  const [] = useState();
+  const filterBalance = (denom: string) => {
+    const balances = balanceList[0]?.balances || [];
+    return (
+      balances.find((item) => {
+        return item.denom === denom;
+      })?.amount || 0
+    );
+  };
 
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
@@ -53,8 +111,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
               <div className="flex-1">Sell</div>
-              <div className="mr-2">Balance: 99999</div>
-              <div className="font-semibold">Max</div>
+              <div className="mr-2">
+                Balance: {filterBalance(swapPair.first?.denom)}
+              </div>
+              <div className="font-semibold cursor-pointer" onClick={() => {}}>
+                Max
+              </div>
             </div>
 
             <div className="flex items-center mb-2">
@@ -81,7 +143,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
               <div className="flex-1">Side Hub</div>
-              <div>~$9999</div>
+              <div></div>
             </div>
           </div>
           <div className="flex items-center justify-center -mt-5 -mb-5">
@@ -97,8 +159,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
               <div className="flex-1">Buy</div>
-              <div className="mr-2">Balance: 99999</div>
-              <div className="font-semibold">Max</div>
+              <div className="mr-2">
+                Balance: {filterBalance(swapPair.second?.denom)}
+              </div>
+              <div className="font-semibold cursor-pointer" onClick={() => {}}>
+                Max
+              </div>
             </div>
 
             <div className="flex items-center mb-2">
@@ -128,16 +194,32 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <div>~$9999</div>
             </div>
           </div>
-
-          {tab === 'swap' ? (
+          {tab === 'swap' && connected ? (
             <button
               className="w-full mt-6 text-lg capitalize btn btn-primary"
+              disabled={
+                parseFloat(swapPair.first.amount) >
+                  parseFloat(filterBalance(swapPair.first?.denom)) ||
+                !parseFloat(swapPair.first?.amount) ||
+                !parseFloat(swapPair.second?.amount)
+              }
               onClick={() => onSwap('->')}
             >
-              Swap
+              {parseFloat(swapPair.first.amount) >
+              parseFloat(filterBalance(swapPair.first?.denom))
+                ? 'Insufficient Balance'
+                : 'Swap'}
             </button>
           ) : null}
 
+          {!connected ? (
+            <button
+              className="w-full mt-6 text-lg capitalize btn btn-primary"
+              onClick={connectWallet}
+            >
+              Connect Wallet
+            </button>
+          ) : null}
           {/* <button
         className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
         onClick={() => onSwap('->')}
@@ -212,19 +294,24 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             </div>
             <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
               <div>You will receive</div>
-              <div>≈ 99.99 SIDE</div>
+              <div>
+                ≈ {swapPair.second?.amount} {swapPair.second?.denom}
+              </div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
-              <div>≈ 99.89 SIDE</div>
+              <div>
+                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99)}{' '}
+                {swapPair.second?.denom}
+              </div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Price impact</div>
-              <div>{`< 0.0002%`}</div>
+              <div>{`--`}</div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Swap fees</div>
-              <div>≈ $ 0.1739</div>
+              <div>≈ {`--`}</div>
             </div>
           </div>
         </div>

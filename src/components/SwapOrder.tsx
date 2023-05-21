@@ -13,6 +13,7 @@ import { IAtomicSwapOrder } from '@/shared/types/order';
 import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
 import { AppConfig } from '@/utils/AppConfig';
 import { timestampToDate } from '@/utils/utils';
+import toast from 'react-hot-toast';
 
 const TabItem = ({
   value,
@@ -77,7 +78,7 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
         </div>
         <div>
           {(
-            order.maker.sell_token.amount/ order.maker.buy_token.amount
+            order.maker.sell_token.amount / order.maker.buy_token.amount
           ).toFixed(6)}
         </div>
       </div>
@@ -102,13 +103,13 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
       </div>
 
       <div className="flex items-center justify-between mt-4 text-sm">
-        {(order.maker.desired_taker === wallets[0].address ||
+        {(order.maker?.desired_taker === wallets?.[0]?.address ||
           !order.maker.desired_taker) && (
           <button className="btn btn-primary" onClick={() => onTake(order)}>
             Take
           </button>
         )}
-        {order.maker.maker_address === wallets[0].address && (
+        {order.maker?.maker_address === wallets?.[0]?.address && (
           <button className="btn btn-primary" onClick={() => onCancel(order)}>
             Cancel
           </button>
@@ -269,7 +270,7 @@ export default function SwapOrder() {
       (wallet) => wallet.chainInfo.chainID === chainID
     );
     if (wallet === undefined) {
-      alert("You don't have wallet about this token");
+      toast.error("You don't have wallet about this token");
       return;
     }
 
@@ -312,6 +313,7 @@ export default function SwapOrder() {
       fee,
       'test'
     );
+
     console.log('Signed data', data);
     if (data !== undefined) {
       const txHash = await client!.broadCastTx(data);
@@ -331,7 +333,7 @@ export default function SwapOrder() {
       (wallet) => wallet.chainInfo.chainID === chainID
     );
     if (wallet === undefined) {
-      alert("You don't have wallet about this token");
+      toast.error("You don't have wallet about this token");
       return;
     }
 
