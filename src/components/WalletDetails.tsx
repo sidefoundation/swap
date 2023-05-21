@@ -53,8 +53,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">
         <div className="text-xl font-semibold flex-1">Wallet Assets</div>
-        <div>id:{selectedChain.chainID}----</div>
-        <div>name:{selectedChain.name}</div>
+        <div></div>
       </div>
       <div className="border dark:border-none rounded-lg">
         <table className="table w-full">

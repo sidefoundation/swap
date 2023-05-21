@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { BriefChainInfo } from '@/shared/types/chain';
 export function ToggleChain() {
   const { suggestChain, selectedChain } = useWalletStore();
-  console.log(selectedChain, 'selectedChain')
   useEffect(() => {
     if (AppConfig?.chains?.length > 0) {
       suggestChain(AppConfig?.chains?.[0] as BriefChainInfo);

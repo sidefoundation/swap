@@ -41,10 +41,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     connectWallet,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
-  useEffect(() => {
-    setConnected(isConnected);
-  }, [isConnected]);
-
+  console.log(swapPair, 'swapPairswapPair');
   const onSuccess = (
     data: {
       address: string;
@@ -66,6 +63,10 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   useEffect(() => {
     refetch();
   }, []);
+  useEffect(() => {
+    setConnected(isConnected);
+  }, [isConnected]);
+
   useEffect(() => {
     if (isConnected) {
       refetch();
@@ -194,7 +195,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               className="w-full mt-6 text-lg capitalize btn btn-primary"
               disabled={
                 parseFloat(swapPair.first.amount) >
-                parseFloat(filterBalance(swapPair.first?.denom))
+                  parseFloat(filterBalance(swapPair.first?.denom)) ||
+                !parseFloat(swapPair.first?.amount) ||
+                !parseFloat(swapPair.second?.amount)
               }
               onClick={() => onSwap('->')}
             >
@@ -287,19 +290,24 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             </div>
             <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
               <div>You will receive</div>
-              <div>≈ 99.99 SIDE</div>
+              <div>
+                ≈ {swapPair.second?.amount} {swapPair.second?.denom}
+              </div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
-              <div>≈ 99.89 SIDE</div>
+              <div>
+                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99)}{' '}
+                {swapPair.second?.denom}
+              </div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Price impact</div>
-              <div>{`< 0.0002%`}</div>
+              <div>{`--`}</div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Swap fees</div>
-              <div>≈ $ 0.1739</div>
+              <div>≈ {`--`}</div>
             </div>
           </div>
         </div>
