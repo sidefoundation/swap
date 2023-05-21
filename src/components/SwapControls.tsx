@@ -69,7 +69,11 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
   useEffect(() => {
     if (isConnected) {
+      setBalance({ address: '', balances: [] });
       refetch();
+    }
+    if (!isConnected) {
+      setBalance({ address: '', balances: [] });
     }
   }, [selectedChain, isConnected]);
 
