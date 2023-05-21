@@ -13,21 +13,26 @@ import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient } = useWalletStore();
+  const { wallets, setLoading, loading, getClient, selectedChain } =
+    useWalletStore();
 
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => setPools(pools);
-  const { refetch } = useGetLiquidityPools({ onSuccess: getPools });
+  const { refetch } = useGetLiquidityPools({
+    restUrl: selectedChain.restUrl,
+    onSuccess: getPools,
+  });
 
   const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
     first: { denom: 'aside', amount: '0' },
     second: { denom: 'bside', amount: '0' },
   });
-
+  
+  console.log(swapPair,'swapPair')
   useEffect(() => {
     refetch();
-  }, [loading]);
+  }, [loading, selectedChain]);
 
   const updateFirstCoin = (value: string) => {
     const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
