@@ -10,23 +10,24 @@ interface WalletDetailsProps {
 }
 
 const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
-  const { selectedChain } = useWalletStore();
-
+  const { selectedChain, setBalance } = useWalletStore();
   const onSuccess = (
     data: {
       address: string;
       balances: Coin[];
     }[]
   ) => {
-    console.log('data', data);
     setBalances(data);
+    setBalance(data);
   };
   const { refetch } = useGetBalances({
-    wallets: wallets.map((wallet) => {
-      // if(wallet.chainInfo.chainID === selectedChain.chainID ) {
-        return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
-      // }
-    }),
+    wallets: wallets
+      .map((wallet) => {
+        if (wallet.chainInfo.chainID === selectedChain.chainID) {
+          return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
+        }
+      })
+      .filter((item) => item),
     onSuccess: onSuccess,
   });
   const [balances, setBalances] = useState<
@@ -38,15 +39,22 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
 
   useEffect(() => {
     refetch();
+    // mounted
+    return () => {
+      // onUnmounted
+    };
   }, []);
 
-  console.log(balances, 'balancesbalancesbalancesbalances');
+  useEffect(() => {
+    refetch();
+  }, [selectedChain]);
 
   return (
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">
         <div className="text-xl font-semibold flex-1">Wallet Assets</div>
-        <div></div>
+        <div>id:{selectedChain.chainID}----</div>
+        <div>name:{selectedChain.name}</div>
       </div>
       <div className="border dark:border-none rounded-lg">
         <table className="table w-full">
@@ -60,32 +68,32 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
             {balances.map((balance, index) => {
               const currentAssetChain = AppConfig.chains.find((item) => {
                 return item.denom === balance.balances?.[0]?.denom;
-              })?.chainID
-              if (currentAssetChain === selectedChain.chainID){
-                console.log(3)
-                return  <tr key={index}>
-                 <td className="">
-                   <div className="font-semibold capitalize dark:text-white ">
-                     {balance.balances?.[0]?.denom}
-                   </div>
-                   <div className="text-sm">
-                     {
-                       AppConfig.chains.find((item) => {
-                         return item.denom === balance.balances?.[0]?.denom;
-                       })?.name
-                     }
-                   </div>
-                 </td>
-                 <td className="capitalize dark:text-white ">
-                   <div className="font-semibold">
-                     {balance.balances?.[0]?.amount}
-                   </div>
-                 </td>
-               </tr>
+              })?.chainID;
+              if (currentAssetChain === selectedChain.chainID) {
+                return (
+                  <tr key={index}>
+                    <td className="">
+                      <div className="font-semibold capitalize dark:text-white ">
+                        {balance.balances?.[0]?.denom}
+                      </div>
+                      <div className="text-sm">
+                        {
+                          AppConfig.chains.find((item) => {
+                            return item.denom === balance.balances?.[0]?.denom;
+                          })?.name
+                        }
+                      </div>
+                    </td>
+                    <td className="capitalize dark:text-white ">
+                      <div className="font-semibold">
+                        {balance.balances?.[0]?.amount}
+                      </div>
+                    </td>
+                  </tr>
+                );
               } else {
-                return null
+                return null;
               }
-             
             })}
           </tbody>
         </table>
