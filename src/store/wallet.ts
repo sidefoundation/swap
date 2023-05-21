@@ -44,10 +44,15 @@ export interface Wallet {
   address: string;
   chainInfo: BriefChainInfo;
 }
+export interface Balance {
+  id: string;
+  balances: Coin[];
+}
 interface WalletState {
   loading: boolean;
   isConnected: boolean;
   wallets: Wallet[];
+  balanceList: Balance[];
   selectedChain: BriefChainInfo;
   setLoading: (isLoad: boolean) => void;
   connectWallet: () => Promise<void>;
@@ -63,6 +68,7 @@ interface WalletState {
       balances: Coin[];
     }[]
   >;
+  setBalance: (balance: Balance[]) => void;
 }
 
 type WalletPersist = (
@@ -77,6 +83,7 @@ const useWalletStore = create<WalletState>(
       isConnected: false,
       wallets: [],
       selectedChain: {},
+      balanceList: [],
       setLoading: (isLoad: boolean) => {
         set((state) => ({
           ...state,
@@ -95,7 +102,6 @@ const useWalletStore = create<WalletState>(
           ...state,
           selectedChain: chain,
         }));
-        
       },
       connectWallet: async () => {
         const { setLoading, suggestChain } = get();
@@ -222,6 +228,12 @@ const useWalletStore = create<WalletState>(
         setLoading(false);
 
         return res.results.flat();
+      },
+      setBalance: (balances: Balance[]) => {
+        set((state) => ({
+          ...state,
+          balanceList: balances,
+        }));
       },
     }),
     { name: 'wallet-store', storage: createJSONStorage(() => sessionStorage) }
