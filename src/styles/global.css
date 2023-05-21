@@ -13,3 +13,10 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
+
+nextjs-portal {
+  display: none;
+}
+body {
+  overflow: auto !important;
+}

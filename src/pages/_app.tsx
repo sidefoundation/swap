@@ -4,7 +4,7 @@ import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-
+import { Toaster } from 'react-hot-toast';
 import Layout from '@/components/Layout';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
@@ -16,6 +16,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <Layout>
           <Component {...pageProps} />
         </Layout>
+        <Toaster />
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -3,6 +3,7 @@ import type { StateCreator } from 'zustand';
 import { create } from 'zustand';
 import type { PersistOptions } from 'zustand/middleware';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import toast from 'react-hot-toast';
 
 import type { BriefChainInfo } from '@/shared/types/chain';
 import { getSideChainInfo } from '@/shared/types/chain';
@@ -109,7 +110,7 @@ const useWalletStore = create<WalletState>(
 
         const { keplr } = window;
         if (!keplr) {
-          alert('You need to install Keplr');
+          toast.error('You need to install Keplr');
           throw new Error('You need to install Keplr');
         }
 
@@ -148,6 +149,7 @@ const useWalletStore = create<WalletState>(
             isConnected: true,
             wallets: newWallets,
           }));
+          toast.success('Success.');
         } else {
           console.log('Not all chains could be registered.');
         }
