@@ -105,8 +105,8 @@ function Nav() {
         <div className="navbar-end">
           <div className="flex items-center">
             <ThemeToggle />
-              <ToggleChain />
-            
+            <ToggleChain />
+
             {connected && (
               <button
                 className="mr-2 truncate btn-primary btn"
