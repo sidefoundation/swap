@@ -130,15 +130,11 @@ const useWalletStore = create<WalletState>(
           console.log('Connection Error', error);
         }
 
-        if (newWallets.length === AppConfig.chains.length) {
-          set((state) => ({
-            ...state,
-            isConnected: true,
-            wallets: newWallets,
-          }));
-        } else {
-          console.log('Not all chains could be registered.');
-        }
+        set((state) => ({
+          ...state,
+          isConnected: true,
+          wallets: newWallets,
+        }));
 
         setLoading(false);
       },
