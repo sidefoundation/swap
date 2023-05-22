@@ -231,6 +231,10 @@ const useWalletStore = create<WalletState>(
         return res.results.flat();
       },
       setBalance: (balances: Balance[]) => {
+        const {selectedChain} = get()
+        balances?.forEach((item)=>{
+          item.id = selectedChain.chainID
+        })
         set((state) => ({
           ...state,
           balanceList: balances,

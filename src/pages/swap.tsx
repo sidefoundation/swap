@@ -22,7 +22,6 @@ const Swap = () => {
 
   const getPools = (pools: ILiquidityPool[]) => {
     setPools(pools)
-    console.log(pools, 'dfhjkfhjskhfjdskfhjsdhfjak')
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: {
@@ -45,8 +44,7 @@ const Swap = () => {
     restUrl: selectedChain.restUrl,
     onSuccess: getPools,
   });
-  console.log(pools, 'pools');
-  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
+  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin, type:string }>({
     first: {
       denom: '',
       amount: '0',
@@ -55,9 +53,9 @@ const Swap = () => {
       denom: '',
       amount: '0',
     },
+    type: 'swap',
   });
 
-  console.log(swapPair, 'swapPair');
   useEffect(() => {
     refetch();
   }, [loading, selectedChain]);
@@ -133,7 +131,6 @@ const Swap = () => {
       console.log('Signed data', data);
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
-        console.log('TxHash:', txHash);
         const result = await fetchTxs(selectedChain.restUrl,txHash)
         if (result.code !== '0' ||result.raw_log){
           toast.error(result.raw_log);

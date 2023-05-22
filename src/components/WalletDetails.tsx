@@ -34,6 +34,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
     {
       address: string;
       balances: Coin[];
+      id?: string;
     }[]
   >([]);
 
