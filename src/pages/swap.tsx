@@ -1,7 +1,7 @@
 import useWalletStore from '@/store/wallet';
 import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import SwapControls from '@/components/SwapControls';
 import {

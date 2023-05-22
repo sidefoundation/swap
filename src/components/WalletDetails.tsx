@@ -39,10 +39,6 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
 
   useEffect(() => {
     refetch();
-    // mounted
-    return () => {
-      // onUnmounted
-    };
   }, []);
 
   useEffect(() => {
@@ -64,7 +60,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
             </tr>
           </thead>
           <tbody>
-            {balances.map((balance, index) => {
+            {balances?.map((balance, index) => {
               const currentAssetChain = AppConfig.chains.find((item) => {
                 return item.denom === balance.balances?.[0]?.denom;
               })?.chainID;
@@ -102,6 +98,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
           </div>
         ) : null}
       </div>
+      
     </div>
   );
 };

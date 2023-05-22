@@ -2,7 +2,7 @@ import useWalletStore from '@/store/wallet';
 import PoolDetailsList from '@/components/PoolDetailsList';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function Pool() {
   const { selectedChain } = useWalletStore();
