@@ -116,25 +116,42 @@ const useWalletStore = create<WalletState>(
 
         const newWallets: Wallet[] = [];
         const chain = selectedChain;
-        try {
-          await suggestChain(chain);
-          // Poll until the chain is approved and the signer is available
-          const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
-          const newCreator = (await offlineSigner.getAccounts())[0].address;
-          const newWallet: Wallet = {
-            address: newCreator,
-            chainInfo: chain,
-          };
-          newWallets.push(newWallet);
-        } catch (error) {
-          console.log('Connection Error', error);
+        for (const chain of AppConfig.chains) {
+          try {
+            await suggestChain(chain);
+            // Poll until the chain is approved and the signer is available
+            const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
+            //console.log("OfflineSigner", offlineSigner)
+            //const {aminoTypes, registry} = getSigningClientOptions();
+            // const newSigningClient = await SigningStargateClient.connectWithSigner(
+            //   chain.rpcUrl,
+            //   offlineSigner,
+            //   {
+            //     gasPrice: GasPrice.fromString(`0.01${chain.denom}`),
+            //     registry,
+            //     aminoTypes,
+            //   }
+            // );
+            const newCreator = (await offlineSigner.getAccounts())[0].address;
+            const newWallet: Wallet = {
+              address: newCreator,
+              chainInfo: chain,
+            };
+            newWallets.push(newWallet);
+          } catch (error) {
+            console.log('Connection Error', error);
+          }
         }
 
-        set((state) => ({
-          ...state,
-          isConnected: true,
-          wallets: newWallets,
-        }));
+        if (newWallets.length === AppConfig.chains.length) {
+          set((state) => ({
+            ...state,
+            isConnected: true,
+            wallets: newWallets,
+          }));
+        } else {
+          console.log('Not all chains could be registered.');
+        }
 
         setLoading(false);
       },
