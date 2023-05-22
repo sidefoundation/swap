@@ -15,7 +15,7 @@ import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient, selectedChain } =
+  const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =
     useWalletStore();
 
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
@@ -151,6 +151,7 @@ const Swap = () => {
             id: toastItem,
           });
           // TODO: refresh
+          getBalance();
         }
       } else {
         toast.error('there are problem in encoding');
