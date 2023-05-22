@@ -148,6 +148,7 @@ export default function SwapOrder() {
     fetchBalances();
     fetchOrders(AppConfig.chains[0]!.restUrl);
   }, []);
+  console.log(tokenPair, 'tokenPairtokenPairtokenPair')
   const onMakeOrder = async () => {
     if (tokenPair.size !== 2) {
       alert('Please input token pair value');

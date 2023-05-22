@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin } from '@cosmjs/stargate';
+import { Coin, StdFee } from '@cosmjs/stargate';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -15,6 +15,7 @@ import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import { Height } from '@/codegen/ibc/core/client/v1/client';
 import Long from 'long';
+import toast from 'react-hot-toast';
 // import { Coin } from '@/codegen/cosmos/base/v1beta1/coin';
 
 interface SwapControlsProps {
@@ -40,6 +41,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     isConnected,
     connectWallet,
     loading,
+    getClient
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('swap');
@@ -123,8 +125,30 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       setLimitRate(rate);
     }
   };
+
+  const onMakeOrder = async() => {
+    if (
+      parseFloat(swapPair.first.amount) <= 0 ||
+      parseFloat(swapPair.second.amount) <= 0
+    ) {
+      toast.error('Please input token pair value');
+      return;
+    }
+    const sourceWallet = wallets.find(
+      (wallet) => selectedChain.chainID === wallet.chainInfo.chainID
+    );
+    const targetWallet = wallets.find(
+      (wallet) => selectedChain.chainID !== wallet.chainInfo.chainID
+    );
+    if (sourceWallet === undefined || targetWallet === undefined) {
+      toast.error('sourceWallet or targetWallet not found');
+      return;
+    }
+    const client = await getClient(sourceWallet.chainInfo);
+    console.log('onMakeOrder', wallets, sourceWallet, selectedChain);
+  };
   // TODO:
-  const switchSwap = () => {};
+  const switchSwap = async () => {};
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
@@ -340,7 +364,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     !parseFloat(swapPair.first?.amount) ||
                     !parseFloat(swapPair.second?.amount)
                   }
-                  onClick={() => {}}
+                  onClick={onMakeOrder}
                 >
                   {parseFloat(swapPair.first.amount) >
                   parseFloat(filterBalance(swapPair.first?.denom))
