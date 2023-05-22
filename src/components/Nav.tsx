@@ -127,7 +127,7 @@ function Nav() {
                 </label>
                 <div
                   tabIndex={0}
-                  className="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
+                  className="dropdown-content menu shadow p-2 bg-base-100 z-10 rounded w-64 overflow-auto"
                 >
                   {wallets.map((item, index) => {
                     return (
