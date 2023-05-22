@@ -21,7 +21,7 @@ const Swap = () => {
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => {
-    setPools(pools)
+    setPools(pools);
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: {
@@ -35,7 +35,7 @@ const Swap = () => {
         denom:
           pools[0]?.assets?.find((asset) => {
             return asset.side === 'REMOTE';
-          })?.balance?.denom ||'',
+          })?.balance?.denom || '',
         amount: swapPair.second.amount,
       },
     }));
@@ -44,7 +44,11 @@ const Swap = () => {
     restUrl: selectedChain.restUrl,
     onSuccess: getPools,
   });
-  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin, type:string }>({
+  const [swapPair, setSwapPair] = useState<{
+    first: Coin;
+    second: Coin;
+    type: string;
+  }>({
     first: {
       denom: '',
       amount: '0',
@@ -120,7 +124,7 @@ const Swap = () => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-
+      const toastItem = toast.loading('Swap in progress');
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -128,14 +132,24 @@ const Swap = () => {
         fee,
         'test'
       );
-      console.log('Signed data', data);
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
-        const result = await fetchTxs(selectedChain.restUrl,txHash)
-        if (result.code !== '0' ||result.raw_log){
-          toast.error(result.raw_log);
+        const result = await fetchTxs(selectedChain.restUrl, txHash).catch(
+          (e) => {
+            toast.error(e.message, {
+              id: toastItem,
+            });
+          }
+        );
+        if (`${result?.code}` !== '0') {
+          console.log(result.raw_log, 'raw_log');
+          toast.error(result.raw_log, {
+            id: toastItem,
+          });
         } else {
-          toast.success('Swap Success');
+          toast.success('Swap Success', {
+            id: toastItem,
+          });
           // TODO: refresh
         }
       } else {

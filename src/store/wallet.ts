@@ -92,7 +92,6 @@ const useWalletStore = create<WalletState>(
         }));
       },
       suggestChain: async (chain: BriefChainInfo) => {
-        console.log('==== suggest chain', chain);
         const { keplr } = window;
         if (!keplr) {
           toast.error('You need to install Keplr');
