@@ -86,10 +86,10 @@ export class MarketMaker {
     const assetIn = this.findAssetByDenom(amountIn.denom);
     const assetOut = this.findAssetByDenom(denomOut);
 
-    const balanceOut = assetOut.balance.amount.parseToFloat();
-    const balanceIn = assetIn.balance.amount.parseToFloat();
-    const weightIn = assetIn.weight / 100;
-    const weightOut = assetOut.weight / 100;
+    const balanceOut = assetOut?.balance?.amount?.parseToFloat();
+    const balanceIn = assetIn?.balance?.amount?.parseToFloat();
+    const weightIn = assetIn?.weight / 100;
+    const weightOut = assetOut?.weight / 100;
     const amount = this.minusFees(amountIn.amount.parseToFloat());
 
     // Ao = Bo * ((1 - Bi / (Bi + Ai)) ** Wi/Wo)

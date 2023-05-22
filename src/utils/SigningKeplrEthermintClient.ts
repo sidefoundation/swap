@@ -92,8 +92,8 @@ export default class SigningKeplerEthermintClient {
       console.log('error', error);
       toast.error(error?.message, {
         style: {
-          'maxWidth': '400px'
-        }
+          maxWidth: '400px',
+        },
       });
       return undefined;
     }
@@ -121,8 +121,8 @@ export default class SigningKeplerEthermintClient {
     } catch (error) {
       toast.error(error?.message, {
         style: {
-          'maxWidth': '400px'
-        }
+          maxWidth: '400px',
+        },
       });
       console.log('error', error);
       return undefined;
@@ -132,15 +132,14 @@ export default class SigningKeplerEthermintClient {
   async broadCastTx(tx: Uint8Array): Promise<string> {
     try {
       const txData = await this.client.broadcastTx(tx);
-      console.log(txData, 'txData');
-      toast.success('Success');
+      toast.success('Broadcast Success');
       // returns txBytes for broadcast
-      return txData.transactionHash;     
+      return txData.transactionHash;
     } catch (error) {
       toast.error(error?.message, {
         style: {
-          'maxWidth': '400px'
-        }
+          maxWidth: '400px',
+        },
       });
       return '';
     }

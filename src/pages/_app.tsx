@@ -1,8 +1,8 @@
-import '../styles/global.css';
+import '@/styles/global.css';
 
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import Layout from '@/components/Layout';

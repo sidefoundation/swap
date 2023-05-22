@@ -1,5 +1,5 @@
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function ThemeToggle() {
   const { theme, setTheme, systemTheme } = useTheme();
@@ -12,7 +12,7 @@ function ThemeToggle() {
   const isDark =
     (systemTheme === 'dark' && theme === 'system') || theme === 'dark';
   return (
-    <label className="swap swap-rotate px-4">
+    <label className="swap swap-rotate">
       <input
         type="checkbox"
         checked={isDark}

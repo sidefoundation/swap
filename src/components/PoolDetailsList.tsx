@@ -28,7 +28,8 @@ interface PoolDetailsListProps {
 }
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
-  const { setLoading, wallets, suggestChain, getClient } = useWalletStore();
+  const { setLoading, wallets, suggestChain, getClient, selectedChain } =
+    useWalletStore();
 
   const [signers, setSigners] = useState<Wallet[]>([]);
 
@@ -105,7 +106,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
   const onEnablePool = async (pool: ILiquidityPool) => {
     //setLoading(true)
-    await suggestChain(AppConfig.chains[1]!);
+    await suggestChain(selectedChain);
 
     const wallet = signers[1];
     const timeoutTimeStamp = Long.fromNumber(

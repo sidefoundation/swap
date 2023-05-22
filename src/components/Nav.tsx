@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
 import type { Wallet } from '@/store/wallet';
 
@@ -105,8 +105,8 @@ function Nav() {
         <div className="navbar-end">
           <div className="flex items-center">
             <ThemeToggle />
-              <ToggleChain />
-            
+            <ToggleChain />
+
             {connected && (
               <button
                 className="mr-2 truncate btn-primary btn"
@@ -127,7 +127,7 @@ function Nav() {
                 </label>
                 <div
                   tabIndex={0}
-                  className="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
+                  className="dropdown-content menu shadow p-2 bg-base-100 z-10 rounded w-64 overflow-auto"
                 >
                   {wallets.map((item, index) => {
                     return (

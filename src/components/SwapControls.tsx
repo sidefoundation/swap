@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin } from '@cosmjs/stargate';
+import { Coin, StdFee } from '@cosmjs/stargate';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -15,11 +15,12 @@ import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import { Height } from '@/codegen/ibc/core/client/v1/client';
 import Long from 'long';
+import toast from 'react-hot-toast';
 // import { Coin } from '@/codegen/cosmos/base/v1beta1/coin';
 
 interface SwapControlsProps {
-  swapPair: { first: Coin; second: Coin };
-  setSwapPair: (value: { first: Coin; second: Coin }) => void;
+  swapPair: { first: Coin; second: Coin; type: string };
+  setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
   updateFirstCoin: (value: string) => void;
   updateSecondCoin: (value: string) => void;
   onSwap: (direction: '->' | '<-') => Promise<void>;
@@ -39,13 +40,19 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     wallets,
     isConnected,
     connectWallet,
+    loading,
+    getClient
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
-  console.log(swapPair, 'swapPairswapPair');
+  const [tab, setTab] = useState('swap');
+  const [expirationTime, onExpirationTime] = useState(1);
+  const [limitRate, setLimitRate] = useState('0');
+
   const onSuccess = (
     data: {
       address: string;
       balances: Coin[];
+      id: string;
     }[]
   ) => {
     setBalance(data);
@@ -66,23 +73,25 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   useEffect(() => {
     setConnected(isConnected);
   }, [isConnected]);
-
   useEffect(() => {
     if (isConnected) {
-      setBalance({ address: '', balances: [] });
+      setBalance([{ address: '', balances: [], id: '' }]);
       refetch();
     }
     if (!isConnected) {
-      setBalance({ address: '', balances: [] });
+      setBalance([{ address: '', balances: [], id: '' }]);
     }
-  }, [selectedChain, isConnected]);
+  }, [selectedChain, isConnected, loading]);
+  useEffect(() => {
+    setSwapPair((swapPair) => ({
+      ...swapPair,
+      type: tab,
+    }));
+    if (tab === 'swap') {
+      updateFirstCoin(swapPair.first.amount);
+    }
+  }, [tab]);
 
-  const [tab, setTab] = useState('swap');
-  const switchSwap = () => {};
-
-  console.log(balanceList, 'balanceListbalanceListbalanceListbalanceList');
-
-  const [] = useState();
   const filterBalance = (denom: string) => {
     const balances = balanceList[0]?.balances || [];
     return (
@@ -91,7 +100,55 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       })?.amount || 0
     );
   };
+  // limit input
+  const updataFirstCoinLimit = (value: string) => {
+    setSwapPair((swapPair) => ({
+      ...swapPair,
+      first: { denom: swapPair.first.denom, amount: value },
+    }));
+    if (!!parseFloat(value) || !!parseFloat(swapPair.second.amount)) {
+      const rate = (
+        parseFloat(value) / parseFloat(swapPair.second.amount)
+      ).toFixed(8);
+      setLimitRate(rate);
+    }
+  };
+  const updataSecondCoinLimit = (value: string) => {
+    setSwapPair((swapPair) => ({
+      ...swapPair,
+      second: { denom: swapPair.second.denom, amount: value },
+    }));
+    if (!!parseFloat(value) || !!parseFloat(swapPair.first.amount)) {
+      const rate = (
+        parseFloat(swapPair.first.amount) / parseFloat(value)
+      ).toFixed(8);
+      setLimitRate(rate);
+    }
+  };
 
+  const onMakeOrder = async() => {
+    if (
+      parseFloat(swapPair.first.amount) <= 0 ||
+      parseFloat(swapPair.second.amount) <= 0
+    ) {
+      toast.error('Please input token pair value');
+      return;
+    }
+    const sourceWallet = wallets.find(
+      (wallet) => selectedChain.chainID === wallet.chainInfo.chainID
+    );
+    const targetWallet = wallets.find(
+      (wallet) => selectedChain.chainID !== wallet.chainInfo.chainID
+    );
+    if (sourceWallet === undefined || targetWallet === undefined) {
+      toast.error('sourceWallet or targetWallet not found');
+      return;
+    }
+    const client = await getClient(sourceWallet.chainInfo);
+    console.log('onMakeOrder', wallets, sourceWallet, selectedChain);
+  };
+  // TODO:
+  const switchSwap = async () => {};
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
@@ -134,11 +191,20 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
                 <MdKeyboardArrowDown className="text-base" />
               </div>
-              <CoinInput
-                coin={swapPair.first}
-                placeholder="Amount"
-                onChange={updateFirstCoin}
-              />
+              {tab === 'swap' && (
+                <CoinInput
+                  coin={swapPair.first}
+                  placeholder="Amount"
+                  onChange={updateFirstCoin}
+                />
+              )}
+              {tab === 'limit' && (
+                <CoinInput
+                  coin={swapPair.first}
+                  placeholder="Amount"
+                  onChange={updataFirstCoinLimit}
+                />
+              )}
             </div>
 
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
@@ -182,11 +248,20 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
                 <MdKeyboardArrowDown className="text-base" />
               </div>
-              <CoinInput
-                coin={swapPair.second}
-                placeholder="Amount"
-                onChange={updateSecondCoin}
-              />
+              {tab === 'swap' && (
+                <CoinInput
+                  coin={swapPair.second}
+                  placeholder="Amount"
+                  onChange={updateSecondCoin}
+                />
+              )}
+              {tab === 'limit' && (
+                <CoinInput
+                  coin={swapPair.second}
+                  placeholder="Amount"
+                  onChange={updataSecondCoinLimit}
+                />
+              )}
             </div>
 
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
@@ -220,29 +295,22 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               Connect Wallet
             </button>
           ) : null}
-          {/* <button
-        className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
-        onClick={() => onSwap('->')}
-      >
-        {'SWAP ->'}
-      </button>
-
-      <button
-        className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
-        onClick={() => onSwap('<-')}
-      >
-        {'SWAP <-'}
-      </button> */}
+          {/*<button
+            className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
+            onClick={() => onSwap('<-')}
+          >
+            {'SWAP <-'}
+          </button> */}
 
           {tab === 'limit' ? (
             <div>
               <div className="p-5 mt-4 rounded-lg bg-base-200">
                 <div className="flex items-center justify-between mb-2 text-sm">
-                  <div>Sell ATOM at rate</div>
+                  <div>Sell {swapPair.first.denom} at rate</div>
                   <div className="font-semibold hidden">Set to maket</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-2xl font-semibold">10.000</div>
+                  <div className="text-2xl font-semibold">{limitRate}</div>
                   <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
                     <Image
                       alt="logo"
@@ -274,6 +342,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     <input
                       className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
                       placeholder="12"
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={expirationTime}
+                      onChange={(event) => onExpirationTime(event.target.value)}
+                      id="expiration-time"
                     />
                     <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                       Hour
@@ -281,10 +355,32 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                   </div>
                 </div>
               </div>
+              {connected ? (
+                <button
+                  className="w-full mt-6 text-lg capitalize btn btn-primary"
+                  disabled={
+                    parseFloat(swapPair.first.amount) >
+                      parseFloat(filterBalance(swapPair.first?.denom)) ||
+                    !parseFloat(swapPair.first?.amount) ||
+                    !parseFloat(swapPair.second?.amount)
+                  }
+                  onClick={onMakeOrder}
+                >
+                  {parseFloat(swapPair.first.amount) >
+                  parseFloat(filterBalance(swapPair.first?.denom))
+                    ? 'Insufficient Balance'
+                    : 'Make Order'}
+                </button>
+              ) : null}
 
-              <button className="w-full mt-6 text-lg capitalize btn btn-primary">
-                Make Order
-              </button>
+              {!connected ? (
+                <button
+                  className="w-full mt-6 text-lg capitalize btn btn-primary"
+                  onClick={connectWallet}
+                >
+                  Connect Wallet
+                </button>
+              ) : null}
             </div>
           ) : null}
 
@@ -301,7 +397,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
               <div>
-                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99)}{' '}
+                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99).toFixed(6)}{' '}
                 {swapPair.second?.denom}
               </div>
             </div>
@@ -317,7 +413,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
       ) : null}
 
-      {tab === 'order' ? <SwapOrder /> : null}
+      {tab === 'order' ? <SwapOrder expirationTime={expirationTime} /> : null}
 
       <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
       <label htmlFor="modal-swap-setting" className="cursor-pointer modal">

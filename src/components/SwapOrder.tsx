@@ -130,14 +130,12 @@ export default function SwapOrder() {
       balances: Coin[];
     }[]
   >([]);
-
   const [sender, setSender] = useState(wallets[0]?.chainInfo.chainID);
   const [tokenPair, setTokenPair] = useState<Map<number, Coin>>(new Map());
   const [orders, setOrders] = useState<IAtomicSwapOrder[]>([]);
 
   const fetchBalances = async () => {
     const balance = await getBalance();
-    console.log('balance', balance);
     setBalances(balance);
   };
 
@@ -150,7 +148,7 @@ export default function SwapOrder() {
     fetchBalances();
     fetchOrders(AppConfig.chains[0]!.restUrl);
   }, []);
-
+  console.log(tokenPair, 'tokenPairtokenPairtokenPair')
   const onMakeOrder = async () => {
     if (tokenPair.size !== 2) {
       alert('Please input token pair value');

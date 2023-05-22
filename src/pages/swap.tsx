@@ -1,6 +1,7 @@
 import useWalletStore from '@/store/wallet';
+import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import SwapControls from '@/components/SwapControls';
 import {
@@ -11,16 +12,16 @@ import Long from 'long';
 import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
+import fetchTxs from '@/http/requests/get/fetchTxs';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient, selectedChain } =
+  const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =
     useWalletStore();
 
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => {
-    setPools(pools)
-    console.log(pools, 'dfhjkfhjskhfjdskfhjsdhfjak')
+    setPools(pools);
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: {
@@ -34,7 +35,7 @@ const Swap = () => {
         denom:
           pools[0]?.assets?.find((asset) => {
             return asset.side === 'REMOTE';
-          })?.balance?.denom ||'',
+          })?.balance?.denom || '',
         amount: swapPair.second.amount,
       },
     }));
@@ -43,8 +44,11 @@ const Swap = () => {
     restUrl: selectedChain.restUrl,
     onSuccess: getPools,
   });
-  console.log(pools, 'pools');
-  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
+  const [swapPair, setSwapPair] = useState<{
+    first: Coin;
+    second: Coin;
+    type: string;
+  }>({
     first: {
       denom: '',
       amount: '0',
@@ -53,9 +57,9 @@ const Swap = () => {
       denom: '',
       amount: '0',
     },
+    type: 'swap',
   });
 
-  console.log(swapPair, 'swapPair');
   useEffect(() => {
     refetch();
   }, [loading, selectedChain]);
@@ -120,7 +124,7 @@ const Swap = () => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-
+      const toastItem = toast.loading('Swap in progress');
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -128,11 +132,29 @@ const Swap = () => {
         fee,
         'test'
       );
-      console.log('Signed data', data);
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
-        console.log('TxHash:', txHash);
+        const result = await fetchTxs(selectedChain.restUrl, txHash).catch(
+          (e) => {
+            toast.error(e.message, {
+              id: toastItem,
+            });
+          }
+        );
+        if (`${result?.code}` !== '0') {
+          console.log(result.raw_log, 'raw_log');
+          toast.error(result.raw_log, {
+            id: toastItem,
+          });
+        } else {
+          toast.success('Swap Success', {
+            id: toastItem,
+          });
+          // TODO: refresh
+          getBalance();
+        }
       } else {
+        toast.error('there are problem in encoding');
         console.log('there are problem in encoding');
       }
       // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")
