@@ -94,8 +94,8 @@ const useWalletStore = create<WalletState>(
       suggestChain: async (chain: BriefChainInfo) => {
         const { keplr } = window;
         if (!keplr) {
-          alert('You need to install Keplr');
-          throw new Error('You need to install Keplr');
+          toast.error('You need to install Keplr');
+          return;
         }
         const chainInfo = getSideChainInfo(chain);
         await keplr.experimentalSuggestChain(chainInfo);
@@ -111,7 +111,7 @@ const useWalletStore = create<WalletState>(
         const { keplr } = window;
         if (!keplr) {
           toast.error('You need to install Keplr');
-          throw new Error('You need to install Keplr');
+          return;
         }
 
         const newWallets: Wallet[] = [];
@@ -149,7 +149,6 @@ const useWalletStore = create<WalletState>(
             isConnected: true,
             wallets: newWallets,
           }));
-          toast.success('Success.');
         } else {
           console.log('Not all chains could be registered.');
         }
@@ -164,8 +163,8 @@ const useWalletStore = create<WalletState>(
           setLoading(true);
           const { keplr } = window;
           if (!keplr) {
-            alert('You need to install Keplr');
-            throw new Error('You need to install Keplr');
+            toast.error('You need to install Keplr');
+            return;
           }
           const chainInfo = getSideChainInfo(chain);
           await keplr.experimentalSuggestChain(chainInfo);
