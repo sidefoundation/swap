@@ -39,8 +39,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     wallets,
     isConnected,
     connectWallet,
+    loading,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
+  const [tab, setTab] = useState('swap');
+  const [expirationTime, onExpirationTime] = useState(1);
+
   console.log(swapPair, 'swapPairswapPair');
   const onSuccess = (
     data: {
@@ -66,7 +70,6 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   useEffect(() => {
     setConnected(isConnected);
   }, [isConnected]);
-
   useEffect(() => {
     if (isConnected) {
       setBalance({ address: '', balances: [] });
@@ -75,14 +78,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     if (!isConnected) {
       setBalance({ address: '', balances: [] });
     }
-  }, [selectedChain, isConnected]);
+  }, [selectedChain, isConnected, loading]);
 
-  const [tab, setTab] = useState('swap');
-  const switchSwap = () => {};
+  
 
   console.log(balanceList, 'balanceListbalanceListbalanceListbalanceList');
 
-  const [] = useState();
   const filterBalance = (denom: string) => {
     const balances = balanceList[0]?.balances || [];
     return (
@@ -91,7 +92,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       })?.amount || 0
     );
   };
-
+  // TODO:
+  const switchSwap = () => {};
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
@@ -242,7 +244,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                   <div className="font-semibold hidden">Set to maket</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-2xl font-semibold">10.000</div>
+                  <div className="text-2xl font-semibold">{}</div>
                   <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
                     <Image
                       alt="logo"
@@ -274,6 +276,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     <input
                       className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
                       placeholder="12"
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={expirationTime}
+                      onChange={(event) => onExpirationTime(event.target.value)}
+                      id="expiration-time"
                     />
                     <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                       Hour
@@ -301,7 +309,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
               <div>
-                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99)}{' '}
+                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99).toFixed(6)}{' '}
                 {swapPair.second?.denom}
               </div>
             </div>
@@ -317,7 +325,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
       ) : null}
 
-      {tab === 'order' ? <SwapOrder /> : null}
+      {tab === 'order' ? <SwapOrder expirationTime={expirationTime} /> : null}
 
       <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
       <label htmlFor="modal-swap-setting" className="cursor-pointer modal">

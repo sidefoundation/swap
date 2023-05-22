@@ -1,4 +1,5 @@
 import useWalletStore from '@/store/wallet';
+import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +12,7 @@ import Long from 'long';
 import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
+import fetchTxs from '@/http/requests/get/fetchTxs';
 
 const Swap = () => {
   const { wallets, setLoading, loading, getClient, selectedChain } =
@@ -132,7 +134,15 @@ const Swap = () => {
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
+        const result = await fetchTxs(selectedChain.restUrl,txHash)
+        if (result.code !== '0' ||result.raw_log){
+          toast.error(result.raw_log);
+        } else {
+          toast.success('Swap Success');
+          // TODO: refresh
+        }
       } else {
+        toast.error('there are problem in encoding');
         console.log('there are problem in encoding');
       }
       // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")
