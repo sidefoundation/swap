@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
 import type { Wallet } from '@/store/wallet';
 

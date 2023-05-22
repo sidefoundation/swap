@@ -92,6 +92,7 @@ const useWalletStore = create<WalletState>(
         }));
       },
       suggestChain: async (chain: BriefChainInfo) => {
+        console.log('==== suggest chain', chain);
         const { keplr } = window;
         if (!keplr) {
           toast.error('You need to install Keplr');
@@ -105,7 +106,7 @@ const useWalletStore = create<WalletState>(
         }));
       },
       connectWallet: async () => {
-        const { setLoading, suggestChain } = get();
+        const { setLoading, suggestChain, selectedChain } = get();
         setLoading(true);
 
         const { keplr } = window;
@@ -115,32 +116,19 @@ const useWalletStore = create<WalletState>(
         }
 
         const newWallets: Wallet[] = [];
-
-        for (const chain of AppConfig.chains) {
-          try {
-            await suggestChain(chain);
-            // Poll until the chain is approved and the signer is available
-            const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
-            //console.log("OfflineSigner", offlineSigner)
-            //const {aminoTypes, registry} = getSigningClientOptions();
-            // const newSigningClient = await SigningStargateClient.connectWithSigner(
-            //   chain.rpcUrl,
-            //   offlineSigner,
-            //   {
-            //     gasPrice: GasPrice.fromString(`0.01${chain.denom}`),
-            //     registry,
-            //     aminoTypes,
-            //   }
-            // );
-            const newCreator = (await offlineSigner.getAccounts())[0].address;
-            const newWallet: Wallet = {
-              address: newCreator,
-              chainInfo: chain,
-            };
-            newWallets.push(newWallet);
-          } catch (error) {
-            console.log('Connection Error', error);
-          }
+        const chain = selectedChain;
+        try {
+          await suggestChain(chain);
+          // Poll until the chain is approved and the signer is available
+          const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
+          const newCreator = (await offlineSigner.getAccounts())[0].address;
+          const newWallet: Wallet = {
+            address: newCreator,
+            chainInfo: chain,
+          };
+          newWallets.push(newWallet);
+        } catch (error) {
+          console.log('Connection Error', error);
         }
 
         if (newWallets.length === AppConfig.chains.length) {
@@ -197,11 +185,14 @@ const useWalletStore = create<WalletState>(
       },
 
       charge: async () => {
-        const { wallets, setLoading, connectWallet } = get();
+        const { wallets, setLoading, connectWallet, selectedChain } = get();
         await connectWallet();
         setLoading(true);
+        const currentWallets = wallets.filter((item) => {
+          return item.chainInfo?.chainID === selectedChain?.chainID;
+        });
         const res = await PromisePool.withConcurrency(2)
-          .for(wallets)
+          .for(currentWallets)
           .process(async (chain) => {
             const url = new URL(chain.chainInfo.rpcUrl);
             await chargeCoins(
@@ -209,16 +200,22 @@ const useWalletStore = create<WalletState>(
               chain.chainInfo.denom,
               chain.address
             );
+            toast.success('Charged');
           });
         setLoading(false);
-        console.log(res.errors);
+        if (res?.errors?.[0]?.message) {
+          toast.error(res?.errors?.[0]?.message);
+        }
       },
       getBalance: async () => {
-        const { wallets, setLoading, connectWallet } = get();
+        const { wallets, setLoading, connectWallet, selectedChain } = get();
         await connectWallet();
         setLoading(true);
+        const currentWallets = wallets.filter((item) => {
+          return item.chainInfo?.chainID === selectedChain?.chainID;
+        });
         const res = await PromisePool.withConcurrency(2)
-          .for(wallets)
+          .for(currentWallets)
           .process(async (chain) => {
             const balances = await fetchBalances(
               chain.chainInfo.restUrl,
@@ -231,10 +228,10 @@ const useWalletStore = create<WalletState>(
         return res.results.flat();
       },
       setBalance: (balances: Balance[]) => {
-        const {selectedChain} = get()
-        balances?.forEach((item)=>{
-          item.id = selectedChain.chainID
-        })
+        const { selectedChain } = get();
+        balances?.forEach((item) => {
+          item.id = selectedChain.chainID;
+        });
         set((state) => ({
           ...state,
           balanceList: balances,
