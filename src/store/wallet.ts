@@ -191,6 +191,7 @@ const useWalletStore = create<WalletState>(
         const currentWallets = wallets.filter((item) => {
           return item.chainInfo?.chainID === selectedChain?.chainID;
         });
+        const toastItem = toast.loading('Charging');
         const res = await PromisePool.withConcurrency(2)
           .for(currentWallets)
           .process(async (chain) => {
@@ -200,11 +201,15 @@ const useWalletStore = create<WalletState>(
               chain.chainInfo.denom,
               chain.address
             );
-            toast.success('Charged');
+            toast.success('Charge Success', {
+              id: toastItem,
+            });
           });
         setLoading(false);
         if (res?.errors?.[0]?.message) {
-          toast.error(res?.errors?.[0]?.message);
+          toast.error(res?.errors?.[0]?.message, {
+            id: toastItem,
+          });
         }
       },
       getBalance: async () => {
