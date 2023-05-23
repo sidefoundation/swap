@@ -232,7 +232,7 @@ const useWalletStore = create<WalletState>(
           return item.chainInfo?.chainID === selectedChain?.chainID;
         });
         const res = await PromisePool.withConcurrency(2)
-          .for(currentWallets)
+          .for(wallets)
           .process(async (chain) => {
             const balances = await fetchBalances(
               chain.chainInfo.restUrl,

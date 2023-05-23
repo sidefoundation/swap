@@ -25,7 +25,13 @@ interface SwapControlsProps {
   updateSecondCoin: (value: string) => void;
   onSwap: (direction: '->' | '<-') => Promise<void>;
 }
-
+const selectList = [
+  { option: 'Seconds', key: 0 },
+  { option: 'Minutes', key: 1 },
+  { option: 'Hour', key: 2 },
+  { option: 'Days', key: 3 },
+  { option: 'Year', key: 4 },
+];
 const SwapControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
@@ -41,13 +47,25 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     isConnected,
     connectWallet,
     loading,
-    getClient
+    getClient,
+    getBalance,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('swap');
+  const [selectedTime, setselectedTime] = useState('Hour');
   const [expirationTime, onExpirationTime] = useState(1);
   const [limitRate, setLimitRate] = useState('0');
-
+  const [balances, setBalances] = useState<
+    {
+      id: string;
+      balances: Coin[];
+      address: string;
+    }[]
+  >([]);
+  const fetchBalances = async () => {
+    const balance = await getBalance();
+    setBalances(balance);
+  };
   const onSuccess = (
     data: {
       address: string;
@@ -69,6 +87,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   });
   useEffect(() => {
     refetch();
+    fetchBalances();
   }, []);
   useEffect(() => {
     setConnected(isConnected);
@@ -126,7 +145,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     }
   };
 
-  const onMakeOrder = async() => {
+  const onMakeOrder = async () => {
+    console.log(expirationTime, 'expirationTime', 'selectedTime', selectedTime);
     if (
       parseFloat(swapPair.first.amount) <= 0 ||
       parseFloat(swapPair.second.amount) <= 0
@@ -145,6 +165,84 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       return;
     }
     const client = await getClient(sourceWallet.chainInfo);
+
+    // need to confirm balance exist
+    const srcBalances = balances.find(
+      (bal) => bal.id === sourceWallet.chainInfo.chainID
+    );
+    const tarBalances = balances.find(
+      (bal) => bal.id === targetWallet.chainInfo.chainID
+    );
+    // || tarBalances === undefined
+    console.log(srcBalances, tarBalances, 'tarBalances');
+    if (srcBalances === undefined) {
+      return;
+    }
+
+    const sellToken = srcBalances?.balances?.find(
+      (bal) => bal.denom == swapPair.first?.denom
+    );
+    const buyToken = tarBalances?.balances?.find(
+      (bal) => bal.denom == swapPair.second?.denom
+    );
+    // || buyToken === undefined
+    if (sellToken === undefined) {
+      return;
+    }
+
+    // Get current date
+    const currentDate = new Date();
+
+    // Get current timestamp in milliseconds
+    const currentTimestamp = currentDate.getTime();
+
+    // Calculate the timestamp for 24 hours from now
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
+
+    const timeoutTimeStamp = Long.fromNumber(
+      (Date.now() + 60 * 1000) * 1000000
+    ); //
+    const makeOrderMsg: MakeSwapMsg = {
+      sourcePort: 'swap',
+      sourceChannel: 'channel-1',
+      sellToken: sellToken,
+      buyToken: buyToken,
+      makerAddress: sourceWallet.address,
+      makerReceivingAddress: sourceWallet.address,
+      desiredTaker: '',
+      createTimestamp: Long.fromNumber(currentTimestamp),
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(10),
+        revisionNumber: Long.fromInt(10000000000),
+      },
+      timeoutTimestamp: timeoutTimeStamp,
+      expirationTimestamp: Long.fromInt(expirationTimestamp),
+    };
+    const msg = {
+      typeUrl: '/ibc.applications.atomic_swap.v1.MakeSwapMsg',
+      value: makeOrderMsg,
+    };
+    console.log(client);
+
+    const fee: StdFee = {
+      amount: [{ denom: sourceWallet.chainInfo.denom, amount: '0.01' }],
+      gas: '200000',
+    };
+    const data = await client!.signWithEthermint(
+      sourceWallet.address,
+      [msg],
+      sourceWallet.chainInfo,
+      fee,
+      'test'
+    );
+    console.log('Signed data', data);
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      console.log('TxHash:', txHash);
+    } else {
+      console.log('there are problem in encoding');
+    }
     console.log('onMakeOrder', wallets, sourceWallet, selectedChain);
   };
   // TODO:
@@ -350,7 +448,20 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                       id="expiration-time"
                     />
                     <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                      Hour
+                      <select className="select w-full max-w-xs select-sm">
+                        {selectList.map((option) => {
+                          return (
+                            <option
+                              key={option.key}
+                              selected={selectedTime === option.option}
+                              value={option.option}
+                              onClick={() => setselectedTime(option.option)}
+                            >
+                              {option.option}
+                            </option>
+                          );
+                        })}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -413,7 +524,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
       ) : null}
 
-      {tab === 'order' ? <SwapOrder expirationTime={expirationTime} /> : null}
+      {tab === 'order' ? <SwapOrder /> : null}
 
       <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
       <label htmlFor="modal-swap-setting" className="cursor-pointer modal">
