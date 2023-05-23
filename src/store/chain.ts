@@ -16,3 +16,7 @@ export const chainStore = proxy<Store>({
 export const useChainStore = () => {
   return useSnapshot(chainStore);
 };
+
+export const setChainCurrent = (val: BriefChainInfo) => {
+  chainStore.chainCurrent = val;
+};

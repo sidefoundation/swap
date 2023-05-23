@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 
 import type { BriefChainInfo } from '@/shared/types/chain';
 import { getSideChainInfo } from '@/shared/types/chain';
-//import { SideSigningStargateClient } from '@/utils/side_stargateclient';
 import { defaultRegistryTypes, AminoTypes } from '@cosmjs/stargate';
 import SigningKeplerEthermintClient from '@/utils/SigningKeplrEthermintClient';
 
@@ -21,8 +20,6 @@ import {
 import { ibcProtoRegistry, ibcAminoConverters } from '@/codegen/ibc/client';
 
 import chargeCoins from '@/http/requests/post/chargeCoins';
-import { OfflineDirectSigner } from '@keplr-wallet/types';
-import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchBalances from '@/http/requests/get/fetchBalance';
 
 export const getSigningClientOptions = () => {

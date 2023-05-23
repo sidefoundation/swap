@@ -1,13 +1,24 @@
-import { create } from 'zustand';
-import { ICoin } from '../shared/types/asset';
+import { proxy, useSnapshot } from 'valtio';
+import fetchBalances from '../http/requests/get/fetchBalance';
+import chargeCoins from '../http/requests/post/chargeCoins';
+import { Coin } from '@cosmjs/stargate';
 
 type Store = {
-  assetsList: ICoin[];
+  balanceList: Coin[];
 };
 
-export const useAssetsStore = create<Store>()((set) => ({
-  assetsList: [] as ICoin[],
-  // based on the chain, fetch the assets list
-  fetchAssetsList: async () => {
-  },
-}));
+export const assetStore = proxy<Store>({
+  balanceList: [] as Coin[],
+});
+
+export const useAssetsStore = () => {
+  return useSnapshot(assetStore);
+};
+
+export const getBalanceList = async () => {
+  const res = await fetchBalances('', '');
+};
+
+export const postFaucet = async () => {
+  const res = await chargeCoins('', '', '');
+};
