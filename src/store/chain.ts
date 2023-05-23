@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+import { proxy, useSnapshot } from 'valtio';
+
 import { BriefChainInfo } from '../shared/types/chain';
 import { AppConfig } from '../utils/AppConfig';
 
@@ -7,8 +8,11 @@ type Store = {
   chainCurrent: BriefChainInfo;
 };
 
-export const useChainStore = create<Store>()((set) => ({
+export const chainStore = proxy<Store>({
   chainList: AppConfig.chains,
   chainCurrent: {} as BriefChainInfo,
-  setChainCurrent: (chain: BriefChainInfo) => ({ chainCurrent: chain }),
-}));
+});
+
+export const useChainStore = () => {
+  return useSnapshot(chainStore);
+};
