@@ -53,53 +53,57 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
         <div></div>
       </div>
       <div className="border dark:border-none rounded-lg">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>Asset / Chain</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {balances?.map((balance, index) => {
-              const currentAssetChain = AppConfig.chains.find((item) => {
-                return item.denom === balance.balances?.[0]?.denom;
-              })?.chainID;
-              if (currentAssetChain === selectedChain.chainID) {
-                return (
-                  <tr key={index}>
-                    <td className="">
-                      <div className="font-semibold capitalize dark:text-white ">
-                        {balance.balances?.[0]?.denom}
-                      </div>
-                      <div className="text-sm">
-                        {
-                          AppConfig.chains.find((item) => {
-                            return item.denom === balance.balances?.[0]?.denom;
-                          })?.name
-                        }
-                      </div>
-                    </td>
-                    <td className="capitalize dark:text-white ">
-                      <div className="font-semibold">
-                        {balance.balances?.[0]?.amount}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              } else {
-                return null;
-              }
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Asset / Chain</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {balances?.map((balance, index) => {
+                const currentAssetChain = AppConfig.chains.find((item) => {
+                  return item.denom === balance.balances?.[0]?.denom;
+                })?.chainID;
+                if (currentAssetChain === selectedChain.chainID) {
+                  return balance?.balances.map((balanceItem, itemIndex) => {
+                    return (
+                      <tr key={itemIndex}>
+                        <td className="">
+                          <div className="font-semibold capitalize dark:text-white ">
+                            {balanceItem.denom}
+                          </div>
+                          <div className="text-sm">
+                            {
+                              AppConfig.chains.find((item) => {
+                                return item.denom === balanceItem.denom;
+                              })?.name
+                            }
+                          </div>
+                        </td>
+                        <td className="capitalize dark:text-white ">
+                          <div className="font-semibold">
+                            {balanceItem.amount}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                } else {
+                  return null;
+                }
+              })}
+            </tbody>
+          </table>
+        </div>
+
         {balances.length === 0 ? (
           <div className="text-center py-20">
             <progress className="progress w-56"></progress>
           </div>
         ) : null}
       </div>
-      
     </div>
   );
 };
