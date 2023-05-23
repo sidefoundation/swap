@@ -63,7 +63,7 @@ interface WalletState {
   ) => Promise<SigningKeplerEthermintClient | undefined>;
   disconnect: () => void;
   charge: () => Promise<void>;
-  getBalance: () => Promise<
+  getBalance: (isAll?: boolean) => Promise<
     {
       id: string;
       balances: Coin[];
@@ -224,7 +224,7 @@ const useWalletStore = create<WalletState>(
           });
         }
       },
-      getBalance: async () => {
+      getBalance: async (isAll?: boolean) => {
         const { wallets, setLoading, connectWallet, selectedChain } = get();
         await connectWallet();
         setLoading(true);
@@ -232,7 +232,7 @@ const useWalletStore = create<WalletState>(
           return item.chainInfo?.chainID === selectedChain?.chainID;
         });
         const res = await PromisePool.withConcurrency(2)
-          .for(wallets)
+          .for(isAll ? wallets : currentWallets)
           .process(async (chain) => {
             const balances = await fetchBalances(
               chain.chainInfo.restUrl,

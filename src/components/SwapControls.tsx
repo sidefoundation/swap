@@ -63,7 +63,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     }[]
   >([]);
   const fetchBalances = async () => {
-    const balance = await getBalance();
+    const balance = await getBalance(true);
     setBalances(balance);
   };
   const onSuccess = (
@@ -448,14 +448,15 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                       id="expiration-time"
                     />
                     <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                      <select className="select w-full max-w-xs select-sm">
+                      <select className="select w-full max-w-xs select-sm"
+                       onChange={(e) => setselectedTime(e.target.value)}>
                         {selectList.map((option) => {
                           return (
                             <option
                               key={option.key}
                               selected={selectedTime === option.option}
                               value={option.option}
-                              onClick={() => setselectedTime(option.option)}
+                             
                             >
                               {option.option}
                             </option>
