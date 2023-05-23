@@ -122,7 +122,7 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 export default function SwapOrder() {
   const [tab, setTab] = useState('all');
 
-  const { wallets, getBalance, getClient } = useWalletStore();
+  const { wallets, getBalance, getClient,selectedChain } = useWalletStore();
   const [openOrder, setOpenOrder] = useState(false);
   const [balances, setBalances] = useState<
     {
@@ -146,9 +146,12 @@ export default function SwapOrder() {
 
   useEffect(() => {
     fetchBalances();
-    fetchOrders(AppConfig.chains[0]!.restUrl);
+    fetchOrders(selectedChain.restUrl);
   }, []);
-  console.log(tokenPair, 'tokenPairtokenPairtokenPair')
+  useEffect(() => {
+    fetchOrders(selectedChain.restUrl);
+  }, [selectedChain]);
+
   const onMakeOrder = async () => {
     if (tokenPair.size !== 2) {
       alert('Please input token pair value');
@@ -162,8 +165,6 @@ export default function SwapOrder() {
       (wallet) => !sender?.includes(wallet.chainInfo.chainID)
     );
 
-    console.log(sourceWallet, 'sourceWallet')
-    console.log(targetWallet, 'targetWallet')
     if (sourceWallet === undefined || targetWallet === undefined) {
       console.log('sourceWallet or targetWallet not found');
       return;
@@ -177,28 +178,23 @@ export default function SwapOrder() {
     const tarBalances = balances.find(
       (bal) => bal.id === targetWallet.chainInfo.chainID
     );
-    console.log(srcBalances, 'srcBalances')
-    console.log(tarBalances, 'tarBalances')
     if (srcBalances === undefined || tarBalances === undefined) {
       return;
     }
 
     const tokenPairArray = Array.from(tokenPair);
-    console.log(tokenPairArray, 'tokenPairArray')
     const sellToken = tokenPairArray.find((item) => {
       const foundToken = srcBalances.balances.find(
         (bal) => bal.denom == item[1].denom
       );
       return foundToken !== undefined;
     });
-    console.log(sellToken, 'sellToken')
     const buyToken = tokenPairArray.find((item) => {
       const foundToken = tarBalances.balances.find(
         (bal) => bal.denom == item[1].denom
       );
       return foundToken !== undefined;
     });
-    console.log(buyToken, 'buyToken')
     if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
       return;
     }
