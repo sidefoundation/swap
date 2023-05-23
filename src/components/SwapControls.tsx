@@ -11,6 +11,7 @@ import Image from 'next/image';
 import SwapOrder from './SwapOrder';
 import TabItem from './TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import { Height } from '@/codegen/ibc/core/client/v1/client';
@@ -55,6 +56,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   const [selectedTime, setselectedTime] = useState('Hour');
   const [expirationTime, onExpirationTime] = useState(1);
   const [limitRate, setLimitRate] = useState('0');
+  const [firstSwapList, setFirstSwapList] = useState([]);
   const [balances, setBalances] = useState<
     {
       id: string;
@@ -109,8 +111,16 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     if (tab === 'swap') {
       updateFirstCoin(swapPair.first.amount);
     }
+    if (tab === 'limit') {
+      updataFirstCoinLimit(swapPair.first.amount);
+      fetchSwapList();
+    }
   }, [tab]);
-
+  const fetchSwapList = async () => {
+    const list = await fetchAtomicSwapList(selectedChain.restUrl);
+    setFirstSwapList(list);
+    console.log(99, 'lsi', list);
+  };
   const filterBalance = (denom: string) => {
     const balances = balanceList[0]?.balances || [];
     return (
@@ -412,6 +422,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       {/* limit */}
       {tab === 'limit' ? (
         <div>
+          {/* first */}
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
               <div className="flex-1">Sell</div>
@@ -425,7 +436,36 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
             <div className="flex items-center mb-2">
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-                <Image
+                <ul className="menu menu-horizontal px-1 w-full">
+                  <li tabIndex={0} className="w-full">
+                    <a className="w-full">
+                      {swapPair.first?.denom}
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10 w-full">
+                      {firstSwapList.map((item, index) => {
+                        return (
+                          <li key={index} className="truncate w-full">
+                            <a onClick={() => {}}>
+                              {/* <Image
+                                alt="logo"
+                                src="/assets/images/Side.png"
+                                width={20}
+                                height={20}
+                                className="w-7 h-7"
+                              /> */}
+                              <span className="flex-1 font-semibold text-center capitalize">
+                                {item?.denom}
+                              </span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
+
+                {/* <Image
                   alt="logo"
                   src="/assets/images/Side.png"
                   width={20}
@@ -436,7 +476,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                   {swapPair.first?.denom}
                 </div>
 
-                <MdKeyboardArrowDown className="text-base" />
+                <MdKeyboardArrowDown className="text-base" /> */}
               </div>
 
               {tab === 'limit' && (
@@ -453,6 +493,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <div></div>
             </div>
           </div>
+          {/* switch icon */}
           <div className="flex items-center justify-center -mt-5 -mb-5">
             <Image
               alt="switch"
@@ -463,6 +504,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               onClick={() => switchSwap()}
             />
           </div>
+          {/* second */}
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
               <div className="flex-1">Buy</div>
@@ -505,100 +547,95 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             </div>
           </div>
 
-          {tab === 'limit' ? (
-            <div>
-              <div className="p-5 mt-4 rounded-lg bg-base-200">
-                <div className="flex items-center justify-between mb-2 text-sm">
-                  <div>Sell {swapPair.first.denom} at rate</div>
-                  <div className="font-semibold hidden">Set to maket</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-semibold">{limitRate}</div>
-                  <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
-                    <Image
-                      alt="logo"
-                      src="/assets/images/Side.png"
-                      width={20}
-                      height={20}
-                      className="w-7 h-7"
-                    />
-                    <div className="flex-1 font-semibold text-center capitalize">
-                      {swapPair.second?.denom}
-                    </div>
-
-                    <MdKeyboardArrowDown className="text-base" />
-                  </div>
-                </div>
+          <div>
+            <div className="p-5 mt-4 rounded-lg bg-base-200">
+              <div className="flex items-center justify-between mb-2 text-sm">
+                <div>Sell {swapPair.first.denom} at rate</div>
+                <div className="font-semibold hidden">Set to maket</div>
               </div>
-
-              <div className="flex items-center mt-4">
-                <div className="px-5 pt-3 pb-2 mr-4 rounded-lg bg-base-200">
-                  <div className="mb-1 text-sm">Taker Address (optional)</div>
-                  <input
-                    className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
-                    placeholder="NONE"
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-semibold">{limitRate}</div>
+                <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
+                  <Image
+                    alt="logo"
+                    src="/assets/images/Side.png"
+                    width={20}
+                    height={20}
+                    className="w-7 h-7"
                   />
+                  <div className="flex-1 font-semibold text-center capitalize">
+                    {swapPair.second?.denom}
+                  </div>
+
+                  <MdKeyboardArrowDown className="text-base" />
                 </div>
-                <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
-                  <div className="mb-1 text-sm text-right">Expires in</div>
-                  <div className="flex items-center">
-                    <input
-                      className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
-                      placeholder="12"
-                      type="number"
-                      step="1"
-                      min="0"
-                      value={expirationTime}
-                      onChange={(event) => onExpirationTime(event.target.value)}
-                      id="expiration-time"
-                    />
-                    <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                      <select
-                        className="select w-full max-w-xs select-sm"
-                        onChange={(e) => setselectedTime(e.target.value)}
-                      >
-                        {selectList.map((option) => {
-                          return (
-                            <option
-                              key={option.key}
-                              selected={selectedTime === option.option}
-                              value={option.option}
-                            >
-                              {option.option}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
+              </div>
+            </div>
+
+            <div className="flex items-center mt-4">
+              <div className="px-5 pt-3 pb-2 mr-4 rounded-lg bg-base-200">
+                <div className="mb-1 text-sm">Taker Address (optional)</div>
+                <input
+                  className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
+                  placeholder="NONE"
+                />
+              </div>
+              <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
+                <div className="mb-1 text-sm text-right">Expires in</div>
+                <div className="flex items-center">
+                  <input
+                    className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                    placeholder="12"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={expirationTime}
+                    onChange={(event) => onExpirationTime(event.target.value)}
+                    id="expiration-time"
+                  />
+                  <div className="flex-1 px-4 text-base rounded-full bg-base-100">
+                    <select
+                      className="select w-full max-w-xs select-sm"
+                      onChange={(e) => setselectedTime(e.target.value)}
+                      value={selectedTime}
+                    >
+                      {selectList.map((option) => {
+                        return (
+                          <option key={option.key} value={option.option}>
+                            {option.option}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
                 </div>
               </div>
-              {connected ? (
-                <button
-                  className="w-full mt-6 text-lg capitalize btn btn-primary"
-                  disabled={
-                    parseFloat(swapPair.first.amount) >
-                      parseFloat(filterBalance(swapPair.first?.denom)) ||
-                    !parseFloat(swapPair.first?.amount) ||
-                    !parseFloat(swapPair.second?.amount)
-                  }
-                  onClick={onMakeOrder}
-                >
-                  {parseFloat(swapPair.first.amount) >
-                  parseFloat(filterBalance(swapPair.first?.denom))
-                    ? 'Insufficient Balance'
-                    : 'Make Order'}
-                </button>
-              ) : (
-                <button
-                  className="w-full mt-6 text-lg capitalize btn btn-primary"
-                  onClick={connectWallet}
-                >
-                  Connect Wallet
-                </button>
-              )}
             </div>
-          ) : null}
+            {connected ? (
+              <button
+                className="w-full mt-6 text-lg capitalize btn btn-primary"
+                disabled={
+                  parseFloat(swapPair.first.amount) >
+                    parseFloat(filterBalance(swapPair.first?.denom)) ||
+                  !parseFloat(swapPair.first?.amount) ||
+                  !parseFloat(swapPair.second?.amount)
+                }
+                onClick={onMakeOrder}
+              >
+                {parseFloat(swapPair.first.amount) >
+                parseFloat(filterBalance(swapPair.first?.denom))
+                  ? 'Insufficient Balance'
+                  : 'Make Order'}
+              </button>
+            ) : (
+              <button
+                className="w-full mt-6 text-lg capitalize btn btn-primary"
+                onClick={connectWallet}
+              >
+                Connect Wallet
+              </button>
+            )}
+          </div>
 
           <div className="pb-3 mt-5 border rounded-lg dark:border-gray-700">
             <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
