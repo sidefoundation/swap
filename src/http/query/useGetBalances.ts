@@ -1,7 +1,6 @@
 import type { UseQueryResult } from 'react-query';
 import { useQuery } from 'react-query';
 
-import type { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchBalances from '../requests/get/fetchBalance';
 import PromisePool from '@supercharge/promise-pool';
 import { Coin } from '@cosmjs/stargate';

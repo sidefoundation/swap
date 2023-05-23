@@ -122,7 +122,7 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 export default function SwapOrder() {
   const [tab, setTab] = useState('all');
 
-  const { wallets, getBalance, getClient } = useWalletStore();
+  const { wallets, getBalance, getClient,selectedChain } = useWalletStore();
   const [openOrder, setOpenOrder] = useState(false);
   const [balances, setBalances] = useState<
     {
@@ -146,9 +146,12 @@ export default function SwapOrder() {
 
   useEffect(() => {
     fetchBalances();
-    fetchOrders(AppConfig.chains[0]!.restUrl);
+    fetchOrders(selectedChain.restUrl);
   }, []);
-  console.log(tokenPair, 'tokenPairtokenPairtokenPair')
+  useEffect(() => {
+    fetchOrders(selectedChain.restUrl);
+  }, [selectedChain]);
+
   const onMakeOrder = async () => {
     if (tokenPair.size !== 2) {
       alert('Please input token pair value');
@@ -175,27 +178,23 @@ export default function SwapOrder() {
     const tarBalances = balances.find(
       (bal) => bal.id === targetWallet.chainInfo.chainID
     );
-
     if (srcBalances === undefined || tarBalances === undefined) {
       return;
     }
 
     const tokenPairArray = Array.from(tokenPair);
-
     const sellToken = tokenPairArray.find((item) => {
       const foundToken = srcBalances.balances.find(
         (bal) => bal.denom == item[1].denom
       );
       return foundToken !== undefined;
     });
-
     const buyToken = tokenPairArray.find((item) => {
       const foundToken = tarBalances.balances.find(
         (bal) => bal.denom == item[1].denom
       );
       return foundToken !== undefined;
     });
-
     if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
       return;
     }
@@ -205,7 +204,7 @@ export default function SwapOrder() {
     // Get current timestamp in milliseconds
     const currentTimestamp = currentDate.getTime();
 
-    // Calculate the timestamp for 24 hours from now
+    // Calculate the timestamp for 24 hours from now  
     const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
     const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
 

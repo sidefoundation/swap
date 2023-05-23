@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 
 import type { BriefChainInfo } from '@/shared/types/chain';
 import { getSideChainInfo } from '@/shared/types/chain';
-//import { SideSigningStargateClient } from '@/utils/side_stargateclient';
 import { defaultRegistryTypes, AminoTypes } from '@cosmjs/stargate';
 import SigningKeplerEthermintClient from '@/utils/SigningKeplrEthermintClient';
 
@@ -21,8 +20,6 @@ import {
 import { ibcProtoRegistry, ibcAminoConverters } from '@/codegen/ibc/client';
 
 import chargeCoins from '@/http/requests/post/chargeCoins';
-import { OfflineDirectSigner } from '@keplr-wallet/types';
-import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchBalances from '@/http/requests/get/fetchBalance';
 
 export const getSigningClientOptions = () => {
@@ -63,7 +60,7 @@ interface WalletState {
   ) => Promise<SigningKeplerEthermintClient | undefined>;
   disconnect: () => void;
   charge: () => Promise<void>;
-  getBalance: () => Promise<
+  getBalance: (isAll?: boolean) => Promise<
     {
       id: string;
       balances: Coin[];
@@ -116,25 +113,42 @@ const useWalletStore = create<WalletState>(
 
         const newWallets: Wallet[] = [];
         const chain = selectedChain;
-        try {
-          await suggestChain(chain);
-          // Poll until the chain is approved and the signer is available
-          const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
-          const newCreator = (await offlineSigner.getAccounts())[0].address;
-          const newWallet: Wallet = {
-            address: newCreator,
-            chainInfo: chain,
-          };
-          newWallets.push(newWallet);
-        } catch (error) {
-          console.log('Connection Error', error);
+        for (const chain of AppConfig.chains) {
+          try {
+            await suggestChain(chain);
+            // Poll until the chain is approved and the signer is available
+            const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
+            //console.log("OfflineSigner", offlineSigner)
+            //const {aminoTypes, registry} = getSigningClientOptions();
+            // const newSigningClient = await SigningStargateClient.connectWithSigner(
+            //   chain.rpcUrl,
+            //   offlineSigner,
+            //   {
+            //     gasPrice: GasPrice.fromString(`0.01${chain.denom}`),
+            //     registry,
+            //     aminoTypes,
+            //   }
+            // );
+            const newCreator = (await offlineSigner.getAccounts())[0].address;
+            const newWallet: Wallet = {
+              address: newCreator,
+              chainInfo: chain,
+            };
+            newWallets.push(newWallet);
+          } catch (error) {
+            console.log('Connection Error', error);
+          }
         }
 
-        set((state) => ({
-          ...state,
-          isConnected: true,
-          wallets: newWallets,
-        }));
+        if (newWallets.length === AppConfig.chains.length) {
+          set((state) => ({
+            ...state,
+            isConnected: true,
+            wallets: newWallets,
+          }));
+        } else {
+          console.log('Not all chains could be registered.');
+        }
 
         setLoading(false);
       },
@@ -207,7 +221,7 @@ const useWalletStore = create<WalletState>(
           });
         }
       },
-      getBalance: async () => {
+      getBalance: async (isAll?: boolean) => {
         const { wallets, setLoading, connectWallet, selectedChain } = get();
         await connectWallet();
         setLoading(true);
@@ -215,7 +229,7 @@ const useWalletStore = create<WalletState>(
           return item.chainInfo?.chainID === selectedChain?.chainID;
         });
         const res = await PromisePool.withConcurrency(2)
-          .for(currentWallets)
+          .for(isAll ? wallets : currentWallets)
           .process(async (chain) => {
             const balances = await fetchBalances(
               chain.chainInfo.restUrl,

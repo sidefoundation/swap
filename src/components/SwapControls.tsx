@@ -11,6 +11,7 @@ import Image from 'next/image';
 import SwapOrder from './SwapOrder';
 import TabItem from './TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import { Height } from '@/codegen/ibc/core/client/v1/client';
@@ -25,7 +26,13 @@ interface SwapControlsProps {
   updateSecondCoin: (value: string) => void;
   onSwap: (direction: '->' | '<-') => Promise<void>;
 }
-
+const selectList = [
+  { option: 'Seconds', key: 0 },
+  { option: 'Minutes', key: 60 },
+  { option: 'Hour', key: 60 * 60 },
+  { option: 'Days', key: 24 * 60 * 60 },
+  { option: 'Year', key: 365 * 24 * 60 * 60 },
+];
 const SwapControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
@@ -41,13 +48,26 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     isConnected,
     connectWallet,
     loading,
-    getClient
+    getClient,
+    getBalance,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('swap');
+  const [selectedTime, setselectedTime] = useState('Hour');
   const [expirationTime, onExpirationTime] = useState(1);
   const [limitRate, setLimitRate] = useState('0');
-
+  const [firstSwapList, setFirstSwapList] = useState([]);
+  const [balances, setBalances] = useState<
+    {
+      id: string;
+      balances: Coin[];
+      address: string;
+    }[]
+  >([]);
+  const fetchBalances = async () => {
+    const balance = await getBalance(true);
+    setBalances(balance);
+  };
   const onSuccess = (
     data: {
       address: string;
@@ -69,6 +89,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   });
   useEffect(() => {
     refetch();
+    fetchBalances();
   }, []);
   useEffect(() => {
     setConnected(isConnected);
@@ -90,8 +111,16 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     if (tab === 'swap') {
       updateFirstCoin(swapPair.first.amount);
     }
+    if (tab === 'limit') {
+      updataFirstCoinLimit(swapPair.first.amount);
+      fetchSwapList();
+    }
   }, [tab]);
-
+  const fetchSwapList = async () => {
+    const list = await fetchAtomicSwapList(selectedChain.restUrl);
+    setFirstSwapList(list);
+    console.log(99, 'lsi', list);
+  };
   const filterBalance = (denom: string) => {
     const balances = balanceList[0]?.balances || [];
     return (
@@ -126,7 +155,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     }
   };
 
-  const onMakeOrder = async() => {
+  const onMakeOrder = async () => {
+    console.log(expirationTime, 'expirationTime', 'selectedTime', selectedTime);
     if (
       parseFloat(swapPair.first.amount) <= 0 ||
       parseFloat(swapPair.second.amount) <= 0
@@ -145,6 +175,84 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       return;
     }
     const client = await getClient(sourceWallet.chainInfo);
+
+    // need to confirm balance exist
+    const srcBalances = balances.find(
+      (bal) => bal.id === sourceWallet.chainInfo.chainID
+    );
+    const tarBalances = balances.find(
+      (bal) => bal.id === targetWallet.chainInfo.chainID
+    );
+    // || tarBalances === undefined
+    console.log(srcBalances, tarBalances, 'tarBalances');
+    if (srcBalances === undefined) {
+      return;
+    }
+
+    const sellToken = srcBalances?.balances?.find(
+      (bal) => bal.denom == swapPair.first?.denom
+    );
+    const buyToken = tarBalances?.balances?.find(
+      (bal) => bal.denom == swapPair.second?.denom
+    );
+    // || buyToken === undefined
+    if (sellToken === undefined) {
+      return;
+    }
+
+    // Get current date
+    const currentDate = new Date();
+
+    // Get current timestamp in milliseconds
+    const currentTimestamp = currentDate.getTime();
+
+    // Calculate the timestamp for 24 hours from now
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
+
+    const timeoutTimeStamp = Long.fromNumber(
+      (Date.now() + 60 * 1000) * 1000000
+    ); //
+    const makeOrderMsg: MakeSwapMsg = {
+      sourcePort: 'swap',
+      sourceChannel: 'channel-1',
+      sellToken: sellToken,
+      buyToken: buyToken,
+      makerAddress: sourceWallet.address,
+      makerReceivingAddress: sourceWallet.address,
+      desiredTaker: '',
+      createTimestamp: Long.fromNumber(currentTimestamp),
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(10),
+        revisionNumber: Long.fromInt(10000000000),
+      },
+      timeoutTimestamp: timeoutTimeStamp,
+      expirationTimestamp: Long.fromInt(expirationTimestamp),
+    };
+    const msg = {
+      typeUrl: '/ibc.applications.atomic_swap.v1.MakeSwapMsg',
+      value: makeOrderMsg,
+    };
+    console.log(client);
+
+    const fee: StdFee = {
+      amount: [{ denom: sourceWallet.chainInfo.denom, amount: '0.01' }],
+      gas: '200000',
+    };
+    const data = await client!.signWithEthermint(
+      sourceWallet.address,
+      [msg],
+      sourceWallet.chainInfo,
+      fee,
+      'test'
+    );
+    console.log('Signed data', data);
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      console.log('TxHash:', txHash);
+    } else {
+      console.log('there are problem in encoding');
+    }
     console.log('onMakeOrder', wallets, sourceWallet, selectedChain);
   };
   // TODO:
@@ -162,8 +270,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <MdOutlineSettings className="text-xl cursor-pointer" />
         </label>
       </div>
-
-      {tab === 'swap' || tab === 'limit' ? (
+      {/* swap */}
+      {tab === 'swap' ? (
         <div>
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
@@ -191,20 +299,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
                 <MdKeyboardArrowDown className="text-base" />
               </div>
-              {tab === 'swap' && (
-                <CoinInput
-                  coin={swapPair.first}
-                  placeholder="Amount"
-                  onChange={updateFirstCoin}
-                />
-              )}
-              {tab === 'limit' && (
-                <CoinInput
-                  coin={swapPair.first}
-                  placeholder="Amount"
-                  onChange={updataFirstCoinLimit}
-                />
-              )}
+
+              <CoinInput
+                coin={swapPair.first}
+                placeholder="Amount"
+                onChange={updateFirstCoin}
+              />
             </div>
 
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
@@ -248,20 +348,11 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
                 <MdKeyboardArrowDown className="text-base" />
               </div>
-              {tab === 'swap' && (
-                <CoinInput
-                  coin={swapPair.second}
-                  placeholder="Amount"
-                  onChange={updateSecondCoin}
-                />
-              )}
-              {tab === 'limit' && (
-                <CoinInput
-                  coin={swapPair.second}
-                  placeholder="Amount"
-                  onChange={updataSecondCoinLimit}
-                />
-              )}
+              <CoinInput
+                coin={swapPair.second}
+                placeholder="Amount"
+                onChange={updateSecondCoin}
+              />
             </div>
 
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
@@ -269,7 +360,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <div>~$9999</div>
             </div>
           </div>
-          {tab === 'swap' && connected ? (
+          {connected ? (
             <button
               className="w-full mt-6 text-lg capitalize btn btn-primary"
               disabled={
@@ -285,104 +376,266 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                 ? 'Insufficient Balance'
                 : 'Swap'}
             </button>
-          ) : null}
-
-          {!connected ? (
+          ) : (
             <button
               className="w-full mt-6 text-lg capitalize btn btn-primary"
               onClick={connectWallet}
             >
               Connect Wallet
             </button>
-          ) : null}
+          )}
+
           {/*<button
             className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
             onClick={() => onSwap('<-')}
           >
             {'SWAP <-'}
           </button> */}
-
-          {tab === 'limit' ? (
-            <div>
-              <div className="p-5 mt-4 rounded-lg bg-base-200">
-                <div className="flex items-center justify-between mb-2 text-sm">
-                  <div>Sell {swapPair.first.denom} at rate</div>
-                  <div className="font-semibold hidden">Set to maket</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-semibold">{limitRate}</div>
-                  <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
-                    <Image
-                      alt="logo"
-                      src="/assets/images/Side.png"
-                      width={20}
-                      height={20}
-                      className="w-7 h-7"
-                    />
-                    <div className="flex-1 font-semibold text-center capitalize">
-                      {swapPair.second?.denom}
-                    </div>
-
-                    <MdKeyboardArrowDown className="text-base" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center mt-4">
-                <div className="px-5 pt-3 pb-2 mr-4 rounded-lg bg-base-200">
-                  <div className="mb-1 text-sm">Taker Address (optional)</div>
-                  <input
-                    className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
-                    placeholder="NONE"
-                  />
-                </div>
-                <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
-                  <div className="mb-1 text-sm text-right">Expires in</div>
-                  <div className="flex items-center">
-                    <input
-                      className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
-                      placeholder="12"
-                      type="number"
-                      step="1"
-                      min="0"
-                      value={expirationTime}
-                      onChange={(event) => onExpirationTime(event.target.value)}
-                      id="expiration-time"
-                    />
-                    <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                      Hour
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {connected ? (
-                <button
-                  className="w-full mt-6 text-lg capitalize btn btn-primary"
-                  disabled={
-                    parseFloat(swapPair.first.amount) >
-                      parseFloat(filterBalance(swapPair.first?.denom)) ||
-                    !parseFloat(swapPair.first?.amount) ||
-                    !parseFloat(swapPair.second?.amount)
-                  }
-                  onClick={onMakeOrder}
-                >
-                  {parseFloat(swapPair.first.amount) >
-                  parseFloat(filterBalance(swapPair.first?.denom))
-                    ? 'Insufficient Balance'
-                    : 'Make Order'}
-                </button>
-              ) : null}
-
-              {!connected ? (
-                <button
-                  className="w-full mt-6 text-lg capitalize btn btn-primary"
-                  onClick={connectWallet}
-                >
-                  Connect Wallet
-                </button>
-              ) : null}
+          <div className="pb-3 mt-5 border rounded-lg dark:border-gray-700">
+            <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
+              Details
             </div>
-          ) : null}
+            <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
+              <div>You will receive</div>
+              <div>
+                ≈ {swapPair.second?.amount} {swapPair.second?.denom}
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 pb-1 text-sm">
+              <div>Minimum received after slippage (1%)</div>
+              <div>
+                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99).toFixed(6)}{' '}
+                {swapPair.second?.denom}
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 pb-1 text-sm">
+              <div>Price impact</div>
+              <div>{`--`}</div>
+            </div>
+            <div className="flex items-center justify-between px-4 pb-1 text-sm">
+              <div>Swap fees</div>
+              <div>≈ {`--`}</div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {/* limit */}
+      {tab === 'limit' ? (
+        <div>
+          {/* first */}
+          <div className="p-5 rounded-lg bg-base-200">
+            <div className="flex items-center mb-2">
+              <div className="flex-1">Sell</div>
+              <div className="mr-2">
+                Balance: {filterBalance(swapPair.first?.denom)}
+              </div>
+              <div className="font-semibold cursor-pointer" onClick={() => {}}>
+                Max
+              </div>
+            </div>
+
+            <div className="flex items-center mb-2">
+              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                <ul className="menu menu-horizontal px-1 w-full">
+                  <li tabIndex={0} className="w-full">
+                    <a className="w-full">
+                      {swapPair.first?.denom}
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10 w-full">
+                      {firstSwapList.map((item, index) => {
+                        return (
+                          <li key={index} className="truncate w-full">
+                            <a onClick={() => {}}>
+                              {/* <Image
+                                alt="logo"
+                                src="/assets/images/Side.png"
+                                width={20}
+                                height={20}
+                                className="w-7 h-7"
+                              /> */}
+                              <span className="flex-1 font-semibold text-center capitalize">
+                                {item?.denom}
+                              </span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
+
+                {/* <Image
+                  alt="logo"
+                  src="/assets/images/Side.png"
+                  width={20}
+                  height={20}
+                  className="w-7 h-7"
+                />
+                <div className="flex-1 font-semibold text-center capitalize">
+                  {swapPair.first?.denom}
+                </div>
+
+                <MdKeyboardArrowDown className="text-base" /> */}
+              </div>
+
+              {tab === 'limit' && (
+                <CoinInput
+                  coin={swapPair.first}
+                  placeholder="Amount"
+                  onChange={updataFirstCoinLimit}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
+              <div className="flex-1">Side Hub</div>
+              <div></div>
+            </div>
+          </div>
+          {/* switch icon */}
+          <div className="flex items-center justify-center -mt-5 -mb-5">
+            <Image
+              alt="switch"
+              src="/assets/images/switch.png"
+              width="20"
+              height="20"
+              className="bg-white rounded-full shadow w-14 h-14 "
+              onClick={() => switchSwap()}
+            />
+          </div>
+          {/* second */}
+          <div className="p-5 rounded-lg bg-base-200">
+            <div className="flex items-center mb-2">
+              <div className="flex-1">Buy</div>
+              <div className="mr-2">
+                Balance: {filterBalance(swapPair.second?.denom)}
+              </div>
+              <div className="font-semibold cursor-pointer" onClick={() => {}}>
+                Max
+              </div>
+            </div>
+
+            <div className="flex items-center mb-2">
+              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+                <Image
+                  alt="logo"
+                  src="/assets/images/Side.png"
+                  width={20}
+                  height={20}
+                  className="w-7 h-7"
+                />
+                <div className="flex-1 font-semibold text-center capitalize">
+                  {swapPair.second?.denom}
+                </div>
+
+                <MdKeyboardArrowDown className="text-base" />
+              </div>
+
+              {tab === 'limit' && (
+                <CoinInput
+                  coin={swapPair.second}
+                  placeholder="Amount"
+                  onChange={updataSecondCoinLimit}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
+              <div className="flex-1">Side Hub</div>
+              <div>~$9999</div>
+            </div>
+          </div>
+
+          <div>
+            <div className="p-5 mt-4 rounded-lg bg-base-200">
+              <div className="flex items-center justify-between mb-2 text-sm">
+                <div>Sell {swapPair.first.denom} at rate</div>
+                <div className="font-semibold hidden">Set to maket</div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-semibold">{limitRate}</div>
+                <div className="bg-base-100 px-2 rounded-full h-10 w-[160px] flex items-center justify-center hidden">
+                  <Image
+                    alt="logo"
+                    src="/assets/images/Side.png"
+                    width={20}
+                    height={20}
+                    className="w-7 h-7"
+                  />
+                  <div className="flex-1 font-semibold text-center capitalize">
+                    {swapPair.second?.denom}
+                  </div>
+
+                  <MdKeyboardArrowDown className="text-base" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center mt-4">
+              <div className="px-5 pt-3 pb-2 mr-4 rounded-lg bg-base-200">
+                <div className="mb-1 text-sm">Taker Address (optional)</div>
+                <input
+                  className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
+                  placeholder="NONE"
+                />
+              </div>
+              <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
+                <div className="mb-1 text-sm text-right">Expires in</div>
+                <div className="flex items-center">
+                  <input
+                    className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                    placeholder="12"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={expirationTime}
+                    onChange={(event) => onExpirationTime(event.target.value)}
+                    id="expiration-time"
+                  />
+                  <div className="flex-1 px-4 text-base rounded-full bg-base-100">
+                    <select
+                      className="select w-full max-w-xs select-sm"
+                      onChange={(e) => setselectedTime(e.target.value)}
+                      value={selectedTime}
+                    >
+                      {selectList.map((option) => {
+                        return (
+                          <option key={option.key} value={option.option}>
+                            {option.option}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {connected ? (
+              <button
+                className="w-full mt-6 text-lg capitalize btn btn-primary"
+                disabled={
+                  parseFloat(swapPair.first.amount) >
+                    parseFloat(filterBalance(swapPair.first?.denom)) ||
+                  !parseFloat(swapPair.first?.amount) ||
+                  !parseFloat(swapPair.second?.amount)
+                }
+                onClick={onMakeOrder}
+              >
+                {parseFloat(swapPair.first.amount) >
+                parseFloat(filterBalance(swapPair.first?.denom))
+                  ? 'Insufficient Balance'
+                  : 'Make Order'}
+              </button>
+            ) : (
+              <button
+                className="w-full mt-6 text-lg capitalize btn btn-primary"
+                onClick={connectWallet}
+              >
+                Connect Wallet
+              </button>
+            )}
+          </div>
 
           <div className="pb-3 mt-5 border rounded-lg dark:border-gray-700">
             <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
@@ -413,8 +666,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
       ) : null}
 
-      {tab === 'order' ? <SwapOrder expirationTime={expirationTime} /> : null}
+      {tab === 'order' ? <SwapOrder /> : null}
 
+      {/* Transaction settings */}
       <input type="checkbox" id="modal-swap-setting" className="modal-toggle" />
       <label htmlFor="modal-swap-setting" className="cursor-pointer modal">
         <label htmlFor="" className="relative p-4 rounded-lg modal-box">

@@ -5,7 +5,6 @@ import useWalletStore from '@/store/wallet';
 
 const Home: NextPage = () => {
   const { loading, isConnected, connectWallet, disconnect } = useWalletStore();
-
   return (
     <div className="max-w-full">
       <div className="hero min-h-screen bg-base-200">
