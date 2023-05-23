@@ -27,10 +27,10 @@ interface SwapControlsProps {
 }
 const selectList = [
   { option: 'Seconds', key: 0 },
-  { option: 'Minutes', key: 1 },
-  { option: 'Hour', key: 2 },
-  { option: 'Days', key: 3 },
-  { option: 'Year', key: 4 },
+  { option: 'Minutes', key: 60 },
+  { option: 'Hour', key: 60 * 60 },
+  { option: 'Days', key: 24 * 60 * 60 },
+  { option: 'Year', key: 365 * 24 * 60 * 60 },
 ];
 const SwapControls: React.FC<SwapControlsProps> = ({
   swapPair,
@@ -448,15 +448,16 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                       id="expiration-time"
                     />
                     <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                      <select className="select w-full max-w-xs select-sm"
-                       onChange={(e) => setselectedTime(e.target.value)}>
+                      <select
+                        className="select w-full max-w-xs select-sm"
+                        onChange={(e) => setselectedTime(e.target.value)}
+                      >
                         {selectList.map((option) => {
                           return (
                             <option
                               key={option.key}
                               selected={selectedTime === option.option}
                               value={option.option}
-                             
                             >
                               {option.option}
                             </option>
