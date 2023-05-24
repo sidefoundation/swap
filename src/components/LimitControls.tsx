@@ -35,7 +35,7 @@ const selectList = [
   { option: 'Days', key: 24 * 60 * 60 },
   { option: 'Year', key: 365 * 24 * 60 * 60 },
 ];
-const SwapControls: React.FC<SwapControlsProps> = ({
+const LimitControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
   updateFirstCoin,
@@ -304,9 +304,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
         <div className="inline-flex items-center bg-gray-100 rounded-full tabs dark:bg-gray-700">
-          <TabItem tab={tab} setTab={setTab} title="Swap" value="swap" />
-          {/* <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" /> */}
-          {/* <TabItem tab={tab} setTab={setTab} title="Order" value="order" /> */}
+          {/* <TabItem tab={tab} setTab={setTab} title="Swap" value="swap" /> */}
+          <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" />
+          <TabItem tab={tab} setTab={setTab} title="Order" value="order" />
         </div>
 
         <label htmlFor="modal-swap-setting">
@@ -774,4 +774,4 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   );
 };
 
-export default SwapControls;
+export default LimitControls;

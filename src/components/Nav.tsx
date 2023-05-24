@@ -60,6 +60,9 @@ function Nav() {
                 <Link href="/swap">Swap</Link>
               </li>
               <li>
+                <Link href="/limit">limit</Link>
+              </li>
+              <li>
                 <Link href="/pool">Pool</Link>
               </li>
               <li>
@@ -86,6 +89,11 @@ function Nav() {
             <li>
               <Link href="/swap" className="btn btn-ghost">
                 Swap
+              </Link>
+            </li>
+            <li>
+              <Link href="/limit" className="btn btn-ghost">
+                limit
               </Link>
             </li>
             <li>
