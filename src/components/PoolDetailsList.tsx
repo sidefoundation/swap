@@ -5,6 +5,7 @@ import { PoolDetails } from '@/components/PoolDetails';
 import { CoinInput } from './CoinInput';
 import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet } from '@/store/wallet';
+import PoolModal from './PoolModal';
 
 import {
   MsgCreatePoolRequest,
@@ -291,6 +292,12 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           </div>
         </label>
       </label>
+
+      <label htmlFor="modal-pool-modal" className="btn">
+        open pool add
+      </label>
+
+      <PoolModal />
     </div>
   );
 };
