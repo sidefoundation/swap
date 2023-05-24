@@ -18,6 +18,7 @@ import { MarketMaker } from '@/utils/swap';
 import { MdKeyboardArrowDown, MdOutlineClose } from 'react-icons/md';
 import { poolStore } from '@/store/pool';
 
+import { AppConfig } from '@/utils/AppConfig';
 import Image from 'next/image';
 import React from 'react';
 
@@ -104,7 +105,6 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     fetchBalances();
     console.log(balanceList, 'balanceList');
   }, []);
-
   const onSingleDeposit = async (denom: string) => {
     const wallet = wallets.find((wallet) => wallet.chainInfo.denom === denom);
     if (wallet === undefined) {
@@ -112,7 +112,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     }
 
     const deposit = depositCoin?.get(denom);
-
+    console.log(deposit, 'deposit');
     if (deposit === undefined || +deposit.amount === 0) {
       console.log('deposit amount', deposit);
       console.log('denom=>', denom);
@@ -167,7 +167,69 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     setLoading(false);
   };
   const onDeposit = async () => {
-    const currentDenom = selectedCoin?.balance?.denom;
+    const denom = selectedCoin?.balance?.denom;
+    const wallet = wallets.find((wallet) => wallet.chainInfo.chainID === selectedChain.chainID);
+    console.log(wallet, 'wallet', selectedChain, selectedCoin)
+    if (wallet.chainInfo.denom === selectedCoin?.balance.denom) {
+      console.log('no wallet')
+      return;
+    }
+
+    const deposit = depositCoin?.get(denom);
+    console.log(deposit, 'deposit');
+    if (deposit === undefined || +deposit.amount === 0) {
+      console.log('deposit amount', deposit);
+      console.log('denom=>', denom);
+      return;
+    }
+    setLoading(true);
+    const timeoutTimeStamp = Long.fromNumber(
+      (Date.now() + 60 * 1000) * 1000000
+    ); // 1 hour from now
+    try {
+      const client = await getClient(wallet!.chainInfo);
+      const singleDepositMsg: MsgSingleAssetDepositRequest = {
+        poolId: pool.poolId,
+        sender: wallet!.address,
+        token: deposit,
+        timeoutHeight: {
+          revisionHeight: Long.fromInt(10),
+          revisionNumber: Long.fromInt(10000000000),
+        },
+        timeoutTimeStamp: timeoutTimeStamp,
+      };
+
+      const msg = {
+        typeUrl:
+          '/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest',
+        value: singleDepositMsg,
+      };
+      console.log(client);
+
+      const fee: StdFee = {
+        amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
+        gas: '200000',
+      };
+
+      const data = await client!.signWithEthermint(
+        wallet!.address,
+        [msg],
+        wallet!.chainInfo,
+        fee,
+        'test'
+      );
+      console.log('Signed data', data);
+      if (data !== undefined) {
+        const txHash = await client!.broadCastTx(data);
+        console.log('TxHash:', txHash);
+      } else {
+        console.log('there are problem in encoding');
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+    setLoading(false);
+
     console.log(selectedCoin, '887878');
   };
   const onDoubleDeposit = async (localDenom: string, remoteDenom: string) => {
@@ -749,14 +811,14 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                             <div className="flex flex-col rounded-lg bg-gray-200 p-1">
                               <div className="flex h-fit w-full flex-nowrap justify-between rounded-lg bg-osmoverse-1000 px-2 text-white-high">
                                 <div className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400">
-                                  {/* <CoinInput
-                                    key={index}
+                                  <CoinInput
                                     placeholder="Amount ..."
                                     coin={{
-                                      denom: item.balance.denom,
+                                      denom: selectedCoin?.balance?.denom,
                                       amount:
-                                        depositCoin?.get(item.balance.denom)
-                                          ?.amount ?? '0',
+                                        depositCoin?.get(
+                                          selectedCoin?.balance?.denom
+                                        )?.amount ?? '0',
                                     }}
                                     onChange={(coin) => {
                                       setDepositCoin((prevDepositCoin) => {
@@ -764,14 +826,17 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                         const newDepositCoin = new Map(
                                           prevDepositCoin
                                         );
-                                        newDepositCoin.set(item.balance.denom, {
-                                          denom: item.balance.denom,
-                                          amount: coin,
-                                        });
+                                        newDepositCoin.set(
+                                          selectedCoin?.balance?.denom,
+                                          {
+                                            denom: selectedCoin?.balance?.denom,
+                                            amount: coin,
+                                          }
+                                        );
                                         return newDepositCoin;
                                       });
                                     }}
-                                  /> */}
+                                  />
                                 </div>
                               </div>
                               {/* <span className="pr-3 text-right text-xs font-caption leading-5 text-osmoverse-400"></span> */}
