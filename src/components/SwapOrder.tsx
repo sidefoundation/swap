@@ -417,15 +417,6 @@ export default function SwapOrder() {
             />
           </div>
 
-          <div className="flex items-center justify-center mt-4 mb-4">
-            <div className="inline-flex items-center px-4 py-1 text-white rounded-full cursor-pointer bg-primary">
-              <MdOutlineMenu className="mr-2 text-base" />
-              <div className="text-sm" onClick={onNewOrder}>
-                New Order
-              </div>
-            </div>
-          </div>
-
           <div className="">
             {orders.map((order, index) => (
               <OrderCard

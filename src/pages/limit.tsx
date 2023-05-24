@@ -160,7 +160,6 @@ const Swap = () => {
 
   return (
     <div>
-      limit
       <LimitControls
         swapPair={swapPair}
         setSwapPair={setSwapPair}
