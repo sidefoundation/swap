@@ -164,12 +164,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   };
   return (
     <div>
+      {/* image-header */}
       <div className="relative mt-10 h-[138px] flex items-center justify-center rounded-lg overflow-hidden bg-[url(/assets/images/maskbg.png)] bg-cover">
         <div className="text-5xl font-bold text-white">
           Scalable, Bridgeless
         </div>
       </div>
+
       <div className=" mt-5 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
+        {/* search filter */}
         <div className="w-full flex mb-5">
           <div className="w-full flex-1 relative">
             <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl text-gray-300 dark:text-gray-400" />
@@ -190,6 +193,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             </label>
           </div>
         </div>
+        {/* list */}
         <div className="overflow-x-auto border dark:border-none rounded-lg mb-5">
           <table className="table w-full">
             {/* head */}
@@ -240,6 +244,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         </div>
       </div>
 
+      {/* TODO: dialog should not in loop */}
       <input type="checkbox" id="modal-pool-create" className="modal-toggle" />
       <label className="modal cursor-pointer" htmlFor="modal-pool-create">
         <label className="modal-box relative" htmlFor="">

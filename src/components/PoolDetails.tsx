@@ -1,6 +1,6 @@
 import type { ILiquidityPool } from '@/shared/types/liquidity';
 import useWalletStore from '@/store/wallet';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CoinInput } from './CoinInput';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
@@ -20,6 +20,7 @@ import { MdOutlineClose } from 'react-icons/md';
 import Image from 'next/image';
 
 export type PoolDetailsProps = {
+  key: number;
   pool: ILiquidityPool;
   onEnablePool: (pool: ILiquidityPool) => void;
 };
@@ -77,13 +78,30 @@ const TabWithDrawItem = ({
   );
 };
 export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
-  const { wallets, getClient, setLoading } = useWalletStore();
-
+  const {
+    wallets,
+    getClient,
+    setLoading,
+    setBalance,
+    getBalance,
+    balanceList,
+    selectedChain,
+  } = useWalletStore();
+  console.log(wallets, 'wallets');
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const [tab, setTab] = useState('deposit');
   const [tabDeposit, setDepositTab] = useState('all');
   const [tabWithDraw, setWithDrawTab] = useState('all');
   const market = new MarketMaker(pool, 300);
+  const fetchBalances = async () => {
+    const balance = await getBalance();
+    setBalance(balance);
+  };
+  useEffect(() => {
+    fetchBalances();
+    console.log(balanceList, 'balanceList');
+  }, []);
+
   const onSingleDeposit = async (denom: string) => {
     const wallet = wallets.find((wallet) => wallet.chainInfo.denom === denom);
     if (wallet === undefined) {
@@ -533,13 +551,14 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
               {/* deposit */}
               <div className="">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold  text-lg">Add liquidity</h2>
+                  <h2 className="font-bold  text-lg">Add liquidity to pool</h2>
                   <label className="cursor-pointer" htmlFor="modal-pool-manage">
                     <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
                   </label>
                 </div>
                 <div className=""> {pool.poolId}</div>
                 <div className="text-center mt-4">
+                  {/* tab */}
                   <div className="mb-4 tabs inline-flex items-center bg-gray-100 dark:bg-gray-700  rounded-full">
                     <TabDepositItem
                       tabDeposit={tabDeposit}
@@ -577,16 +596,21 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                               <h5 className="capitalize">
                                 {item?.balance?.denom}
                               </h5>
-                              <span className="subtitle2 text-osmoverse-400">
+                              {/* <span className="subtitle2 text-osmoverse-400">
                                 name
-                              </span>
+                              </span> */}
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <div className="flex justify-end gap-2 text-caption font-caption">
                               <span className="my-auto">Available</span>
                               <span className="my-auto text-wosmongton-300 opacity-70">
-                                aeests
+                                {balanceList[0]?.balances?.find(
+                                  (balanceItem) =>
+                                    balanceItem?.denom === item?.balance?.denom
+                                )?.amount || 0}
+                                &nbsp;
+                                {item?.balance?.denom}
                               </span>
                             </div>
                             <div className="flex place-content-end items-center gap-1">
@@ -615,6 +639,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                               amount: coin,
                                             }
                                           );
+                                          console.log(newDepositCoin, 'newDepositCoin')
                                           return newDepositCoin;
                                         });
                                       }}
