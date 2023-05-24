@@ -21,22 +21,16 @@ const Swap = () => {
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => {
-    setPools(pools);
+    // setPools(pools);
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'NATIVE';
-          })?.balance?.denom || '',
-        amount: swapPair.first.amount,
+        denom: '',
+        amount: '0',
       },
       second: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'REMOTE';
-          })?.balance?.denom || '',
-        amount: swapPair.second.amount,
+        denom: '',
+        amount: '0',
       },
     }));
   };
@@ -61,7 +55,7 @@ const Swap = () => {
   });
 
   useEffect(() => {
-    refetch();
+    // refetch();
   }, [loading, selectedChain]);
 
   const updateFirstCoin = (value: string) => {
@@ -166,7 +160,7 @@ const Swap = () => {
 
   return (
     <div>
-      8888
+      limit
       <LimitControls
         swapPair={swapPair}
         setSwapPair={setSwapPair}

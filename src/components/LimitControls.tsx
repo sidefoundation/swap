@@ -28,13 +28,7 @@ interface SwapControlsProps {
   updateSecondCoin: (value: string) => void;
   onSwap: (direction: '->' | '<-') => Promise<void>;
 }
-const selectList = [
-  { option: 'Seconds', key: 0 },
-  { option: 'Minutes', key: 60 },
-  { option: 'Hour', key: 60 * 60 },
-  { option: 'Days', key: 24 * 60 * 60 },
-  { option: 'Year', key: 365 * 24 * 60 * 60 },
-];
+
 const LimitControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
@@ -42,6 +36,13 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   updateSecondCoin,
   onSwap,
 }) => {
+  const selectList = [
+    { option: 'Seconds', key: 0 },
+    { option: 'Minutes', key: 60 },
+    { option: 'Hour', key: 60 * 60 },
+    { option: 'Days', key: 24 * 60 * 60 },
+    { option: 'Year', key: 365 * 24 * 60 * 60 },
+  ];
   const {
     selectedChain,
     setBalance,
@@ -53,14 +54,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     getClient,
     getBalance,
   } = useWalletStore();
+
+  const [makerReceivingAddress, setMakerReceivingAddress] = useState('');
+  const [desiredTaker, setDesiredTaker] = useState('');
   const [selectFirst, setSelectFirst] = useState({});
   const [selectSecond, setSelectSecond] = useState({});
   const [currentAtomicSwap, setAtomicSwapList] = useState({});
   const [selectedChannel, setSelectChannel] = useState({});
   const [connected, setConnected] = useState(false);
-  const [tab, setTab] = useState('swap');
+  const [tab, setTab] = useState('limit');
   const [selectedTime, setselectedTime] = useState('Hour');
-  const [expirationTime, onExpirationTime] = useState(1);
+  const [expirationTime, setExpirationTime] = useState(1);
   const [limitRate, setLimitRate] = useState('0');
   const [firstSwapList, setFirstSwapList] = useState([]);
   const [secondSwapList, setSecondSwapList] = useState([]);
@@ -115,9 +119,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       ...swapPair,
       type: tab,
     }));
-    if (tab === 'swap') {
-      updateFirstCoin(swapPair.first.amount);
-    }
+    // if (tab === 'swap') {
+    //   updateFirstCoin(swapPair.first.amount);
+    // }
     if (tab === 'limit') {
       updataFirstCoinLimit(swapPair.first.amount);
       fetchSwapList('sell');
@@ -128,7 +132,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       );
       console.log(currentAtomicSwap, 'currentAtomicSwap');
     }
-  }, [tab]);
+  }, [tab, selectedChain]);
   useEffect(() => {
     console.log(selectFirst, selectFirst, 'selectFirst', AtomicSwapConfig);
     updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
@@ -146,6 +150,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
   }, [selectSecond]);
   const fetchSwapList = async (position: string, url?: string) => {
+    let list = [];
     if (position === 'sell') {
       const list = await fetchAtomicSwapList(selectedChain.restUrl);
       setFirstSwapList(list);
@@ -220,24 +225,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     const client = await getClient(sourceWallet.chainInfo);
 
     // need to confirm balance exist
-    const srcBalances = balances.find(
-      (bal) => bal.id === sourceWallet.chainInfo.chainID
-    );
-    const tarBalances = balances.find(
-      (bal) => bal.id === targetWallet.chainInfo.chainID
-    );
-    // || tarBalances === undefined
-    console.log(srcBalances, tarBalances, 'tarBalances');
-    if (srcBalances === undefined) {
-      return;
-    }
 
-    const sellToken = srcBalances?.balances?.find(
-      (bal) => bal.denom == swapPair.first?.denom
-    );
-    const buyToken = tarBalances?.balances?.find(
-      (bal) => bal.denom == swapPair.second?.denom
-    );
+    const sellToken = swapPair.first;
+    const buyToken = swapPair.second;
+    console.log(sellToken, buyToken, 9999999);
     // || buyToken === undefined
     if (sellToken === undefined) {
       return;
@@ -249,10 +240,15 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     // Get current timestamp in milliseconds
     const currentTimestamp = currentDate.getTime();
 
-    // Calculate the timestamp for 24 hours from now
+    // Calculate the timestamp for 24 hours from now  24 * 60 * 60 * 1000;
     const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
-    const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
+    // 1 'expirationTime' 'selectedTime' 'Hour'
 
+    const inputExpirationTime =
+      expirationTime *
+      selectList?.find((item) => item.option === selectedTime)?.key * 1000;
+    const expirationTimestamp = inputExpirationTime || oneDayInMilliseconds;
+    console.log(inputExpirationTime, 'inputExpirationTime')
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
@@ -262,8 +258,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       sellToken: sellToken,
       buyToken: buyToken,
       makerAddress: sourceWallet.address,
-      makerReceivingAddress: sourceWallet.address,
-      desiredTaker: '',
+      makerReceivingAddress: makerReceivingAddress,
+      desiredTaker: desiredTaker,
       createTimestamp: Long.fromNumber(currentTimestamp),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
@@ -272,6 +268,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       timeoutTimestamp: timeoutTimeStamp,
       expirationTimestamp: Long.fromInt(expirationTimestamp),
     };
+
     const msg = {
       typeUrl: '/ibc.applications.atomic_swap.v1.MakeSwapMsg',
       value: makeOrderMsg,
@@ -282,6 +279,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       amount: [{ denom: sourceWallet.chainInfo.denom, amount: '0.01' }],
       gas: '200000',
     };
+    console.log('sendmsg:', makeOrderMsg, 'makeOrderMsg', fee, 'fee');
+    console.log('sendmsg:', sourceWallet, 'sourceWallet');
     const data = await client!.signWithEthermint(
       sourceWallet.address,
       [msg],
@@ -304,7 +303,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
         <div className="inline-flex items-center bg-gray-100 rounded-full tabs dark:bg-gray-700">
-          {/* <TabItem tab={tab} setTab={setTab} title="Swap" value="swap" /> */}
           <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" />
           <TabItem tab={tab} setTab={setTab} title="Order" value="order" />
         </div>
@@ -313,155 +311,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
           <MdOutlineSettings className="text-xl cursor-pointer" />
         </label>
       </div>
-      {/* swap */}
-      {tab === 'swap' ? (
-        <div>
-          <div className="p-5 rounded-lg bg-base-200">
-            <div className="flex items-center mb-2">
-              <div className="flex-1">Sell</div>
-              <div className="mr-2">
-                Balance: {filterBalance(swapPair.first?.denom)}
-              </div>
-              <div className="font-semibold cursor-pointer" onClick={() => {}}>
-                Max
-              </div>
-            </div>
-
-            <div className="flex items-center mb-2">
-              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-                <Image
-                  alt="logo"
-                  src="/assets/images/Side.png"
-                  width={20}
-                  height={20}
-                  className="w-7 h-7"
-                />
-                <div className="flex-1 font-semibold text-center capitalize">
-                  {swapPair.first?.denom}
-                </div>
-
-                <MdKeyboardArrowDown className="text-base" />
-              </div>
-
-              <CoinInput
-                coin={swapPair.first}
-                placeholder="Amount"
-                onChange={updateFirstCoin}
-              />
-            </div>
-
-            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
-              <div className="flex-1">Side Hub</div>
-              <div></div>
-            </div>
-          </div>
-          <div className="flex items-center justify-center -mt-5 -mb-5">
-            <Image
-              alt="switch"
-              src="/assets/images/switch.png"
-              width="20"
-              height="20"
-              className="bg-white rounded-full shadow w-14 h-14 "
-              onClick={() => switchSwap()}
-            />
-          </div>
-          <div className="p-5 rounded-lg bg-base-200">
-            <div className="flex items-center mb-2">
-              <div className="flex-1">Buy</div>
-              <div className="mr-2">
-                Balance: {filterBalance(swapPair.second?.denom)}
-              </div>
-              <div className="font-semibold cursor-pointer" onClick={() => {}}>
-                Max
-              </div>
-            </div>
-
-            <div className="flex items-center mb-2">
-              <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-                <Image
-                  alt="logo"
-                  src="/assets/images/Side.png"
-                  width={20}
-                  height={20}
-                  className="w-7 h-7"
-                />
-                <div className="flex-1 font-semibold text-center capitalize">
-                  {swapPair.second?.denom}
-                </div>
-
-                <MdKeyboardArrowDown className="text-base" />
-              </div>
-              <CoinInput
-                coin={swapPair.second}
-                placeholder="Amount"
-                onChange={updateSecondCoin}
-              />
-            </div>
-
-            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
-              <div className="flex-1">Side Hub</div>
-              <div>~$9999</div>
-            </div>
-          </div>
-          {connected ? (
-            <button
-              className="w-full mt-6 text-lg capitalize btn btn-primary"
-              disabled={
-                parseFloat(swapPair.first.amount) >
-                  parseFloat(filterBalance(swapPair.first?.denom)) ||
-                !parseFloat(swapPair.first?.amount) ||
-                !parseFloat(swapPair.second?.amount)
-              }
-              onClick={() => onSwap('->')}
-            >
-              {parseFloat(swapPair.first.amount) >
-              parseFloat(filterBalance(swapPair.first?.denom))
-                ? 'Insufficient Balance'
-                : 'Swap'}
-            </button>
-          ) : (
-            <button
-              className="w-full mt-6 text-lg capitalize btn btn-primary"
-              onClick={connectWallet}
-            >
-              Connect Wallet
-            </button>
-          )}
-
-          {/*<button
-            className="flex-grow mt-4 text-2xl font-semibold rounded-full md:mt-0 btn btn-primary btn-lg hover:text-base-100"
-            onClick={() => onSwap('<-')}
-          >
-            {'SWAP <-'}
-          </button> */}
-          <div className="pb-3 mt-5 border rounded-lg dark:border-gray-700">
-            <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">
-              Details
-            </div>
-            <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
-              <div>You will receive</div>
-              <div>
-                ≈ {swapPair.second?.amount} {swapPair.second?.denom}
-              </div>
-            </div>
-            <div className="flex items-center justify-between px-4 pb-1 text-sm">
-              <div>Minimum received after slippage (1%)</div>
-              <div>
-                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99).toFixed(6)}{' '}
-                {swapPair.second?.denom}
-              </div>
-            </div>
-            <div className="flex items-center justify-between px-4 pb-1 text-sm">
-              <div>Price impact</div>
-              <div>{`--`}</div>
-            </div>
-            <div className="flex items-center justify-between px-4 pb-1 text-sm">
-              <div>Swap fees</div>
-              <div>≈ {`--`}</div>
-            </div>
-          </div>
-        </div>
-      ) : null}
       {/* limit */}
       {tab === 'limit' ? (
         <div>
@@ -490,13 +339,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                         return (
                           <li key={index} className="truncate w-full">
                             <a onClick={() => setSelectFirst(item)}>
-                              {/* <Image
-                                alt="logo"
-                                src="/assets/images/Side.png"
-                                width={20}
-                                height={20}
-                                className="w-7 h-7"
-                              /> */}
                               <span className="flex-1 font-semibold text-center capitalize">
                                 {item?.denom}
                               </span>
@@ -639,13 +481,27 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 </div>
               </div>
             </div>
-
+            <div className="flex items-center mt-4">
+              <div className="flex-1 px-5 pt-3 pb-2  rounded-lg bg-base-200">
+                <div className="mb-1 text-sm">makerReceivingAddress</div>
+                <input
+                  className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
+                  placeholder="NONE"
+                  value={makerReceivingAddress}
+                  onChange={(event) =>
+                    setMakerReceivingAddress(event?.target?.value)
+                  }
+                />
+              </div>
+            </div>
             <div className="flex items-center mt-4">
               <div className="px-5 pt-3 pb-2 mr-4 rounded-lg bg-base-200">
                 <div className="mb-1 text-sm">Taker Address (optional)</div>
                 <input
                   className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
                   placeholder="NONE"
+                  value={desiredTaker}
+                  onChange={(event) => setDesiredTaker(event?.target?.value)}
                 />
               </div>
               <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
@@ -658,7 +514,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     step="1"
                     min="0"
                     value={expirationTime}
-                    onChange={(event) => onExpirationTime(event.target.value)}
+                    onChange={(event) => setExpirationTime(event.target.value)}
                     id="expiration-time"
                   />
                   <div className="flex-1 px-4 text-base rounded-full bg-base-100">
