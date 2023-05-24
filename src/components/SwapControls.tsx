@@ -109,7 +109,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           </div>
         </div>
 
-        <label htmlFor="modal-swap-setting">
+        <label htmlFor="modal-swap-setting" className="hidden">
           <MdOutlineSettings className="text-xl cursor-pointer" />
         </label>
       </div>

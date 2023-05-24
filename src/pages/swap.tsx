@@ -99,7 +99,7 @@ const Swap = () => {
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
-
+    const toastItem = toast.loading('Swap in progress');
     try {
       const swapMsg: MsgSwapRequest = {
         swapType: SwapMsgType.LEFT,
@@ -124,7 +124,7 @@ const Swap = () => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-      const toastItem = toast.loading('Swap in progress');
+
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -141,9 +141,11 @@ const Swap = () => {
             });
           }
         );
-        if (`${result?.code}` !== '0') {
-          console.log(result.raw_log, 'raw_log');
-          toast.error(result.raw_log, {
+        console.log(result, 'result')
+        const tx_result = result?.tx_response || result?.txs?.[0]?.tx_result || result;
+        if (`${tx_result?.code}` !== '0') {
+          console.log(tx_result?.log || tx_result?.raw_log, 'raw_log');
+          toast.error(tx_result?.log || tx_result?.raw_log, {
             id: toastItem,
           });
         } else {
@@ -154,12 +156,15 @@ const Swap = () => {
           getBalance();
         }
       } else {
-        toast.error('there are problem in encoding');
-        console.log('there are problem in encoding');
+        toast.error('error', {
+          id: toastItem,
+        });
       }
       // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")
     } catch (error) {
-      console.log('error', error);
+      toast.error(error, {
+        id: toastItem,
+      });
     }
     setLoading(false);
   };
