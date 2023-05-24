@@ -18,7 +18,6 @@ import { MarketMaker } from '@/utils/swap';
 import { MdKeyboardArrowDown, MdOutlineClose } from 'react-icons/md';
 import { poolStore } from '@/store/pool';
 
-import { AppConfig } from '@/utils/AppConfig';
 import Image from 'next/image';
 import React from 'react';
 
@@ -90,12 +89,10 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     balanceList,
     selectedChain,
   } = useWalletStore();
-  console.log(wallets, 'wallets');
   const [selectedCoin, setSelectedCoin] = useState({});
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const [tab, setTab] = useState('deposit');
   const [tabDeposit, setDepositTab] = useState('all');
-  const [tabWithDraw, setWithDrawTab] = useState('all');
   const market = new MarketMaker(pool, 300);
   const fetchBalances = async () => {
     const balance = await getBalance();
@@ -103,8 +100,8 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
   };
   useEffect(() => {
     fetchBalances();
-    console.log(balanceList, 'balanceList');
   }, []);
+
   const onSingleDeposit = async (denom: string) => {
     const wallet = wallets.find((wallet) => wallet.chainInfo.denom === denom);
     if (wallet === undefined) {

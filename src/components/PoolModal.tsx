@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdOutlineClose, MdKeyboardArrowDown } from 'react-icons/md';
 import { MarketMaker } from '@/utils/swap';
 import useWalletStore from '@/store/wallet';
+import { useAssetsStore, getBalanceList } from '@/store/assets';
 import {
   poolStore,
   usePoolStore,
@@ -18,7 +19,18 @@ export default function PoolModal() {
   const poolAsset1 = poolItem?.assets?.[0];
   const poolAsset2 = poolItem?.assets?.[1];
 
+  const { balanceList } = useAssetsStore();
+
+  const balanceMap = {};
+  for (const item of balanceList) {
+    balanceMap[item.denom] = item?.amount;
+  }
+
   const { wallets, getClient, selectedChain } = useWalletStore();
+
+  useEffect(() => {
+    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+  }, [selectedChain, wallets]);
 
   const confirmAdd = () => {
     if (poolForm?.action === 'add' && tab === 'all') {
@@ -107,7 +119,8 @@ export default function PoolModal() {
                       {poolAsset1?.side}
                     </div>
                     <div className="text-xs">
-                      Available: 0.000000{' '}
+                      Available:{' '}
+                      {balanceMap?.[poolAsset1?.balance?.denom] ?? '0'}{' '}
                       <span className="capitalize">
                         {poolAsset1?.balance?.denom}
                       </span>
@@ -145,7 +158,7 @@ export default function PoolModal() {
                       {poolAsset2?.side}
                     </div>
                     <div className="text-xs">
-                      Available: 0.000000{' '}
+                      Available: {balanceMap?.[poolAsset2?.balance?.denom]}{' '}
                       <span className="capitalize">
                         {poolAsset2?.balance?.denom}
                       </span>
@@ -182,12 +195,15 @@ export default function PoolModal() {
                         return (
                           <li key={index}>
                             <a
-                              className=" capitalize"
+                              className=" capitalize flex items-center justify-between"
                               onClick={() => {
                                 poolStore.poolForm.single = item;
                               }}
                             >
-                              {item?.balance?.denom}
+                              <span className="text-base font-semibold">
+                                {item?.balance?.denom}
+                              </span>
+                              <span className="text-xs">{item?.side}</span>
                             </a>
                           </li>
                         );
@@ -208,7 +224,7 @@ export default function PoolModal() {
                     {poolForm?.single?.side}
                   </div>
                   <div className="text-xs">
-                    Available: 0.000000{' '}
+                    Available: {balanceMap?.[poolForm?.single?.balance?.denom]}{' '}
                     <span className="capitalize">
                       {poolForm?.single?.balance?.denom}
                     </span>
