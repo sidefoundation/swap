@@ -1,20 +1,32 @@
+import { devtools } from 'valtio/utils';
+import { Coin } from '@cosmjs/stargate';
 import { proxy, useSnapshot } from 'valtio';
 import type { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
 
 type Store = {
   poolList: ILiquidityPool[];
+  poolItem: ILiquidityPool;
   poolForm: {
-    poolId: string;
-    denom: string;
-    amount: string;
+    single: ILiquidityPool;
+    signleAmount: string;
+    amount1: string;
+    amount2: string;
   };
 };
 
 export const poolStore = proxy<Store>({
   poolList: [] as ILiquidityPool[],
-  poolForm: {},
+  poolItem: {} as ILiquidityPool,
+  poolForm: {
+    single: {},
+    signleAmount: '',
+    amount1: '',
+    amount2: '',
+  },
 });
+
+devtools(poolStore, { name: 'pool', enabled: true });
 
 export const usePoolStore = () => {
   return useSnapshot(poolStore);

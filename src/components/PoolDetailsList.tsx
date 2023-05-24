@@ -292,11 +292,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           </div>
         </label>
       </label>
-
-      <label htmlFor="modal-pool-modal" className="btn">
-        open pool add
-      </label>
-
+      
       <PoolModal />
     </div>
   );

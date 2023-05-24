@@ -16,6 +16,7 @@ import fetchAccount from '@/http/requests/get/fetchAccount';
 import { TextEncoder } from 'text-encoding';
 import { MarketMaker } from '@/utils/swap';
 import { MdKeyboardArrowDown, MdOutlineClose } from 'react-icons/md';
+import { poolStore } from '@/store/pool';
 
 import Image from 'next/image';
 import React from 'react';
@@ -166,8 +167,8 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     setLoading(false);
   };
   const onDeposit = async () => {
-    const currentDenom = selectedCoin?.balance?.denom
-    console.log(selectedCoin,'887878')
+    const currentDenom = selectedCoin?.balance?.denom;
+    console.log(selectedCoin, '887878');
   };
   const onDoubleDeposit = async (localDenom: string, remoteDenom: string) => {
     const wallet = wallets.find(
@@ -537,6 +538,14 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
 
       <td>
         <label
+          htmlFor="modal-pool-modal"
+          className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
+          onClick={() => (poolStore.poolItem = pool)}
+        >
+          Add
+        </label>
+
+        <label
           htmlFor="modal-pool-manage"
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn"
         >
@@ -728,11 +737,12 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                           <div className="flex justify-end gap-2 text-caption font-caption">
                             <span className="my-auto">Available</span>
                             <span className="my-auto text-wosmongton-300 opacity-70">
-                            {balanceList[0]?.balances?.find(
-                                  (balanceItem) =>
-                                    balanceItem?.denom === selectedCoin?.balance?.denom
-                                )?.amount || 0}
-                                {selectedCoin?.balance?.denom}
+                              {balanceList[0]?.balances?.find(
+                                (balanceItem) =>
+                                  balanceItem?.denom ===
+                                  selectedCoin?.balance?.denom
+                              )?.amount || 0}
+                              {selectedCoin?.balance?.denom}
                             </span>
                           </div>
                           <div className="flex place-content-end items-center gap-1">
