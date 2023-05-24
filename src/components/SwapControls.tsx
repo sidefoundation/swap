@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin, StdFee } from '@cosmjs/stargate';
+import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
+
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -51,12 +53,17 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     getClient,
     getBalance,
   } = useWalletStore();
+  const [selectFirst, setSelectFirst] = useState({});
+  const [selectSecond, setSelectSecond] = useState({});
+  const [currentAtomicSwap, setAtomicSwapList] = useState({});
+  const [selectedChannel, setSelectChannel] = useState({});
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('swap');
   const [selectedTime, setselectedTime] = useState('Hour');
   const [expirationTime, onExpirationTime] = useState(1);
   const [limitRate, setLimitRate] = useState('0');
   const [firstSwapList, setFirstSwapList] = useState([]);
+  const [secondSwapList, setSecondSwapList] = useState([]);
   const [balances, setBalances] = useState<
     {
       id: string;
@@ -113,12 +120,40 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     }
     if (tab === 'limit') {
       updataFirstCoinLimit(swapPair.first.amount);
-      fetchSwapList();
+      fetchSwapList('sell');
+      setAtomicSwapList(
+        AtomicSwapConfig.find((item) => {
+          return (item.chainID = selectedChain.chainID);
+        })
+      );
+      console.log(currentAtomicSwap, 'currentAtomicSwap');
     }
   }, [tab]);
-  const fetchSwapList = async () => {
-    const list = await fetchAtomicSwapList(selectedChain.restUrl);
-    setFirstSwapList(list);
+  useEffect(() => {
+    console.log(selectFirst, selectFirst, 'selectFirst', AtomicSwapConfig);
+    updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
+  }, [selectFirst]);
+  useEffect(() => {
+    console.log(selectedChannel, 'selectedChannel');
+    if (selectedChannel?.endpoint) {
+      fetchSwapList('buy', selectedChannel?.endpoint);
+    }
+    // updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
+  }, [selectedChannel]);
+
+  useEffect(() => {
+    console.log(selectFirst, selectFirst, 'selectFirst', AtomicSwapConfig);
+    updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
+  }, [selectSecond]);
+  const fetchSwapList = async (position: string, url?: string) => {
+    if (position === 'sell') {
+      const list = await fetchAtomicSwapList(selectedChain.restUrl);
+      setFirstSwapList(list);
+    }
+    if (position === 'buy' && url) {
+      const list = await fetchAtomicSwapList(url);
+      setSecondSwapList(list);
+    }
     console.log(99, 'lsi', list);
   };
   const filterBalance = (denom: string) => {
@@ -129,25 +164,33 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       })?.amount || 0
     );
   };
+  // get buy chain
+  // const up
   // limit input
-  const updataFirstCoinLimit = (value: string) => {
+  const updataFirstCoinLimit = (value: string, denom?: string) => {
     setSwapPair((swapPair) => ({
       ...swapPair,
-      first: { denom: swapPair.first.denom, amount: value },
+      first: { denom: denom || swapPair.first.denom, amount: value },
     }));
     if (!!parseFloat(value) || !!parseFloat(swapPair.second.amount)) {
+      setLimitRate('0');
+    }
+    if (!!parseFloat(value) && !!parseFloat(swapPair.second.amount)) {
       const rate = (
         parseFloat(value) / parseFloat(swapPair.second.amount)
       ).toFixed(8);
       setLimitRate(rate);
     }
   };
-  const updataSecondCoinLimit = (value: string) => {
+  const updataSecondCoinLimit = (value: string, denom?: string) => {
     setSwapPair((swapPair) => ({
       ...swapPair,
-      second: { denom: swapPair.second.denom, amount: value },
+      second: { denom: denom || swapPair.second.denom, amount: value },
     }));
     if (!!parseFloat(value) || !!parseFloat(swapPair.first.amount)) {
+      setLimitRate('0');
+    }
+    if (!!parseFloat(value) && !!parseFloat(swapPair.first.amount)) {
       const rate = (
         parseFloat(swapPair.first.amount) / parseFloat(value)
       ).toFixed(8);
@@ -438,7 +481,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
                 <ul className="menu menu-horizontal px-1 w-full">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full">
+                    <a className="w-full truncate font-semibold">
                       {swapPair.first?.denom}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
@@ -446,7 +489,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                       {firstSwapList.map((item, index) => {
                         return (
                           <li key={index} className="truncate w-full">
-                            <a onClick={() => {}}>
+                            <a onClick={() => setSelectFirst(item)}>
                               {/* <Image
                                 alt="logo"
                                 src="/assets/images/Side.png"
@@ -464,19 +507,6 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     </ul>
                   </li>
                 </ul>
-
-                {/* <Image
-                  alt="logo"
-                  src="/assets/images/Side.png"
-                  width={20}
-                  height={20}
-                  className="w-7 h-7"
-                />
-                <div className="flex-1 font-semibold text-center capitalize">
-                  {swapPair.first?.denom}
-                </div>
-
-                <MdKeyboardArrowDown className="text-base" /> */}
               </div>
 
               {tab === 'limit' && (
@@ -507,7 +537,34 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           {/* second */}
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
-              <div className="flex-1">Buy</div>
+              <div className="flex-1 flex">
+                <span>Buy</span>
+                <div className="w-[160px]">
+                  <ul className="menu menu-horizontal px-1 w-full">
+                    <li tabIndex={0} className="w-full">
+                      <a className="w-full truncate font-semibold">
+                        {selectedChannel?.name}
+                        <MdKeyboardArrowDown className="fill-current" />
+                      </a>
+                      <ul className="p-2 bg-base-100 z-10 w-full">
+                        {currentAtomicSwap?.atomic_swap?.counterparties?.map(
+                          (item, index) => {
+                            return (
+                              <li key={index} className="truncate w-full">
+                                <a onClick={() => setSelectChannel(item)}>
+                                  <span className="flex-1 font-semibold text-center capitalize">
+                                    {item?.name}
+                                  </span>
+                                </a>
+                              </li>
+                            );
+                          }
+                        )}
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </div>
               <div className="mr-2">
                 Balance: {filterBalance(swapPair.second?.denom)}
               </div>
@@ -518,18 +575,27 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
             <div className="flex items-center mb-2">
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-                <Image
-                  alt="logo"
-                  src="/assets/images/Side.png"
-                  width={20}
-                  height={20}
-                  className="w-7 h-7"
-                />
-                <div className="flex-1 font-semibold text-center capitalize">
-                  {swapPair.second?.denom}
-                </div>
-
-                <MdKeyboardArrowDown className="text-base" />
+                <ul className="menu menu-horizontal px-1 w-full">
+                  <li tabIndex={0} className="w-full">
+                    <a className="w-full truncate font-semibold">
+                      {swapPair.second?.denom}
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10 w-full">
+                      {secondSwapList?.map((item, index) => {
+                        return (
+                          <li key={index} className="truncate w-full">
+                            <a onClick={() => setSelectSecond(item)}>
+                              <span className="flex-1 font-semibold text-center capitalize">
+                                {item?.denom}
+                              </span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
               </div>
 
               {tab === 'limit' && (
@@ -550,7 +616,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <div>
             <div className="p-5 mt-4 rounded-lg bg-base-200">
               <div className="flex items-center justify-between mb-2 text-sm">
-                <div>Sell {swapPair.first.denom} at rate</div>
+                <div className="truncate">
+                  Sell {swapPair.first.denom} at rate
+                </div>
                 <div className="font-semibold hidden">Set to maket</div>
               </div>
               <div className="flex items-center justify-between">
