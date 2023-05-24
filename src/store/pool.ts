@@ -10,8 +10,8 @@ type Store = {
   poolForm: {
     single: ILiquidityPool;
     signleAmount: string;
-    amount1: string;
-    amount2: string;
+    remoteAmount: string;
+    nativeAmount: string;
   };
 };
 
@@ -21,8 +21,8 @@ export const poolStore = proxy<Store>({
   poolForm: {
     single: {},
     signleAmount: '',
-    amount1: '',
-    amount2: '',
+    remoteAmount: '',
+    nativeAmount: '',
   },
 });
 

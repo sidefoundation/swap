@@ -59,9 +59,13 @@ export default function PoolModal() {
                       {poolAsset1?.balance?.denom}
                     </div>
                     <input
-                      value={poolForm.amount1}
+                      value={
+                        poolForm[`${poolAsset1?.side?.toLowerCase()}Amount`]
+                      }
                       onChange={(e) => {
-                        poolStore.poolForm.amount1 = e.target.value;
+                        poolStore.poolForm[
+                          `${poolAsset1?.side?.toLowerCase()}Amount`
+                        ] = e.target.value;
                       }}
                       className="text-lg text-right bg-gray-100 dark:bg-gray-700  dark:text-white focus-within:outline-none mb-2 h-8 px-4 rounded"
                     />
@@ -91,9 +95,13 @@ export default function PoolModal() {
                       {poolAsset2?.balance?.denom}
                     </div>
                     <input
-                      value={poolForm.amount2}
+                      value={
+                        poolForm[`${poolAsset2?.side?.toLowerCase()}Amount`]
+                      }
                       onChange={(e) => {
-                        poolStore.poolForm.amount2 = e.target.value;
+                        poolStore.poolForm[
+                          `${poolAsset2?.side?.toLowerCase()}Amount`
+                        ] = e.target.value;
                       }}
                       className="text-lg text-right bg-gray-100  dark:bg-gray-700 dark:text-white focus-within:outline-none mb-2 h-8 px-4 rounded"
                     />
