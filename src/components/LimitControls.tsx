@@ -389,7 +389,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                         <MdKeyboardArrowDown className="fill-current" />
                       </a>
                       <ul className="p-2 bg-base-100 z-10 w-full">
-                        {currentAtomicSwap?.atomic_swap?.counterparties?.map(
+                        {currentAtomicSwap?.counterparties?.map(
                           (item, index) => {
                             return (
                               <li key={index} className="truncate w-full">

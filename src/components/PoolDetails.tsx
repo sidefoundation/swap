@@ -165,7 +165,10 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     }
     setLoading(false);
   };
-
+  const onDeposit = async () => {
+    const currentDenom = selectedCoin?.balance?.denom
+    console.log(selectedCoin,'887878')
+  };
   const onDoubleDeposit = async (localDenom: string, remoteDenom: string) => {
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.denom === localDenom
@@ -721,33 +724,15 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                             </ul>
                           </li>
                         </ul>
-                        {/* {pool.assets.map((item, index) => {
-                          return (
-                            <div className="flex w-full place-content-between items-center">
-                              <div className="flex gap-2 my-auto">
-                                <div
-                                  className="radial-progress bg-primary text-primary-content border-4 border-primary"
-                                  style={{ '--value': item.weight }}
-                                >
-                                  {item.weight}%
-                                </div>
-                                <div className="flex flex-col place-content-center text-left">
-                                  <h5 className="capitalize">
-                                    {item?.balance?.denom}
-                                  </h5>
-                                  <span className="subtitle2 text-osmoverse-400">
-                                    name
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })} */}
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-end gap-2 text-caption font-caption">
                             <span className="my-auto">Available</span>
                             <span className="my-auto text-wosmongton-300 opacity-70">
-                              aeests
+                            {balanceList[0]?.balances?.find(
+                                  (balanceItem) =>
+                                    balanceItem?.denom === selectedCoin?.balance?.denom
+                                )?.amount || 0}
+                                {selectedCoin?.balance?.denom}
                             </span>
                           </div>
                           <div className="flex place-content-end items-center gap-1">
@@ -791,7 +776,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                   tabDeposit === 'single' && (
                     <button
                       className="btn btn-primary w-full"
-                      onClick={() => onDoubleDeposit('aside', 'bside')}
+                      onClick={() => onDeposit()}
                     >
                       Deposit
                     </button>
