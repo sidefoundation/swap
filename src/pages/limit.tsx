@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
 
-import SwapControls from '@/components/SwapControls';
+import LimitControls from '@/components/LimitControls';
 import {
   MsgSwapRequest,
   SwapMsgType,
@@ -21,22 +21,16 @@ const Swap = () => {
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => {
-    setPools(pools);
+    // setPools(pools);
     setSwapPair((swapPair) => ({
       ...swapPair,
       first: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'NATIVE';
-          })?.balance?.denom || '',
-        amount: swapPair.first.amount,
+        denom: '',
+        amount: '0',
       },
       second: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'REMOTE';
-          })?.balance?.denom || '',
-        amount: swapPair.second.amount,
+        denom: '',
+        amount: '0',
       },
     }));
   };
@@ -61,7 +55,7 @@ const Swap = () => {
   });
 
   useEffect(() => {
-    refetch();
+    // refetch();
   }, [loading, selectedChain]);
 
   const updateFirstCoin = (value: string) => {
@@ -99,7 +93,7 @@ const Swap = () => {
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
-    const toastItem = toast.loading('Swap in progress');
+
     try {
       const swapMsg: MsgSwapRequest = {
         swapType: SwapMsgType.LEFT,
@@ -124,7 +118,7 @@ const Swap = () => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-
+      const toastItem = toast.loading('Swap in progress');
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -141,11 +135,9 @@ const Swap = () => {
             });
           }
         );
-        console.log(result, 'result')
-        const tx_result = result?.tx_response || result?.txs?.[0]?.tx_result || result;
-        if (`${tx_result?.code}` !== '0') {
-          console.log(tx_result?.log || tx_result?.raw_log, 'raw_log');
-          toast.error(tx_result?.log || tx_result?.raw_log, {
+        if (`${result?.code}` !== '0') {
+          console.log(result.raw_log, 'raw_log');
+          toast.error(result.raw_log, {
             id: toastItem,
           });
         } else {
@@ -156,22 +148,19 @@ const Swap = () => {
           getBalance();
         }
       } else {
-        toast.error('error', {
-          id: toastItem,
-        });
+        toast.error('there are problem in encoding');
+        console.log('there are problem in encoding');
       }
       // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")
     } catch (error) {
-      toast.error(error, {
-        id: toastItem,
-      });
+      console.log('error', error);
     }
     setLoading(false);
   };
 
   return (
     <div>
-      <SwapControls
+      <LimitControls
         swapPair={swapPair}
         setSwapPair={setSwapPair}
         updateFirstCoin={updateFirstCoin}
