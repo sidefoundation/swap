@@ -1,6 +1,13 @@
 import React from 'react';
 import { MdOutlineClose, MdKeyboardArrowDown } from 'react-icons/md';
-import { poolStore, usePoolStore } from '../store/pool';
+import { MarketMaker } from '@/utils/swap';
+import useWalletStore from '@/store/wallet';
+import {
+  poolStore,
+  usePoolStore,
+  addPoolItemMulti,
+  addPoolItemSingle,
+} from '../store/pool';
 import TabItem from './TabItem';
 
 export default function PoolModal() {
@@ -8,6 +15,18 @@ export default function PoolModal() {
   const { poolItem, poolForm } = usePoolStore();
   const poolAsset1 = poolItem?.assets?.[0];
   const poolAsset2 = poolItem?.assets?.[1];
+
+  const { wallets, getClient, selectedChain } = useWalletStore();
+
+  const confirmAdd = () => {
+    if (tab === 'all') {
+      const market = new MarketMaker(poolItem, 300);
+      addPoolItemMulti(wallets, market, getClient);
+    }
+    if (tab === 'single') {
+      addPoolItemSingle(wallets, selectedChain, getClient);
+    }
+  };
 
   return (
     <div>
@@ -59,6 +78,7 @@ export default function PoolModal() {
                       {poolAsset1?.balance?.denom}
                     </div>
                     <input
+                      defaultValue=""
                       value={
                         poolForm[`${poolAsset1?.side?.toLowerCase()}Amount`]
                       }
@@ -95,6 +115,7 @@ export default function PoolModal() {
                       {poolAsset2?.balance?.denom}
                     </div>
                     <input
+                      defaultValue=""
                       value={
                         poolForm[`${poolAsset2?.side?.toLowerCase()}Amount`]
                       }
@@ -162,6 +183,7 @@ export default function PoolModal() {
                     </ul>
                   </div>
                   <input
+                    defaultValue=""
                     value={poolForm.signleAmount}
                     onChange={(e) => {
                       poolStore.poolForm.signleAmount = e.target.value;
@@ -186,7 +208,12 @@ export default function PoolModal() {
           ) : null}
 
           <div className="mt-6">
-            <button className="btn btn-primary w-full">Confirm</button>
+            <button
+              className="btn btn-primary w-full"
+              onClick={() => confirmAdd()}
+            >
+              Confirm
+            </button>
           </div>
         </label>
       </label>
