@@ -15,9 +15,10 @@ import {
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import { TextEncoder } from 'text-encoding';
 import { MarketMaker } from '@/utils/swap';
-import { MdOutlineClose } from 'react-icons/md';
+import { MdKeyboardArrowDown, MdOutlineClose } from 'react-icons/md';
 
 import Image from 'next/image';
+import React from 'react';
 
 export type PoolDetailsProps = {
   key: number;
@@ -88,6 +89,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     selectedChain,
   } = useWalletStore();
   console.log(wallets, 'wallets');
+  const [selectedCoin, setSelectedCoin] = useState({});
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const [tab, setTab] = useState('deposit');
   const [tabDeposit, setDepositTab] = useState('all');
@@ -177,17 +179,21 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     }
 
     const localDepositCoin = depositCoin?.get(localDenom);
+    console.log(localDepositCoin, 'localDepositCoin');
     const remoteDepositCoin = depositCoin?.get(remoteDenom);
+    console.log(remoteDepositCoin, 'remoteDepositCoin');
+
     if (localDepositCoin === undefined || remoteDepositCoin === undefined) {
       return;
     }
 
     const ratio = market.getRatio(remoteDenom, localDenom);
+    console.log(ratio, 'ratio');
     const slippage =
       Math.abs(
         (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
       ) * 100;
-    console.log(slippage);
+    console.log(slippage, ' slippage');
     if (slippage > 5) {
       setDepositCoin((prev) => {
         const newPrev = new Map(prev);
@@ -639,7 +645,10 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                                               amount: coin,
                                             }
                                           );
-                                          console.log(newDepositCoin, 'newDepositCoin')
+                                          console.log(
+                                            newDepositCoin,
+                                            'newDepositCoin'
+                                          );
                                           return newDepositCoin;
                                         });
                                       }}
@@ -670,7 +679,49 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                   tabDeposit === 'single' && (
                     <div className="flex w-full flex-col gap-1 rounded-2xl border border-osmoverse-700 p-4 md:rounded-xl md:p-3 mb-4">
                       <div className="flex w-full place-content-between items-center">
-                        {pool.assets.map((item, index) => {
+                        <ul className="menu menu-horizontal px-1 w-full">
+                          <li tabIndex={0} className="w-full">
+                            <a className="w-full truncate font-semibold">
+                              <div
+                                className="radial-progress bg-primary text-primary-content border-4 border-primary"
+                                style={{ '--value': selectedCoin?.weight }}
+                              >
+                                {selectedCoin?.weight}%
+                              </div>
+                              {selectedCoin?.balance?.denom}
+                              <MdKeyboardArrowDown className="fill-current" />
+                            </a>
+                            <ul className="p-2 bg-base-100 z-10 w-full">
+                              {pool?.assets.map((item, index) => {
+                                return (
+                                  <li key={index} className="truncate w-full">
+                                    <a onClick={() => setSelectedCoin(item)}>
+                                      <span className="flex-1 font-semibold text-center capitalize">
+                                        {/* {item?.denom} */}
+                                      </span>
+                                      <div className="flex w-full place-content-between items-center">
+                                        <div className="flex gap-2 my-auto">
+                                          <div
+                                            className="radial-progress bg-primary text-primary-content border-4 border-primary"
+                                            style={{ '--value': item.weight }}
+                                          >
+                                            {item.weight}%
+                                          </div>
+                                          <div className="flex flex-col place-content-center text-left">
+                                            <h5 className="capitalize">
+                                              {item?.balance?.denom}
+                                            </h5>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </a>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </li>
+                        </ul>
+                        {/* {pool.assets.map((item, index) => {
                           return (
                             <div className="flex w-full place-content-between items-center">
                               <div className="flex gap-2 my-auto">
@@ -691,7 +742,7 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
                               </div>
                             </div>
                           );
-                        })}
+                        })} */}
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-end gap-2 text-caption font-caption">
                             <span className="my-auto">Available</span>
