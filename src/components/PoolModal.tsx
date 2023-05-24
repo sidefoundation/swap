@@ -7,6 +7,8 @@ import {
   usePoolStore,
   addPoolItemMulti,
   addPoolItemSingle,
+  redeemPoolItemSingle,
+  redeemPoolItemMulti,
 } from '../store/pool';
 import TabItem from './TabItem';
 
@@ -19,12 +21,19 @@ export default function PoolModal() {
   const { wallets, getClient, selectedChain } = useWalletStore();
 
   const confirmAdd = () => {
-    if (tab === 'all') {
+    if (poolForm?.action === 'add' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
       addPoolItemMulti(wallets, market, getClient);
     }
-    if (tab === 'single') {
+    if (poolForm?.action === 'add' && tab === 'single') {
       addPoolItemSingle(wallets, selectedChain, getClient);
+    }
+    if (poolForm?.action === 'redeem' && tab === 'all') {
+      const market = new MarketMaker(poolItem, 300);
+      redeemPoolItemMulti(wallets, getClient, market);
+    }
+    if (poolForm?.action === 'redeem' && tab === 'single') {
+      redeemPoolItemSingle(wallets, getClient, selectedChain);
     }
   };
 
@@ -35,7 +44,8 @@ export default function PoolModal() {
         <label className="modal-box relative" htmlFor="">
           <div className="flex items-center justify-between">
             <div className="text-lg font-bold">
-              Add liquidity to pool #
+              <span className=" capitalize">{poolForm?.action}</span> liquidity
+              to pool #
               {poolItem?.poolId?.slice(0, 8) +
                 '...' +
                 poolItem?.poolId?.slice(
@@ -61,7 +71,7 @@ export default function PoolModal() {
           </div>
 
           <div className="flex items-center text-sm mb-4">
-            Use autosawp to add liquidity with
+            Use autosawp to {poolForm?.action} liquidity with
             {tab === 'all' ? ' all assets' : ' a single asset'}
           </div>
 
@@ -78,9 +88,10 @@ export default function PoolModal() {
                       {poolAsset1?.balance?.denom}
                     </div>
                     <input
-                      defaultValue=""
                       value={
-                        poolForm[`${poolAsset1?.side?.toLowerCase()}Amount`]
+                        poolForm?.[
+                          `${poolAsset1?.side?.toLowerCase()}Amount`
+                        ] || ''
                       }
                       onChange={(e) => {
                         poolStore.poolForm[
@@ -115,9 +126,10 @@ export default function PoolModal() {
                       {poolAsset2?.balance?.denom}
                     </div>
                     <input
-                      defaultValue=""
                       value={
-                        poolForm[`${poolAsset2?.side?.toLowerCase()}Amount`]
+                        poolForm?.[
+                          `${poolAsset2?.side?.toLowerCase()}Amount`
+                        ] || ''
                       }
                       onChange={(e) => {
                         poolStore.poolForm[
@@ -183,8 +195,7 @@ export default function PoolModal() {
                     </ul>
                   </div>
                   <input
-                    defaultValue=""
-                    value={poolForm.signleAmount}
+                    value={poolForm?.signleAmount || ''}
                     onChange={(e) => {
                       poolStore.poolForm.signleAmount = e.target.value;
                     }}

@@ -168,10 +168,12 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
   };
   const onDeposit = async () => {
     const denom = selectedCoin?.balance?.denom;
-    const wallet = wallets.find((wallet) => wallet.chainInfo.chainID === selectedChain.chainID);
-    console.log(wallet, 'wallet', selectedChain, selectedCoin)
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+    );
+    console.log(wallet, 'wallet', selectedChain, selectedCoin);
     if (wallet.chainInfo.denom === selectedCoin?.balance.denom) {
-      console.log('no wallet')
+      console.log('no wallet');
       return;
     }
 
@@ -602,9 +604,22 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
         <label
           htmlFor="modal-pool-modal"
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
-          onClick={() => (poolStore.poolItem = pool)}
+          onClick={() => {
+            poolStore.poolForm.action = 'add';
+            poolStore.poolItem = pool;
+          }}
         >
           Add
+        </label>
+        <label
+          htmlFor="modal-pool-modal"
+          className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
+          onClick={() => {
+            poolStore.poolForm.action = 'redeem';
+            poolStore.poolItem = pool;
+          }}
+        >
+          Redeem
         </label>
 
         <label

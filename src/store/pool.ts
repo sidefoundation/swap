@@ -9,6 +9,8 @@ import {
   MsgMultiAssetDepositRequest,
   RemoteDeposit,
   MsgSingleAssetDepositRequest,
+  MsgSingleAssetWithdrawRequest,
+  MsgMultiAssetWithdrawRequest,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
@@ -17,6 +19,7 @@ type Store = {
   poolList: ILiquidityPool[];
   poolItem: ILiquidityPool;
   poolForm: {
+    action: 'add' | 'redeem';
     single: ILiquidityPool;
     signleAmount: string;
     remoteAmount: string;
@@ -28,6 +31,7 @@ export const poolStore = proxy<Store>({
   poolList: [] as ILiquidityPool[],
   poolItem: {} as ILiquidityPool,
   poolForm: {
+    action: 'add',
     single: {},
     signleAmount: '',
     remoteAmount: '',
@@ -249,4 +253,196 @@ export const addPoolItemSingle = async (wallets, selectedChain, getClient) => {
   }
 };
 
-export const redeemPoolItem = async () => {};
+// all assets redeem
+export const redeemPoolItemMulti = async (wallets, getClient, market) => {
+  const poolAssets = poolStore.poolItem.assets;
+  const form = poolStore.poolForm;
+
+  let localDenom = '';
+  let localDepositCoin = {} as Coin;
+  let remoteDenom = '';
+  let remoteDepositCoin = {} as Coin;
+  for (const asset of poolAssets) {
+    if (asset?.side?.toLowerCase() === 'remote') {
+      remoteDenom = asset.balance.denom;
+      remoteDepositCoin = {
+        denom: asset.balance.denom,
+        amount: form.remoteAmount,
+      };
+    }
+    if (asset?.side?.toLowerCase() === 'native') {
+      localDenom = asset.balance.denom;
+      localDepositCoin = {
+        denom: asset.balance.denom,
+        amount: form.nativeAmount,
+      };
+    }
+  }
+  const wallet = wallets.find(
+    (wallet) => wallet.chainInfo.denom === localDenom
+  );
+  const remoteWallet = wallets.find(
+    (item) => item.chainInfo.denom === remoteDenom
+  );
+
+  console.log(wallet, remoteWallet, localDepositCoin, remoteDepositCoin);
+  if (wallet === undefined || remoteWallet === undefined) {
+    return;
+  }
+
+  if (localDepositCoin === undefined || remoteDepositCoin === undefined) {
+    return;
+  }
+
+  const ratio = market.getRatio(remoteDenom, localDenom);
+  const slippage =
+    Math.abs(
+      (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
+    ) * 100;
+  console.log(slippage);
+
+  if (slippage > 5) {
+    poolStore.poolForm.nativeAmount = '';
+    poolStore.poolForm.remoteAmount = '';
+    toast.error(
+      'Your original input incorrect in ratio. Pleas try with current pair!'
+    );
+    return;
+  }
+
+  const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
+  try {
+    const client = await getClient(wallet!.chainInfo);
+
+    const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
+      sender: wallet.address,
+      denomOut: localDenom,
+      poolCoin: {
+        denom: poolStore.poolItem.poolId,
+        amount: localDepositCoin.amount,
+      },
+    };
+
+    const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
+      sender: remoteWallet.address,
+      denomOut: remoteDenom,
+      poolCoin: {
+        denom: poolStore.poolItem.poolId,
+        amount: remoteDepositCoin.amount,
+      },
+    };
+
+    const multiWithdrawtMsg: MsgMultiAssetWithdrawRequest = {
+      localWithdraw: localWithdrawMsg,
+      remoteWithdraw: remoteWithdrawMsg,
+
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(10),
+        revisionNumber: Long.fromInt(10000000000),
+      },
+      timeoutTimeStamp: timeoutTimeStamp,
+    };
+
+    const msg = {
+      typeUrl:
+        '/ibc.applications.interchain_swap.v1.MsgMultiAssetWithdrawRequest',
+      value: multiWithdrawtMsg,
+    };
+    console.log(client);
+
+    const fee: StdFee = {
+      amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
+      gas: '200000',
+    };
+
+    const data = await client!.signWithEthermint(
+      wallet!.address,
+      [msg],
+      wallet!.chainInfo,
+      fee,
+      'test'
+    );
+    console.log('Signed data', data);
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      console.log('TxHash:', txHash);
+    } else {
+      console.log('there are problem in encoding');
+    }
+  } catch (error) {
+    console.log('error', error);
+  }
+};
+
+// signle asset redeem
+export const redeemPoolItemSingle = async (
+  wallets,
+  getClient,
+  selectedChain
+) => {
+  const wallet = wallets.find(
+    (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+  );
+  console.log(wallet, 'wallet', selectedChain);
+  if (wallet.chainInfo.denom !== poolStore.poolForm?.single?.balance.denom) {
+    console.log('no wallet');
+    return;
+  }
+
+  const deposit = {
+    denom: poolStore.poolItem.supply?.denom,
+    amount: poolStore.poolForm.signleAmount,
+  };
+
+  if (!deposit?.amount) {
+    toast.error('Please input amount');
+    return;
+  }
+
+  const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
+  try {
+    const client = await getClient(wallet!.chainInfo);
+    const singleWithdrawMsg: MsgSingleAssetWithdrawRequest = {
+      sender: wallet!.address,
+      poolCoin: {
+        denom: poolStore.poolItem.supply?.denom,
+        amount: deposit.amount,
+      },
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(10),
+        revisionNumber: Long.fromInt(10000000000),
+      },
+      timeoutTimeStamp: timeoutTimeStamp,
+      denomOut: '',
+    };
+
+    const msg = {
+      typeUrl:
+        '/ibc.applications.interchain_swap.v1.MsgSingleAssetWithdrawRequest',
+      value: singleWithdrawMsg,
+    };
+    console.log(client);
+
+    const fee: StdFee = {
+      amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
+      gas: '200000',
+    };
+
+    const data = await client!.signWithEthermint(
+      wallet!.address,
+      [msg],
+      wallet!.chainInfo,
+      fee,
+      'test'
+    );
+    console.log('Signed data', data);
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      console.log('TxHash:', txHash);
+    } else {
+      console.log('there are problem in encoding');
+    }
+  } catch (error) {
+    console.log('error', error);
+  }
+};
