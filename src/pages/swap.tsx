@@ -61,6 +61,7 @@ const Swap = () => {
   });
 
   useEffect(() => {
+    console.log('swap ---loading, selectedChain')
     refetch();
   }, [loading, selectedChain]);
 

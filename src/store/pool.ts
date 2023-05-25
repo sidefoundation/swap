@@ -53,6 +53,7 @@ export const getPoolList = async () => {
 // all assets add
 export const addPoolItemMulti = async (wallets, market, getClient) => {
   const poolAssets = poolStore.poolItem.assets;
+  console.log(poolAssets, 'poolAssets')
   const form = poolStore.poolForm;
 
   let localDenom = '';

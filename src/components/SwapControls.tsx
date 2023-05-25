@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin, StdFee } from '@cosmjs/stargate';
-import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
+import { Coin } from '@cosmjs/stargate';
 
 import {
   MdKeyboardArrowDown,
@@ -11,8 +10,6 @@ import {
 } from 'react-icons/md';
 import Image from 'next/image';
 import { useGetBalances } from '@/http/query/useGetBalances';
-import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
-import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
 

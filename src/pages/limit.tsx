@@ -58,33 +58,6 @@ const Swap = () => {
     // refetch();
   }, [loading, selectedChain]);
 
-  const updateFirstCoin = (value: string) => {
-    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
-    const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: swapPair.first.denom, amount: value };
-    const market = new MarketMaker(pool!, 300);
-    const estimate = market.leftSwap(tokenIn, swapPair.second.denom);
-
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: { denom: swapPair.first.denom, amount: value },
-      second: estimate,
-    }));
-  };
-
-  const updateSecondCoin = (value: string) => {
-    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
-    const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: swapPair.second.denom, amount: value };
-    const market = new MarketMaker(pool!, 300);
-    const estimate = market.leftSwap(tokenIn, swapPair.first.denom);
-
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: estimate,
-      second: { denom: swapPair.second.denom, amount: value },
-    }));
-  };
 
   const onSwap = async (direction: '->' | '<-') => {
     setLoading(true);
@@ -163,9 +136,6 @@ const Swap = () => {
       <LimitControls
         swapPair={swapPair}
         setSwapPair={setSwapPair}
-        updateFirstCoin={updateFirstCoin}
-        updateSecondCoin={updateSecondCoin}
-        onSwap={onSwap}
       />
     </div>
   );

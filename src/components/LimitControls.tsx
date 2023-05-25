@@ -14,27 +14,18 @@ import SwapOrder from './SwapOrder';
 import TabItem from './TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
-import { MsgSwapRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
-import { Height } from '@/codegen/ibc/core/client/v1/client';
 import Long from 'long';
 import toast from 'react-hot-toast';
-// import { Coin } from '@/codegen/cosmos/base/v1beta1/coin';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin; type: string };
   setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
-  updateFirstCoin: (value: string) => void;
-  updateSecondCoin: (value: string) => void;
-  onSwap: (direction: '->' | '<-') => Promise<void>;
 }
 
 const LimitControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
-  updateFirstCoin,
-  updateSecondCoin,
-  onSwap,
 }) => {
   const selectList = [
     { option: 'Seconds', key: 0 },
@@ -59,7 +50,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const [desiredTaker, setDesiredTaker] = useState('');
   const [selectFirst, setSelectFirst] = useState({});
   const [selectSecond, setSelectSecond] = useState({});
-  const [currentAtomicSwap, setAtomicSwapList] = useState({});
+  const [currentAtomicSwap, setAtomicSwapList] = useState([]);
   const [selectedChannel, setSelectChannel] = useState({});
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('limit');
@@ -114,52 +105,62 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       setBalance([{ address: '', balances: [], id: '' }]);
     }
   }, [selectedChain, isConnected, loading]);
+
   useEffect(() => {
     setSwapPair((swapPair) => ({
       ...swapPair,
       type: tab,
     }));
-    // if (tab === 'swap') {
-    //   updateFirstCoin(swapPair.first.amount);
-    // }
     if (tab === 'limit') {
-      updataFirstCoinLimit(swapPair.first.amount);
+      // updataFirstCoinLimit(swapPair.first.amount);
+      setSelectFirst({});
+      setSelectSecond({});
       fetchSwapList('sell');
-      setAtomicSwapList(
-        AtomicSwapConfig.find((item) => {
-          return (item.chainID = selectedChain.chainID);
-        })
-      );
-      console.log(currentAtomicSwap, 'currentAtomicSwap');
+      const findItem = AtomicSwapConfig.find((item) => {
+        if (item.chain === selectedChain.name) {
+          return item;
+        }
+      });
+      if (findItem?.counterparties) {
+        setAtomicSwapList(findItem.counterparties);
+      }
     }
   }, [tab, selectedChain]);
+
   useEffect(() => {
-    console.log(selectFirst, selectFirst, 'selectFirst', AtomicSwapConfig);
-    updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
+    if (selectFirst?.denom) {
+      updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
+    } else {
+      updataFirstCoinLimit('0', '');
+    }
   }, [selectFirst]);
+
   useEffect(() => {
-    console.log(selectedChannel, 'selectedChannel');
     if (selectedChannel?.endpoint) {
       fetchSwapList('buy', selectedChannel?.endpoint);
     }
-    // updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
   }, [selectedChannel]);
 
   useEffect(() => {
-    console.log(selectFirst, selectFirst, 'selectFirst', AtomicSwapConfig);
-    updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
+    if (selectSecond?.denom) {
+      updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
+    } else {
+      updataSecondCoinLimit('0', '');
+    }
   }, [selectSecond]);
+
   const fetchSwapList = async (position: string, url?: string) => {
     let list = [];
     if (position === 'sell') {
+      setFirstSwapList([]);
       const list = await fetchAtomicSwapList(selectedChain.restUrl);
       setFirstSwapList(list);
     }
     if (position === 'buy' && url) {
+      setSecondSwapList([]);
       const list = await fetchAtomicSwapList(url);
       setSecondSwapList(list);
     }
-    console.log(99, 'lsi', list);
   };
   const filterBalance = (denom: string) => {
     const balances = balanceList[0]?.balances || [];
@@ -204,7 +205,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   };
 
   const onMakeOrder = async () => {
-    console.log(expirationTime, 'expirationTime', 'selectedTime', selectedTime);
     if (
       parseFloat(swapPair.first.amount) <= 0 ||
       parseFloat(swapPair.second.amount) <= 0
@@ -228,7 +228,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
     const sellToken = swapPair.first;
     const buyToken = swapPair.second;
-    console.log(sellToken, buyToken, 9999999);
     // || buyToken === undefined
     if (sellToken === undefined) {
       return;
@@ -246,9 +245,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
     const inputExpirationTime =
       expirationTime *
-      selectList?.find((item) => item.option === selectedTime)?.key * 1000;
+      selectList?.find((item) => item.option === selectedTime)?.key *
+      1000;
     const expirationTimestamp = inputExpirationTime || oneDayInMilliseconds;
-    console.log(inputExpirationTime, 'inputExpirationTime')
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); //
@@ -273,14 +272,11 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       typeUrl: '/ibc.applications.atomic_swap.v1.MakeSwapMsg',
       value: makeOrderMsg,
     };
-    console.log(client);
 
     const fee: StdFee = {
       amount: [{ denom: sourceWallet.chainInfo.denom, amount: '0.01' }],
       gas: '200000',
     };
-    console.log('sendmsg:', makeOrderMsg, 'makeOrderMsg', fee, 'fee');
-    console.log('sendmsg:', sourceWallet, 'sourceWallet');
     const data = await client!.signWithEthermint(
       sourceWallet.address,
       [msg],
@@ -389,19 +385,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                         <MdKeyboardArrowDown className="fill-current" />
                       </a>
                       <ul className="p-2 bg-base-100 z-10 w-full">
-                        {currentAtomicSwap?.counterparties?.map(
-                          (item, index) => {
-                            return (
-                              <li key={index} className="truncate w-full">
-                                <a onClick={() => setSelectChannel(item)}>
-                                  <span className="flex-1 font-semibold text-center capitalize">
-                                    {item?.name}
-                                  </span>
-                                </a>
-                              </li>
-                            );
-                          }
-                        )}
+                        {currentAtomicSwap?.map((item, index) => {
+                          return (
+                            <li key={index} className="truncate w-full">
+                              <a onClick={() => setSelectChannel(item)}>
+                                <span className="flex-1 font-semibold text-center capitalize">
+                                  {item?.name}
+                                </span>
+                              </a>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </li>
                   </ul>
