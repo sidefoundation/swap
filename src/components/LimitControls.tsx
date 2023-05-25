@@ -50,7 +50,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const [desiredTaker, setDesiredTaker] = useState('');
   const [selectFirst, setSelectFirst] = useState({});
   const [selectSecond, setSelectSecond] = useState({});
-  const [currentAtomicSwap, setAtomicSwapList] = useState({});
+  const [currentAtomicSwap, setAtomicSwapList] = useState([]);
   const [selectedChannel, setSelectChannel] = useState({});
   const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('limit');
@@ -112,20 +112,23 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       type: tab,
     }));
     if (tab === 'limit') {
-      updataFirstCoinLimit(swapPair.first.amount);
-      setSelectFirst({})
-      setSelectSecond({})
+      // updataFirstCoinLimit(swapPair.first.amount);
+      setSelectFirst({});
+      setSelectSecond({});
       fetchSwapList('sell');
-      setAtomicSwapList(
-        AtomicSwapConfig.find((item) => {
-          return (item.chainID = selectedChain.chainID);
-        })
-      );
+      const findItem = AtomicSwapConfig.find((item) => {
+        if (item.chain === selectedChain.name) {
+          return item;
+        }
+      });
+      if (findItem?.counterparties) {
+        setAtomicSwapList(findItem.counterparties);
+      }
     }
   }, [tab, selectedChain]);
 
   useEffect(() => {
-    if (selectFirst?.denom){
+    if (selectFirst?.denom) {
       updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
     } else {
       updataFirstCoinLimit('0', '');
@@ -139,7 +142,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   }, [selectedChannel]);
 
   useEffect(() => {
-    if (selectSecond?.denom){
+    if (selectSecond?.denom) {
       updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
     } else {
       updataSecondCoinLimit('0', '');
@@ -149,7 +152,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const fetchSwapList = async (position: string, url?: string) => {
     let list = [];
     if (position === 'sell') {
-      setFirstSwapList([])
+      setFirstSwapList([]);
       const list = await fetchAtomicSwapList(selectedChain.restUrl);
       setFirstSwapList(list);
     }
@@ -242,7 +245,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
     const inputExpirationTime =
       expirationTime *
-      selectList?.find((item) => item.option === selectedTime)?.key * 1000;
+      selectList?.find((item) => item.option === selectedTime)?.key *
+      1000;
     const expirationTimestamp = inputExpirationTime || oneDayInMilliseconds;
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
@@ -381,19 +385,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                         <MdKeyboardArrowDown className="fill-current" />
                       </a>
                       <ul className="p-2 bg-base-100 z-10 w-full">
-                        {currentAtomicSwap?.counterparties?.map(
-                          (item, index) => {
-                            return (
-                              <li key={index} className="truncate w-full">
-                                <a onClick={() => setSelectChannel(item)}>
-                                  <span className="flex-1 font-semibold text-center capitalize">
-                                    {item?.name}
-                                  </span>
-                                </a>
-                              </li>
-                            );
-                          }
-                        )}
+                        {currentAtomicSwap?.map((item, index) => {
+                          return (
+                            <li key={index} className="truncate w-full">
+                              <a onClick={() => setSelectChannel(item)}>
+                                <span className="flex-1 font-semibold text-center capitalize">
+                                  {item?.name}
+                                </span>
+                              </a>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </li>
                   </ul>
