@@ -29,12 +29,10 @@ export default function PoolModal() {
   const balanceMap = {};
   for (const item of balanceList) {
     balanceMap[item.denom] = item?.amount;
-    console.log('balanceMap', balanceMap);
   }
   const balanceRemoteMap = {};
   for (const item of remoteBalanceList) {
     balanceRemoteMap[item.denom] = item?.amount;
-    console.log(balanceRemoteMap, 'balanceRemoteMap');
   }
   const [allBalance, setAllBalanc] = useState([]);
   const { wallets, getClient, selectedChain, getBalance } = useWalletStore();
@@ -49,6 +47,7 @@ export default function PoolModal() {
         return item;
       }
     });
+    console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
     setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
     // fetchBalances()
   }, [selectedChain, wallets]);
@@ -259,18 +258,18 @@ export default function PoolModal() {
                   </div>
                   <div className="text-xs">
                     Available:{' '}
-                    {poolStore?.poolForm?.single?.side}
+                    {poolForm?.action === 'add'
+                      ? poolStore?.poolForm?.single?.side === 'NATIVE'
+                        ? balanceMap?.[poolForm?.single?.balance?.denom] ?? '0'
+                        : balanceRemoteMap?.[
+                            poolForm?.single?.balance?.denom
+                          ] ?? '0'
+                      : '0'}
                     {poolForm?.action === 'redeem'
-                      ? balanceMap?.[poolForm?.single?.balance?.denom] ?? ''
-                      : poolStore?.poolForm?.single?.side === 'Native'
-                      ? balanceMap?.[poolItem?.poolId]
-                      : ''}
-                    {poolForm?.action === 'redeem'
-                      ? balanceRemoteMap?.[poolItem?.poolId] ?? '0'
-                      : poolStore?.poolForm?.single?.side === 'Remote'
-                      ? balanceRemoteMap?.[poolForm?.single?.balance?.denom] ??
-                        '0'
-                      : '0'}{' '}
+                      ? poolStore?.poolForm?.single?.side === 'NATIVE'
+                        ? balanceMap?.[poolItem?.poolId] ?? '0'
+                        : balanceRemoteMap?.[poolItem?.poolId] ?? '0'
+                      : '0'}
                     <span className="capitalize">
                       {poolForm?.single?.balance?.denom}
                     </span>

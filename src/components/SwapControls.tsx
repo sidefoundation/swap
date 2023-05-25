@@ -10,6 +10,7 @@ import {
 } from 'react-icons/md';
 import Image from 'next/image';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import { getBalanceList, useAssetsStore } from '../store/assets';
 import Long from 'long';
 import toast from 'react-hot-toast';
 
@@ -23,7 +24,6 @@ interface SwapControlsProps {
 
 const SwapControls: React.FC<SwapControlsProps> = ({
   swapPair,
-  setSwapPair,
   updateFirstCoin,
   updateSecondCoin,
   onSwap,
@@ -31,25 +31,14 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   const {
     selectedChain,
     setBalance,
-    balanceList,
     wallets,
     isConnected,
     connectWallet,
     loading,
-    getBalance,
   } = useWalletStore();
+  const { balanceList } = useAssetsStore();
   const [connected, setConnected] = useState(false);
-  const [balances, setBalances] = useState<
-    {
-      id: string;
-      balances: Coin[];
-      address: string;
-    }[]
-  >([]);
-  const fetchBalances = async () => {
-    const balance = await getBalance(true);
-    setBalances(balance);
-  };
+
   const onSuccess = (
     data: {
       address: string;
@@ -71,8 +60,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   });
   useEffect(() => {
     refetch();
-    fetchBalances();
   }, []);
+
+  useEffect(() => {
+    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+  }, [selectedChain, wallets]);
+
   useEffect(() => {
     setConnected(isConnected);
   }, [isConnected]);
@@ -87,7 +80,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   }, [selectedChain, isConnected, loading]);
 
   const filterBalance = (denom: string) => {
-    const balances = balanceList[0]?.balances || [];
+    const balances = balanceList || [];
     return (
       balances.find((item) => {
         return item.denom === denom;

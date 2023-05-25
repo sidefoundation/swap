@@ -73,7 +73,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         },
         timeoutTimeStamp: timeoutTimeStamp,
       };
-
+      
       const msg = {
         typeUrl: '/ibc.applications.interchain_swap.v1.MsgCreatePoolRequest',
         value: createPoolMsg,
@@ -84,7 +84,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-
+      console.log(createPoolMsg, 'createPoolMsg')
+      console.log(fee, 'fee')
+      console.log(wallet, 'wallet')
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
