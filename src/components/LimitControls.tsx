@@ -296,7 +296,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   // TODO:
   const switchSwap = async () => {};
   return (
-    <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
+    <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20 min-h-[300px]">
       <div className="flex items-center justify-between mb-5">
         <div className="inline-flex items-center bg-gray-100 rounded-full tabs dark:bg-gray-700">
           <TabItem tab={tab} setTab={setTab} title="Limit" value="limit" />
