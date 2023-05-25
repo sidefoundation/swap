@@ -172,7 +172,7 @@ const useWalletStore = create<WalletState>(
         }
 
         const newWallets: Wallet[] = [];
-        const chain = selectedChain;
+        // const chain = selectedChain;
         for (const chain of AppConfig.chains) {
           try {
             // await suggestChain(chain);
@@ -305,17 +305,20 @@ const useWalletStore = create<WalletState>(
             return { id: chain.chainInfo.chainID, balances: balances };
           });
         setLoading(false);
-
+        console.log(res.results.flat());
         return res.results.flat();
       },
       setBalance: (balances: Balance[]) => {
         const { selectedChain } = get();
-        balances?.forEach((item) => {
-          item.id = selectedChain.chainID;
+        
+        const balance = balances?.filter((item) => {
+          if (item.id === selectedChain.chainID) {
+            return item;
+          }
         });
         set((state) => ({
           ...state,
-          balanceList: balances,
+          balanceList: balance,
         }));
       },
     }),

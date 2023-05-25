@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { MdOutlineClose, MdKeyboardArrowDown } from 'react-icons/md';
 import { MarketMaker } from '@/utils/swap';
 import useWalletStore from '@/store/wallet';
@@ -25,11 +25,15 @@ export default function PoolModal() {
   for (const item of balanceList) {
     balanceMap[item.denom] = item?.amount;
   }
-
-  const { wallets, getClient, selectedChain } = useWalletStore();
-
+  const [allBalance, setAllBalanc]= useState([]);
+  const { wallets, getClient, selectedChain,getBalance } = useWalletStore();
+  const fetchBalances = async () => {
+    const balance = await getBalance(true);
+    setAllBalanc(balance)
+  };
   useEffect(() => {
     getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+    // fetchBalances()
   }, [selectedChain, wallets]);
 
   const confirmAdd = () => {
