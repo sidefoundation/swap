@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Wallet } from '@/store/wallet';
 import { Coin } from '@cosmjs/stargate';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import { useGetCurrentBalances } from '@/http/query/useGetCurrentBalances';
+
 import { AppConfig } from '@/utils/AppConfig';
 import useWalletStore from '@/store/wallet';
 interface WalletDetailsProps {
@@ -10,26 +12,8 @@ interface WalletDetailsProps {
 }
 
 const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
-  const { selectedChain, setBalance } = useWalletStore();
-  const onSuccess = (
-    data: {
-      address: string;
-      balances: Coin[];
-    }[]
-  ) => {
-    setBalances(data);
-    setBalance(data);
-  };
-  const { refetch } = useGetBalances({
-    wallets: wallets
-      .map((wallet) => {
-        if (wallet.chainInfo.chainID === selectedChain.chainID) {
-          return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
-        }
-      })
-      .filter((item) => item),
-    onSuccess: onSuccess,
-  });
+  const { selectedChain, setBalance, selectedWallet, connectSelectedWallet } =
+    useWalletStore();
   const [balances, setBalances] = useState<
     {
       address: string;
@@ -37,15 +21,34 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
       id?: string;
     }[]
   >([]);
+  const onSuccess = (
+    data: {
+      address: string;
+      balances: Coin[];
+    }[]
+  ) => {
+    console.log(data, 99999);
+    setBalances(data);
+    setBalance(data);
+  };
+  const { refetch } = useGetCurrentBalances({
+    wallet: selectedWallet,
+    onSuccess: onSuccess,
+  });
+
+  // useEffect(() => {
+  //   console.log(selectedChain, 'selectedChain', selectedWallet)
+  //   refetch();
+  // }, []);
 
   useEffect(() => {
-    refetch();
-  }, []);
-
-  useEffect(() => {
-    refetch();
+    connectSelectedWallet();
   }, [selectedChain]);
 
+  useEffect(() => {
+    setBalances([])
+    refetch();
+  }, [selectedWallet]);
   return (
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">

@@ -5,14 +5,27 @@ import { AppConfig } from '@/utils/AppConfig';
 import { useEffect } from 'react';
 import { BriefChainInfo } from '@/shared/types/chain';
 export function ToggleChain() {
-  const { suggestChain, selectedChain, connectSelectedWallet } = useWalletStore();
+  const {
+    suggestChain,
+    selectedChain,
+    connectSelectedWallet,
+    setChain,
+    selectedWallet,
+  } = useWalletStore();
   const [currentChain, setCurrentChain] = useState({ name: '' });
   const {} = useState();
   useEffect(() => {
-    if (AppConfig?.chains?.length > 0) {
-      suggestChain(AppConfig?.chains?.[0] as BriefChainInfo);
-    }
-  }, [AppConfig?.chains]);
+    // setChain(AppConfig?.chains?.[0] as BriefChainInfo);
+    // if (AppConfig?.chains?.length > 0) {
+    //   suggestChain(AppConfig?.chains?.[0] as BriefChainInfo);
+    // }
+    return () => {
+      console.log('xioahui', selectedWallet);
+      if (selectedWallet.address) {
+        setChain(selectedWallet.chainInfo as BriefChainInfo);
+      }
+    };
+  }, []);
   useEffect(() => {
     if (selectedChain) {
       setCurrentChain(selectedChain);
