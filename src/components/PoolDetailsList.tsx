@@ -6,7 +6,7 @@ import { CoinInput } from './CoinInput';
 import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet } from '@/store/wallet';
 import PoolModal from './PoolModal';
-
+import toast from 'react-hot-toast';
 import {
   MsgCreatePoolRequest,
   MsgSingleAssetDepositRequest,
@@ -100,6 +100,8 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         console.log('there are problem in encoding');
       }
     } catch (error) {
+      toast.error(error)
+
       console.log('error', error);
     }
     setLoading(false);

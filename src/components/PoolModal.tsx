@@ -259,13 +259,18 @@ export default function PoolModal() {
                   </div>
                   <div className="text-xs">
                     Available:{' '}
+                    {poolStore?.poolForm?.single?.side}
                     {poolForm?.action === 'redeem'
                       ? balanceMap?.[poolForm?.single?.balance?.denom] ?? ''
-                      : balanceMap?.[poolItem?.poolId] ?? ''}
+                      : poolStore?.poolForm?.single?.side === 'Native'
+                      ? balanceMap?.[poolItem?.poolId]
+                      : ''}
                     {poolForm?.action === 'redeem'
                       ? balanceRemoteMap?.[poolItem?.poolId] ?? '0'
-                      : balanceRemoteMap?.[poolForm?.single?.balance?.denom] ??
-                        '0'}{' '}
+                      : poolStore?.poolForm?.single?.side === 'Remote'
+                      ? balanceRemoteMap?.[poolForm?.single?.balance?.denom] ??
+                        '0'
+                      : '0'}{' '}
                     <span className="capitalize">
                       {poolForm?.single?.balance?.denom}
                     </span>
