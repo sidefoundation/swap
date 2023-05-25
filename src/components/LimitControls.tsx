@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
-import { CoinInput } from '@/components/CoinInput';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
+import { getBalanceList, useAssetsStore } from '../store/assets';
 
 import {
   MdKeyboardArrowDown,
@@ -37,14 +37,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const {
     selectedChain,
     setBalance,
-    balanceList,
     wallets,
     isConnected,
     connectWallet,
     loading,
     getClient,
-    getBalance,
   } = useWalletStore();
+
+  const { balanceList } = useAssetsStore();
+  useEffect(() => {
+    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+  }, [selectedChain, wallets]);
 
   const [makerReceivingAddress, setMakerReceivingAddress] = useState('');
   const [desiredTaker, setDesiredTaker] = useState('');
@@ -59,17 +62,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const [limitRate, setLimitRate] = useState('0');
   const [firstSwapList, setFirstSwapList] = useState([]);
   const [secondSwapList, setSecondSwapList] = useState([]);
-  const [balances, setBalances] = useState<
-    {
-      id: string;
-      balances: Coin[];
-      address: string;
-    }[]
-  >([]);
-  const fetchBalances = async () => {
-    const balance = await getBalance(true);
-    setBalances(balance);
-  };
+
   const onSuccess = (
     data: {
       address: string;
@@ -91,7 +84,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   });
   useEffect(() => {
     refetch();
-    fetchBalances();
   }, []);
   useEffect(() => {
     setConnected(isConnected);
@@ -163,7 +155,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     }
   };
   const filterBalance = (denom: string) => {
-    const balances = balanceList[0]?.balances || [];
+    const balances = balanceList;
     return (
       balances.find((item) => {
         return item.denom === denom;
