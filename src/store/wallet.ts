@@ -50,9 +50,11 @@ interface WalletState {
   loading: boolean;
   isConnected: boolean;
   wallets: Wallet[];
+  selectedWallet: Wallet;
   balanceList: Balance[];
   selectedChain: BriefChainInfo;
   setLoading: (isLoad: boolean) => void;
+  connectSelectedWallet: () => Promise<void>;
   connectWallet: () => Promise<void>;
   suggestChain: (chain: BriefChainInfo) => Promise<void>;
   getClient: (
@@ -80,7 +82,11 @@ const useWalletStore = create<WalletState>(
       loading: false,
       isConnected: false,
       wallets: [],
-      selectedChain: { name: '' },
+      selectedWallet: {
+        address: '',
+        chainInfo: {},
+      },
+      selectedChain: AppConfig.chains[0],
       balanceList: [],
       setLoading: (isLoad: boolean) => {
         set((state) => ({
@@ -96,10 +102,48 @@ const useWalletStore = create<WalletState>(
         }
         const chainInfo = getSideChainInfo(chain);
         await keplr.experimentalSuggestChain(chainInfo);
+
         set((state) => ({
           ...state,
           selectedChain: chain,
         }));
+      },
+      connectSelectedWallet: async () => {
+        const { setLoading, suggestChain, selectedChain } = get();
+        setLoading(true);
+
+        const { keplr } = window;
+        if (!keplr) {
+          toast.error('You need to install Keplr');
+          return;
+        }
+
+        let newWallet: Wallet = { address: '', chainInfo: {} };
+        try {
+          await suggestChain(selectedChain);
+          // Poll until the chain is approved and the signer is available
+          const offlineSigner = await keplr.getOfflineSigner(
+            selectedChain.chainID
+          );
+          const newCreator = (await offlineSigner.getAccounts())[0].address;
+          newWallet = {
+            address: newCreator,
+            chainInfo: selectedChain,
+          };
+        } catch (error) {
+          console.log('Connection Error', error);
+        }
+
+        if (newWallet.address !== '') {
+          set((state) => ({
+            ...state,
+            isConnected: true,
+            selectedWallet: newWallet,
+          }));
+        } else {
+          console.log('Not all chains could be registered.');
+        }
+        setLoading(false);
       },
       connectWallet: async () => {
         const { setLoading, suggestChain, selectedChain } = get();
@@ -115,7 +159,9 @@ const useWalletStore = create<WalletState>(
         const chain = selectedChain;
         for (const chain of AppConfig.chains) {
           try {
-            await suggestChain(chain);
+            // await suggestChain(chain);
+            const chainInfo = getSideChainInfo(chain);
+            await keplr.experimentalSuggestChain(chainInfo);
             // Poll until the chain is approved and the signer is available
             const offlineSigner = await keplr.getOfflineSigner(chain.chainID);
             //console.log("OfflineSigner", offlineSigner)
@@ -190,7 +236,12 @@ const useWalletStore = create<WalletState>(
         }
       },
       disconnect: () => {
-        set((state) => ({ ...state, isConnected: false, wallets: [] }));
+        set((state) => ({
+          ...state,
+          isConnected: false,
+          wallets: [],
+          selectedWallet: { address: '', chainInfo: {} },
+        }));
       },
 
       charge: async () => {
@@ -225,11 +276,11 @@ const useWalletStore = create<WalletState>(
         const { wallets, setLoading, connectWallet, selectedChain } = get();
         await connectWallet();
         setLoading(true);
-        const currentWallets = wallets.filter((item) => {
+        const currentWalletItem = wallets.filter((item) => {
           return item.chainInfo?.chainID === selectedChain?.chainID;
         });
         const res = await PromisePool.withConcurrency(2)
-          .for(isAll ? wallets : currentWallets)
+          .for(isAll ? wallets : currentWalletItem)
           .process(async (chain) => {
             const balances = await fetchBalances(
               chain.chainInfo.restUrl,
