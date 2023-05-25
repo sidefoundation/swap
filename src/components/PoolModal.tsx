@@ -1,8 +1,13 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdOutlineClose, MdKeyboardArrowDown } from 'react-icons/md';
 import { MarketMaker } from '@/utils/swap';
 import useWalletStore from '@/store/wallet';
-import { useAssetsStore, getBalanceList } from '@/store/assets';
+import { AppConfig } from '@/utils/AppConfig';
+import {
+  useAssetsStore,
+  getBalanceList,
+  setRemoteBalanceList,
+} from '@/store/assets';
 import {
   poolStore,
   usePoolStore,
@@ -19,20 +24,32 @@ export default function PoolModal() {
   const poolAsset1 = poolItem?.assets?.[0];
   const poolAsset2 = poolItem?.assets?.[1];
 
-  const { balanceList } = useAssetsStore();
+  const { balanceList, remoteBalanceList } = useAssetsStore();
 
   const balanceMap = {};
   for (const item of balanceList) {
     balanceMap[item.denom] = item?.amount;
+    console.log('balanceMap', balanceMap);
   }
-  const [allBalance, setAllBalanc]= useState([]);
-  const { wallets, getClient, selectedChain,getBalance } = useWalletStore();
+  const balanceRemoteMap = {};
+  for (const item of remoteBalanceList) {
+    balanceRemoteMap[item.denom] = item?.amount;
+    console.log(balanceRemoteMap, 'balanceRemoteMap');
+  }
+  const [allBalance, setAllBalanc] = useState([]);
+  const { wallets, getClient, selectedChain, getBalance } = useWalletStore();
   const fetchBalances = async () => {
     const balance = await getBalance(true);
-    setAllBalanc(balance)
+    setAllBalanc(balance);
   };
   useEffect(() => {
     getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+    const otherChain = AppConfig?.chains?.find((item) => {
+      if (item.restUrl !== selectedChain?.restUrl) {
+        return item;
+      }
+    });
+    setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
     // fetchBalances()
   }, [selectedChain, wallets]);
 
@@ -124,7 +141,9 @@ export default function PoolModal() {
                     </div>
                     <div className="text-xs">
                       Available:{' '}
-                      {balanceMap?.[poolAsset1?.balance?.denom] ?? '0'}{' '}
+                      {balanceMap?.[poolAsset1?.balance?.denom] ?? ''}
+                      {balanceRemoteMap?.[poolAsset1?.balance?.denom] ??
+                        '0'}{' '}
                       <span className="capitalize">
                         {poolAsset1?.balance?.denom}
                       </span>
@@ -162,7 +181,10 @@ export default function PoolModal() {
                       {poolAsset2?.side}
                     </div>
                     <div className="text-xs">
-                      Available: {balanceMap?.[poolAsset2?.balance?.denom]}{' '}
+                      Available:{' '}
+                      {balanceMap?.[poolAsset2?.balance?.denom] || ''}
+                      {balanceRemoteMap?.[poolAsset2?.balance?.denom] ??
+                        '0'}{' '}
                       <span className="capitalize">
                         {poolAsset2?.balance?.denom}
                       </span>
@@ -228,7 +250,10 @@ export default function PoolModal() {
                     {poolForm?.single?.side}
                   </div>
                   <div className="text-xs">
-                    Available: {balanceMap?.[poolForm?.single?.balance?.denom]}{' '}
+                    Available:{' '}
+                    {balanceMap?.[poolForm?.single?.balance?.denom] ?? ''}
+                    {balanceRemoteMap?.[poolForm?.single?.balance?.denom] ??
+                      '0'}{' '}
                     <span className="capitalize">
                       {poolForm?.single?.balance?.denom}
                     </span>

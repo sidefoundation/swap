@@ -7,10 +7,12 @@ import { Coin } from '@cosmjs/stargate';
 
 type Store = {
   balanceList: Coin[];
+  remoteBalanceList: Coin[];
 };
 
 export const assetsStore = proxy<Store>({
   balanceList: [] as Coin[],
+  remoteBalanceList: [] as Coin[],
 });
 
 devtools(assetsStore, { name: 'assets', enabled: true });
@@ -26,6 +28,12 @@ export const getBalanceList = async (restUrl, acc) => {
   }
 };
 
+export const setRemoteBalanceList = async (restUrl, acc) => {
+  const res = await fetchBalances(restUrl, acc);
+  if (res) {
+    assetsStore.remoteBalanceList = res;
+  }
+};
 export const postFaucet = async () => {
   const res = await chargeCoins('', '', '');
 };
