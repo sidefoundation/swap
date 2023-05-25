@@ -80,7 +80,7 @@ const useWalletStore = create<WalletState>(
       loading: false,
       isConnected: false,
       wallets: [],
-      selectedChain: {},
+      selectedChain: { name: '' },
       balanceList: [],
       setLoading: (isLoad: boolean) => {
         set((state) => ({
