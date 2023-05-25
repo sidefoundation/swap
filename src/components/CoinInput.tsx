@@ -1,3 +1,4 @@
+import React from 'react';
 import { Coin } from '@cosmjs/stargate';
 
 export type CoinInputProps = {
