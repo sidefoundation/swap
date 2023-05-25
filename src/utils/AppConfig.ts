@@ -22,7 +22,9 @@ export const AppConfig = {
       denom: 'bside',
       counterpartis: [{
         chainId: "sidehub_1818-1",
-        channelId: "channel-1"
+        channelId: "channel-1",
+        portId: "",
+        type: "go/wasm",
       }, ]
     },
   ],
