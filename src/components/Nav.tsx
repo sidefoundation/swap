@@ -4,23 +4,21 @@ import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
 import React, { useEffect, useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
-import type { Wallet } from '@/store/wallet';
-
 import useWalletStore from '@/store/wallet';
 
 function Nav() {
-  const { isConnected, wallets, connectWallet, disconnect, charge } =
-    useWalletStore();
+  const {
+    isConnected,
+    disconnect,
+    charge,
+    selectedWallet,
+    connectSelectedWallet
+  } = useWalletStore();
   const [connected, setConnected] = useState(false);
-  const [signers, setSigners] = useState<Wallet[]>([]);
 
   useEffect(() => {
     setConnected(isConnected);
   }, [isConnected]);
-
-  useEffect(() => {
-    setSigners(wallets);
-  }, [wallets]);
 
   // TODO: add icon to show success or error
   const copyAddress = async (address: string) => {
@@ -125,7 +123,7 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn btn-primary" onClick={connectWallet}>
+              <button className="btn btn-primary" onClick={connectSelectedWallet}>
                 Connect Wallet
               </button>
             ) : (
@@ -137,17 +135,13 @@ function Nav() {
                   tabIndex={0}
                   className="dropdown-content menu shadow p-2 bg-base-100 z-10 rounded w-64 overflow-auto"
                 >
-                  {wallets.map((item, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold block py-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-                        onClick={() => copyAddress(item.address)}
-                      >
-                        {item.address}
-                      </div>
-                    );
-                  })}
+                  <div
+                    className="truncate w-full px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold block py-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                    onClick={() => copyAddress(selectedWallet.address)}
+                  >
+                    {selectedWallet.address}
+                  </div>
+
                   <div className="divider my-1"></div>
                   <button
                     className="btn btn-primary truncate"
