@@ -4,9 +4,11 @@ import { ILiquidityPool } from '@/shared/types/liquidity';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet } from '@/store/wallet';
+import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
 import toast from 'react-hot-toast';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   MsgCreatePoolRequest,
   MsgSingleAssetDepositRequest,
@@ -42,10 +44,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     second: { denom: 'bside', amount: '0' },
   });
 
+  const [poolPair, setPoolPair] = useState({
+    first: { denom: 'aside', amount: '0', weight: '0', chain: '' },
+    second: { denom: 'bside', amount: '0', weight: '0', chain: '' },
+  });
+
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
     setSwapPair((prevSwapPair) => ({
       ...prevSwapPair,
-      [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value },
+      [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value, },
     }));
   };
 
@@ -223,7 +230,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           </table>
         </div>
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end !hidden">
           <div>
             <span className="mr-2">Rows per page: </span>
             <select
@@ -259,25 +266,170 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
               </label>
             </div>
-            <div className="bg-base-200 flex items-center px-4 rounded mb-3 py-1">
-              <div className="capitalize font-semibold text-base">
-                {swapPair.first?.denom}
+            <div className="  px-4 rounded mb-3 py-1">
+              {/*  ChainSelect*/}
+              <div className="border mb-2 p-2">
+                <span className="mr-2">selectChain:</span>
+                <ul className="menu menu-horizontal px-1  ">
+                  <li tabIndex={0}>
+                    <a>
+                      <span>{selectedChain.name}</span>
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10">
+                      {AppConfig?.chains?.map((item, index) => {
+                        return (
+                          <li key={index}>
+                            <a onClick={() => suggestChain(item)}>
+                              {item?.name}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
               </div>
-              <CoinInput
-                coin={swapPair.first}
-                placeholder="Amount ..."
-                onChange={(value) => handleCoinUpdate('first', value)}
-              />
+              {/* CoinSelect */}
+              <div className="border mb-2">
+                <span>selectCoin:</span>
+                <ul className="menu menu-horizontal px-1  ">
+                  <li tabIndex={0}>
+                    <a>
+                      <span>{swapPair.first?.denom}</span>
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10">
+                      {AppConfig?.chains?.map((item, index) => {
+                        return (
+                          <li key={index}>
+                            <a onClick={() => suggestChain(item)}>
+                              {item?.name}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              {/*amount  */}
+              <div className="border mb-2 flex">
+                <span>amount:</span>
+                <div>
+                  <CoinInput
+                    coin={swapPair.first}
+                    placeholder="Amount ..."
+                    onChange={(value) => handleCoinUpdate('first', value)}
+                  />
+                </div>
+              </div>
+              {/* weight */}
+              <div className="border flex">
+                <span>weight:</span>
+                <div>
+                  <CoinInput
+                    coin={swapPair.first}
+                    placeholder="Amount ..."
+                    onChange={(value) => handleCoinUpdate('first', value)}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="bg-base-200 flex items-center px-4 rounded py-1">
-              <div className="capitalize font-semibold text-base">
+            <div className="border items-center px-4 rounded py-1">
+              {/*  ChainSelect*/}
+              <div className="border mb-2 p-2">
+                <span className="mr-2">selectChain:</span>
+                <ul className="menu menu-horizontal px-1  ">
+                  <li tabIndex={0}>
+                    <a>
+                      <span>{selectedChain.name}</span>
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10">
+                      {AppConfig?.chains?.map((item, index) => {
+                        return (
+                          <li key={index}>
+                            <a onClick={() => suggestChain(item)}>
+                              {item?.name}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              {/* CoinSelect */}
+              <div className="border mb-2">
+                <span>selectCoin:</span>
+                <ul className="menu menu-horizontal px-1  ">
+                  <li tabIndex={0}>
+                    <a>
+                      <span>{swapPair.second?.denom}</span>
+                      <MdKeyboardArrowDown className="fill-current" />
+                    </a>
+                    <ul className="p-2 bg-base-100 z-10">
+                      {AppConfig?.chains?.map((item, index) => {
+                        return (
+                          <li key={index}>
+                            <a onClick={() => suggestChain(item)}>
+                              {item?.name}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              {/*amount  */}
+              <div className="border mb-2 flex">
+                <span>amount:</span>
+                <div>
+                  <CoinInput
+                    coin={swapPair.second}
+                    placeholder="Amount ..."
+                    onChange={(value) => handleCoinUpdate('second', value)}
+                  />
+                </div>
+              </div>
+              {/* weight */}
+              <div className="border flex">
+                <span>weight:</span>
+                <div>
+                  <CoinInput
+                    coin={swapPair.second}
+                    placeholder="Amount ..."
+                    onChange={(value) => handleCoinUpdate('second', value)}
+                  />
+                </div>
+              </div>
+              {/* <div className="capitalize font-semibold text-base">
                 {swapPair.second?.denom}
               </div>
               <CoinInput
                 coin={swapPair.second}
                 placeholder="Amount ..."
                 onChange={(value) => handleCoinUpdate('second', value)}
-              />
+              /> */}
+            </div>
+            <input
+              type="range"
+              min="20"
+              max="80"
+              value="30"
+              className="range"
+              step="10"
+            />
+            <div className="w-full flex justify-between text-xs px-2">
+              <span>20</span>
+              <span>30</span>
+              <span>40</span>
+              <span>50</span>
+              <span>60</span>
+              <span>70</span>
+              <span>80</span>
             </div>
 
             <div className="mt-6">
