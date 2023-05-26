@@ -5,8 +5,8 @@ export const AtomicSwapConfig = [
     endpoint: 'http://45.63.52.25:1317',
     counterparties: [
       {
-        name: 'B chain',
-        channel_id: 'channel-1',
+        name: 'sidechain-2',
+        channel_id: 'alice_1819-1',
         endpoint: 'http://66.42.41.25:1317',
       },
       {
@@ -22,8 +22,8 @@ export const AtomicSwapConfig = [
     endpoint: 'http://66.42.41.25:1317',
     counterparties: [
       {
-        name: 'A chain',
-        channel_id: 'channel-2',
+        name: 'sidechain-1',
+        channel_id: 'sidehub_1818-1',
         endpoint: 'http://45.63.52.25:1317',
       },
       {
