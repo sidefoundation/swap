@@ -151,9 +151,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
   const onCreatePool = async () => {
     setLoading(true);
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
-    if(wallet === undefined) {
-      toast.error("you don't have wallet about this chain")
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+    );
+    if (wallet === undefined) {
+      toast.error("you don't have wallet about this chain");
     }
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
@@ -217,9 +219,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   const onEnablePool = async (pool: ILiquidityPool) => {
     //setLoading(true)
     await suggestChain(selectedChain);
-  
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
-    
+
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+    );
+
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
@@ -299,9 +303,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <MdList />
             </button>
 
-            <label htmlFor="modal-pool-create" className="mr-2 text-2xl btn">
-              <MdAddToQueue />
-            </label>
             <label
               htmlFor="modal-create-pool"
               className="text-2xl btn btn-primary"
