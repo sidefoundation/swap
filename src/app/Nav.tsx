@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ToggleChain } from './ToggleChain';
 import { MdPerson } from 'react-icons/md';
 import React, { useEffect, useState } from 'react';
-import ThemeToggle from '@/components/ThemeToggle';
 import useWalletStore from '@/store/wallet';
+import ThemeToggle from './NavTheme';
+import ToggleChain from './NavChain';
 
 function Nav() {
   const {
@@ -12,7 +12,7 @@ function Nav() {
     disconnect,
     charge,
     selectedWallet,
-    connectSelectedWallet
+    connectSelectedWallet,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
 
@@ -123,7 +123,10 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn btn-primary" onClick={connectSelectedWallet}>
+              <button
+                className="btn btn-primary"
+                onClick={connectSelectedWallet}
+              >
                 Connect Wallet
               </button>
             ) : (

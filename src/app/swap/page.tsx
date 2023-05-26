@@ -1,9 +1,10 @@
+'use client';
+
 import useWalletStore from '@/store/wallet';
 import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
 
-import SwapControls from '@/components/SwapControls';
 import {
   MsgSwapRequest,
   SwapMsgType,
@@ -13,6 +14,7 @@ import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
+import SwapControls from './SwapControls';
 
 const Swap = () => {
   const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =
@@ -61,7 +63,6 @@ const Swap = () => {
   });
 
   useEffect(() => {
-    console.log('swap ---loading, selectedChain')
     refetch();
   }, [loading, selectedChain]);
 
@@ -142,8 +143,9 @@ const Swap = () => {
             });
           }
         );
-        console.log(result, 'result')
-        const tx_result = result?.tx_response || result?.txs?.[0]?.tx_result || result;
+        console.log(result, 'result');
+        const tx_result =
+          result?.tx_response || result?.txs?.[0]?.tx_result || result;
         if (`${tx_result?.code}` !== '0') {
           console.log(tx_result?.log || tx_result?.raw_log, 'raw_log');
           toast.error(tx_result?.log || tx_result?.raw_log, {
@@ -173,6 +175,7 @@ const Swap = () => {
   return (
     <div>
       <SwapControls
+        pools={pools}
         swapPair={swapPair}
         setSwapPair={setSwapPair}
         updateFirstCoin={updateFirstCoin}

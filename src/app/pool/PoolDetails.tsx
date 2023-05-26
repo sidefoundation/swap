@@ -1,7 +1,7 @@
 import type { ILiquidityPool } from '@/shared/types/liquidity';
 import useWalletStore from '@/store/wallet';
 import { useEffect, useState } from 'react';
-import { CoinInput } from './CoinInput';
+import { CoinInput } from '@/components/CoinInput';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
 import {
@@ -53,33 +53,8 @@ const TabDepositItem = ({
     </div>
   );
 };
-const TabWithDrawItem = ({
-  tabWithDraw,
-  setWithDrawTab,
-  title,
-  value,
-}: {
-  tabWithDraw: string;
-  setWithDrawTab: Function;
-  title: string;
-  value: string;
-}) => {
-  return (
-    <div
-      className={`tab tab-sm px-4  ${
-        tabWithDraw === value
-          ? 'bg-primary text-white rounded-full'
-          : 'dark:text-gray-400'
-      }`}
-      onClick={() => {
-        setWithDrawTab(value);
-      }}
-    >
-      {title}
-    </div>
-  );
-};
-export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
+
+export default function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
   const {
     wallets,
     getClient,
@@ -576,8 +551,9 @@ export function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
           })}
         </div>
       </td>
-      <td>{pool.pool_price}</td>
-      <td>{pool.supply.amount}</td>
+      <td>{pool?.pool_price}</td>
+      <td>{pool?.supply.amount}</td>
+      <td>{pool?.encounterPartyChannel}</td>
       <td>
         {pool.status === 'POOL_STATUS_READY' && (
           <div className="text-green-500">POOL_STATUS_READY</div>
