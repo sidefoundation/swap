@@ -91,6 +91,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   }, [isConnected]);
   useEffect(() => {
     if (isConnected) {
+      setFirstSwapList([]);
+      setSecondSwapList([]);
       setBalance([{ address: '', balances: [], id: '' }]);
       refetch();
     }
@@ -108,6 +110,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       // updataFirstCoinLimit(swapPair.first.amount);
       setSelectFirst({});
       setSelectSecond({});
+      setSelectChannel({})
       fetchSwapList('sell');
       const findItem = AtomicSwapConfig.find((item) => {
         if (item.chain === selectedChain.name) {
@@ -142,6 +145,23 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     }
   }, [selectSecond]);
 
+  useEffect(() => {
+    if (firstSwapList?.length > 0) {
+      setSelectFirst(firstSwapList?.[0]);
+    }
+  }, [firstSwapList]);
+
+  useEffect(() => {
+    if (secondSwapList?.length > 0) {
+      setSelectSecond(secondSwapList?.[0]);
+    }
+  }, [secondSwapList]);
+
+  useEffect(()=>{
+    if(currentAtomicSwap?.counterparties?.length > 0){
+      setSelectChannel(currentAtomicSwap?.counterparties?.[0])
+    }
+  },[currentAtomicSwap])
   const fetchSwapList = async (position: string, url?: string) => {
     let list = [];
     if (position === 'sell') {
@@ -310,16 +330,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             <div className="flex items-center mb-2">
               <div className="flex-1">
                 Sell
-                <span className="text-sm ml-1">
-                  ({selectedChain?.name})
-                </span>
+                <span className="text-sm ml-1">({selectedChain?.name})</span>
               </div>
               <div className="mr-2">
                 Balance: {filterBalance(swapPair.first?.denom)}
               </div>
-              <div className="font-semibold cursor-pointer" onClick={() =>
+              <div
+                className="font-semibold cursor-pointer"
+                onClick={() =>
                   updataFirstCoinLimit(filterBalance(swapPair.first?.denom))
-                }>
+                }
+              >
                 Max
               </div>
             </div>
@@ -329,7 +350,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <ul className="menu menu-horizontal px-1 w-full">
                   <li tabIndex={0} className="w-full">
                     <a className="w-full truncate font-semibold">
-                      {swapPair.first?.denom}
+                      {firstSwapList?.length === 0 ? 'loading...' : swapPair.first?.denom}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10 w-full">
@@ -397,7 +418,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[200px]">
                   <li tabIndex={0} className="w-full">
                     <a className="w-full truncate font-semibold">
-                      {selectedChannel?.name}
+                      {currentAtomicSwap?.counterparties?.length === 0
+                        ? 'loading...'
+                        : selectedChannel?.name}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10 w-full">
@@ -418,12 +441,11 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               </div>
               <div></div>
               <div className="bg-base-100  mr-4 rounded-full h-10 flex items-center justify-center  w-[200px]">
-               
-             <ul className="menu menu-horizontal px-1 w-[180px] ">
+                <ul className="menu menu-horizontal px-1 w-[180px] ">
                   <li tabIndex={0} className="w-full rounded-full">
                     <a className="w-full ">
                       <span className="truncate capitalize font-semibold">
-                        {swapPair.second?.denom}
+                        {secondSwapList?.length === 0 ? 'loading...' : swapPair.second?.denom}
                       </span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
@@ -445,11 +467,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   </li>
                 </ul>
               </div>
-
-              
             </div>
-          <div className="">
-          <input
+            <div className="">
+              <input
                 type="number"
                 className="text-right h-10 w-full bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
                 placeholder="Amount"
@@ -457,7 +477,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 value={swapPair.second.amount}
                 min="0"
               />
-          </div>
+            </div>
             <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
               <div className="flex-1">Side Hub</div>
               <div>~$9999</div>

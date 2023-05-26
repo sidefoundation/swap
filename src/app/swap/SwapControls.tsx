@@ -106,7 +106,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       <div>
         <div className="p-5 rounded-lg bg-base-200">
           <div className="flex items-center mb-2">
-            <div className="flex-1">Sell</div>
+            <div className="flex-1">Sell
+            <span className="text-sm ml-1">({selectedChain.name})</span></div>
             <div className="mr-2">
               Balance: {filterBalance(swapPair.first?.denom)}
             </div>
