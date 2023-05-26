@@ -43,6 +43,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
   const [signers, setSigners] = useState<Wallet[]>([]);
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
+  const [otherList, setOtherList] = useState<Balance[]>([]);
   const fetchBalances = async () => {
     const balance = await getBalance(true);
     setAllBalances(balance);
@@ -59,19 +60,17 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       }
     })?.[0]?.denom;
     selectFirstCoin(defalutFirst);
-    
+
     console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
   };
   useEffect(() => {
     if (selectedChain.chainID) {
-      // selectFirstCoin('');
-      // selectSecondCoin('');
       setPoolPair({
         first: { denom: '', amount: '0', weight: '0', chain: '' },
         second: { denom: '', amount: '0', weight: '0', chain: '' },
       });
-      console.log(poolPair, 'poolPairpoolPairpoolPairpoolPair');
       fetchBalances();
+      getRemoteChainList();
     }
   }, [selectedChain]);
   const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
@@ -83,9 +82,19 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     first: { denom: '', amount: '0', weight: '0', chain: '' },
     second: { denom: '', amount: '0', weight: '0', chain: '' },
   });
+  const [remoteList, setRemoteChainList] = useState([]);
   useEffect(() => {
     setSigners(wallets);
   }, [wallets]);
+
+  const getRemoteChainList = () => {
+    const remote = AppConfig.chains.find((chain) => {
+      if (chain.chainID === selectedChain.chainID) {
+        return chain;
+      }
+    })?.counterpartis;
+    setRemoteChainList(remote);
+  };
   const onChangeFirstWeight = (value) => {
     setPoolPair({
       ...poolPair,
@@ -115,7 +124,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     });
   };
   const selectFirstCoin = (value) => {
-    console.log(value, 99999);
     setPoolPair({
       ...poolPair,
       first: {
@@ -125,7 +133,24 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         chain: poolPair.first.chain,
       },
     });
-    console.log(poolPair, 'poolPair9999');
+  };
+  const suggestRemoteChain = (value) => {
+    setPoolPair({
+      ...poolPair,
+      second: {
+        denom: poolPair.second.denom,
+        amount: poolPair.second.amount,
+        weight: poolPair.second.weight,
+        chain: value,
+      },
+    });
+    const otherLists = allBalances?.filter((item) => {
+      if (item.id !== selectedChain.chainID) {
+        return item;
+      }
+    });
+    setOtherList(otherLists)
+    console.log(otherList, 'otherList')
   };
   const selectSecondCoin = (value) => {
     setPoolPair({
@@ -148,11 +173,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         weight: poolPair[type].weight,
       },
     }));
-    console.log(poolPair, 'prevPoolPair');
   };
 
   const onCreatePool = async () => {
-    console.log(poolPair, 'poolPairpoolPair');
     setLoading(true);
     const wallet = signers[0];
     const timeoutTimeStamp = Long.fromNumber(
@@ -468,14 +491,14 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <ul className="menu menu-horizontal px-1  ">
                   <li tabIndex={0}>
                     <a>
-                      <span>{selectedChain.name}</span>
+                      <span>{poolPair.second.chain}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10">
-                      {AppConfig?.chains?.map((item, index) => {
+                      {remoteList?.map((item, index) => {
                         return (
                           <li key={index}>
-                            <a onClick={() => suggestChain(item)}>
+                            <a onClick={() => suggestRemoteChain(item?.name)}>
                               {item?.name}
                             </a>
                           </li>
@@ -491,18 +514,20 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <ul className="menu menu-horizontal px-1  ">
                   <li tabIndex={0}>
                     <a>
-                      <span>{swapPair.second?.denom}</span>
+                      <span>{poolPair.second?.denom}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10">
-                      {AppConfig?.chains?.map((item, index) => {
-                        return (
-                          <li key={index}>
-                            <a onClick={() => suggestChain(item)}>
-                              {item?.name}
-                            </a>
-                          </li>
-                        );
+                      {otherList?.[0]?.balances?.map((item, index) => {
+                        if (!item.denom.includes('pool')) {
+                          return (
+                            <li key={index}>
+                              <a onClick={() => selectSecondCoin(item?.denom)}>
+                                {item?.denom}
+                              </a>
+                            </li>
+                          );
+                        }
                       })}
                     </ul>
                   </li>

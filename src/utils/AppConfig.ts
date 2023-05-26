@@ -14,6 +14,7 @@ export const AppConfig = {
       counterpartis: [
         {
           chainID: 'alice_1819-1',
+          name: 'sidechain-2',
           channelId: 'channel-2',
           portId: '',
           type: 'go/wasm',
@@ -31,6 +32,7 @@ export const AppConfig = {
         {
           chainID: 'sidehub_1818-1',
           channelId: 'channel-1',
+          name: 'sidechain-1',
           portId: '',
           type: 'go/wasm',
         },
