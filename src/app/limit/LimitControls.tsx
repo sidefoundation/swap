@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
-import { getBalanceList, useAssetsStore } from '../store/assets';
+import { getBalanceList, useAssetsStore } from '@/store/assets';
 
 import {
   MdKeyboardArrowDown,
@@ -11,13 +11,13 @@ import {
   MdArrowDownward,
 } from 'react-icons/md';
 import Image from 'next/image';
-import SwapOrder from './SwapOrder';
-import TabItem from './TabItem';
+import TabItem from '@/components/TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
+import SwapOrder from './SwapOrder';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin; type: string };

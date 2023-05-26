@@ -7,11 +7,9 @@ import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
 import { useEffect, useState } from 'react';
-import { MdOutlineMenu } from 'react-icons/md';
-import { TokenInput } from './TokenInput';
+import { TokenInput } from '@/components/TokenInput';
 import { IAtomicSwapOrder } from '@/shared/types/order';
 import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
-import { AppConfig } from '@/utils/AppConfig';
 import { timestampToDate } from '@/utils/utils';
 import toast from 'react-hot-toast';
 
@@ -122,7 +120,7 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 export default function SwapOrder() {
   const [tab, setTab] = useState('all');
 
-  const { wallets, getBalance, getClient,selectedChain } = useWalletStore();
+  const { wallets, getBalance, getClient, selectedChain } = useWalletStore();
   const [openOrder, setOpenOrder] = useState(false);
   const [balances, setBalances] = useState<
     {
@@ -204,7 +202,7 @@ export default function SwapOrder() {
     // Get current timestamp in milliseconds
     const currentTimestamp = currentDate.getTime();
 
-    // Calculate the timestamp for 24 hours from now  
+    // Calculate the timestamp for 24 hours from now
     const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
     const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
 

@@ -1,11 +1,11 @@
 // PoolDetailsList.tsx
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
-import { PoolDetails } from '@/components/PoolDetails';
-import { CoinInput } from './CoinInput';
+import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet } from '@/store/wallet';
 import PoolModal from './PoolModal';
+import PoolDetails from './PoolDetails';
 import toast from 'react-hot-toast';
 import {
   MsgCreatePoolRequest,
@@ -13,7 +13,6 @@ import {
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
-import { AppConfig } from '@/utils/AppConfig';
 
 import {
   MdList,
@@ -73,7 +72,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         },
         timeoutTimeStamp: timeoutTimeStamp,
       };
-      
+
       const msg = {
         typeUrl: '/ibc.applications.interchain_swap.v1.MsgCreatePoolRequest',
         value: createPoolMsg,
@@ -84,9 +83,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-      console.log(createPoolMsg, 'createPoolMsg')
-      console.log(fee, 'fee')
-      console.log(wallet, 'wallet')
+      console.log(createPoolMsg, 'createPoolMsg');
+      console.log(fee, 'fee');
+      console.log(wallet, 'wallet');
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -102,7 +101,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         console.log('there are problem in encoding');
       }
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
 
       console.log('error', error);
     }
@@ -296,7 +295,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           </div>
         </label>
       </label>
-      
+
       <PoolModal />
     </div>
   );

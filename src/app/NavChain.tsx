@@ -4,14 +4,9 @@ import useWalletStore from '@/store/wallet';
 import { AppConfig } from '@/utils/AppConfig';
 import { useEffect } from 'react';
 import { BriefChainInfo } from '@/shared/types/chain';
-export function ToggleChain() {
-  const {
-    suggestChain,
-    selectedChain,
-    connectSelectedWallet,
-    setChain,
-    selectedWallet,
-  } = useWalletStore();
+export default function ToggleChain() {
+  const { suggestChain, selectedChain, setChain, selectedWallet } =
+    useWalletStore();
   const [currentChain, setCurrentChain] = useState({ name: '' });
   const {} = useState();
   useEffect(() => {

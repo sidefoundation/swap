@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Wallet } from '@/store/wallet';
 import { Coin } from '@cosmjs/stargate';
-import { useGetBalances } from '@/http/query/useGetBalances';
 import { useGetCurrentBalances } from '@/http/query/useGetCurrentBalances';
 
 import { AppConfig } from '@/utils/AppConfig';
@@ -46,7 +45,7 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
   }, [selectedChain]);
 
   useEffect(() => {
-    setBalances([])
+    setBalances([]);
     refetch();
   }, [selectedWallet]);
   return (

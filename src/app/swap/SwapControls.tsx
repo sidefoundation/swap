@@ -11,9 +11,7 @@ import {
 } from 'react-icons/md';
 import Image from 'next/image';
 import { useGetBalances } from '@/http/query/useGetBalances';
-import { getBalanceList, useAssetsStore } from '../store/assets';
-import Long from 'long';
-import toast from 'react-hot-toast';
+import { getBalanceList, useAssetsStore } from '@/store/assets';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin; type: string };

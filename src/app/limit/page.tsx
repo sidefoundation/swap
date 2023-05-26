@@ -5,13 +5,12 @@ import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
 
-import LimitControls from '@/components/LimitControls';
+import LimitControls from './LimitControls';
 import {
   MsgSwapRequest,
   SwapMsgType,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
-import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
@@ -59,7 +58,6 @@ const Swap = () => {
   useEffect(() => {
     // refetch();
   }, [loading, selectedChain]);
-
 
   const onSwap = async (direction: '->' | '<-') => {
     setLoading(true);
@@ -135,10 +133,7 @@ const Swap = () => {
 
   return (
     <div>
-      <LimitControls
-        swapPair={swapPair}
-        setSwapPair={setSwapPair}
-      />
+      <LimitControls swapPair={swapPair} setSwapPair={setSwapPair} />
     </div>
   );
 };

@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
 
-import SwapControls from '@/components/SwapControls';
 import {
   MsgSwapRequest,
   SwapMsgType,
@@ -15,6 +14,7 @@ import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
+import SwapControls from './SwapControls';
 
 const Swap = () => {
   const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =

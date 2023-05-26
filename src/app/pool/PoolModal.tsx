@@ -15,8 +15,8 @@ import {
   addPoolItemSingle,
   redeemPoolItemSingle,
   redeemPoolItemMulti,
-} from '../store/pool';
-import TabItem from './TabItem';
+} from '@/store/pool';
+import TabItem from '@/components/TabItem';
 
 export default function PoolModal() {
   const [tab, setTab] = React.useState('all');

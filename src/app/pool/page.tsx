@@ -1,10 +1,10 @@
 'use client';
 
 import useWalletStore from '@/store/wallet';
-import PoolDetailsList from '@/components/PoolDetailsList';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import React, { useEffect, useState } from 'react';
+import PoolDetailsList from './PoolDetailsList';
 
 export default function Pool() {
   const { selectedChain } = useWalletStore();
@@ -18,7 +18,7 @@ export default function Pool() {
   useEffect(() => {
     refetch();
   }, []);
-  
+
   useEffect(() => {
     refetch();
   }, [selectedChain]);
