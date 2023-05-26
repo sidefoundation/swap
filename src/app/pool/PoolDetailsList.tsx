@@ -48,15 +48,53 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     first: { denom: 'aside', amount: '0', weight: '0', chain: '' },
     second: { denom: 'bside', amount: '0', weight: '0', chain: '' },
   });
-
+  const onChangeFirstWeight = (value) => {
+    setPoolPair({
+      ...poolPair,
+      first: {
+        denom: poolPair.first.denom,
+        amount: poolPair.first.amount,
+        weight: value,
+        chain: poolPair.first.chain,
+      },
+      second: {
+        denom: poolPair.second.denom,
+        amount: poolPair.second.amount,
+        weight: (100 - parseInt(value)).toString(),
+        chain: poolPair.second.chain,
+      },
+    });
+  };
+  const onChangeSecondWeight = (value) => {
+    setPoolPair({
+      ...poolPair,
+      second: {
+        denom: poolPair.second.denom,
+        amount: poolPair.second.amount,
+        weight: value,
+        chain: poolPair.second.chain,
+      },
+    });
+  };
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
-    setSwapPair((prevSwapPair) => ({
-      ...prevSwapPair,
-      [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value },
+    // setSwapPair((prevSwapPair) => ({
+    //   ...prevSwapPair,
+    //   [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value },
+    // }));
+    setPoolPair((prevPoolPair) => ({
+      ...prevPoolPair,
+      [type]: {
+        denom: type === 'first' ? 'aside' : 'bside',
+        amount: value,
+        chain: poolPair[type].chain,
+        weight: poolPair[type].weight,
+      },
     }));
+    console.log(poolPair, 'prevPoolPair')
   };
 
   const onCreatePool = async () => {
+    console.log(poolPair, 'poolPairpoolPair')
     setLoading(true);
     const wallet = signers[0];
     const timeoutTimeStamp = Long.fromNumber(
@@ -202,7 +240,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <label htmlFor="modal-pool-create" className="btn text-2xl mr-2">
               <MdAddToQueue />
             </label>
-            <label htmlFor="modal-create-pool" className="btn btn-primary text-2xl">
+            <label
+              htmlFor="modal-create-pool"
+              className="btn btn-primary text-2xl"
+            >
               <MdAddToQueue />
             </label>
           </div>
@@ -322,7 +363,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <span>amount:</span>
                 <div>
                   <CoinInput
-                    coin={swapPair.first}
+                    coin={{
+                      amount: poolPair.first.amount,
+                      denom: poolPair.first.denom,
+                    }}
                     placeholder="Amount ..."
                     onChange={(value) => handleCoinUpdate('first', value)}
                   />
@@ -331,12 +375,26 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               {/* weight */}
               <div className="border flex">
                 <span>weight:</span>
-                <div>
-                  <CoinInput
-                    coin={swapPair.first}
-                    placeholder="Amount ..."
-                    onChange={(value) => handleCoinUpdate('first', value)}
-                  />
+                <div>{poolPair.first.weight}</div>
+              </div>
+              <div>
+                <input
+                  type="range"
+                  min="20"
+                  max="80"
+                  value={poolPair.first.weight}
+                  className="range"
+                  step="10"
+                  onChange={(event) => onChangeFirstWeight(event.target.value)}
+                />
+                <div className="w-full flex justify-between text-xs px-2">
+                  <span>20</span>
+                  <span>30</span>
+                  <span>40</span>
+                  <span>50</span>
+                  <span>60</span>
+                  <span>70</span>
+                  <span>80</span>
                 </div>
               </div>
             </div>
@@ -392,7 +450,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <span>amount:</span>
                 <div>
                   <CoinInput
-                    coin={swapPair.second}
+                    coin={{
+                      amount: poolPair.second.amount,
+                      denom: poolPair.second.denom,
+                    }}
                     placeholder="Amount ..."
                     onChange={(value) => handleCoinUpdate('second', value)}
                   />
@@ -401,46 +462,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               {/* weight */}
               <div className="border flex">
                 <span>weight:</span>
-                <div>
-                  <CoinInput
-                    coin={swapPair.second}
-                    placeholder="Amount ..."
-                    onChange={(value) => handleCoinUpdate('second', value)}
-                  />
-                </div>
+                <div>{poolPair.second.weight}</div>
               </div>
-              {/* <div className="capitalize font-semibold text-base">
-                {swapPair.second?.denom}
-              </div>
-              <CoinInput
-                coin={swapPair.second}
-                placeholder="Amount ..."
-                onChange={(value) => handleCoinUpdate('second', value)}
-              /> */}
-            </div>
-            <input
-              type="range"
-              min="20"
-              max="80"
-              value="30"
-              className="range"
-              step="10"
-            />
-            <div className="w-full flex justify-between text-xs px-2">
-              <span>20</span>
-              <span>30</span>
-              <span>40</span>
-              <span>50</span>
-              <span>60</span>
-              <span>70</span>
-              <span>80</span>
             </div>
 
             <div className="mt-6">
               <button
                 disabled={
-                  !Number(swapPair.second?.amount || 0) ||
-                  !Number(swapPair.first?.amount || 0)
+                  !Number(poolPair.second?.amount || 0) ||
+                  !Number(poolPair.first?.amount || 0)
                 }
                 className="btn btn-primary w-full"
                 onClick={onCreatePool}
