@@ -136,7 +136,12 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             <div className="mr-2">
               Balance: {filterBalance(swapPair.first?.denom)}
             </div>
-            <div className="font-semibold cursor-pointer" onClick={() => {}}>
+            <div
+              className="font-semibold cursor-pointer"
+              onClick={() =>
+                updateFirstCoin(filterBalance(swapPair.first?.denom))
+              }
+            >
               Max
             </div>
           </div>
@@ -194,7 +199,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
             <div className="mr-2">
               Balance: {filterBalance(swapPair.second?.denom)}
             </div>
-            <div className="font-semibold cursor-pointer" onClick={() => {}}>
+            <div className="font-semibold cursor-pointer" onClick={() =>updateSecondCoin(filterBalance(swapPair.second?.denom)) }>
               Max
             </div>
           </div>
@@ -211,9 +216,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     {buyCoins?.map((item, index) => {
                       return (
                         <li key={index}>
-                          <a onClick={() => {}}>
-                            {item?.balance?.denom}
-                          </a>
+                          <a onClick={() => {}}>{item?.balance?.denom}</a>
                         </li>
                       );
                     })}
