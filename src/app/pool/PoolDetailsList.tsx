@@ -177,7 +177,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
   const onCreatePool = async () => {
     setLoading(true);
-    const wallet = signers[0];
+    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
+    if(wallet === undefined) {
+      toast.error("you don't have wallet about this chain")
+    }
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
@@ -240,8 +243,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   const onEnablePool = async (pool: ILiquidityPool) => {
     //setLoading(true)
     await suggestChain(selectedChain);
-
-    const wallet = signers[1];
+  
+    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
+    
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
@@ -306,34 +310,34 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
       <div className=" mt-5 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
         {/* search filter */}
-        <div className="w-full flex mb-5">
-          <div className="w-full flex-1 relative">
+        <div className="flex w-full mb-5">
+          <div className="relative flex-1 w-full">
             <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl text-gray-300 dark:text-gray-400" />
             <input
-              className="w-full flex-1 input input-bordered pl-10"
+              className="flex-1 w-full pl-10 input input-bordered"
               placeholder="Search token name"
               onChange={() => {}}
             />
           </div>
 
           <div className="ml-4">
-            <button className="btn text-2xl mr-2">
+            <button className="mr-2 text-2xl btn">
               <MdList />
             </button>
 
-            <label htmlFor="modal-pool-create" className="btn text-2xl mr-2">
+            <label htmlFor="modal-pool-create" className="mr-2 text-2xl btn">
               <MdAddToQueue />
             </label>
             <label
               htmlFor="modal-create-pool"
-              className="btn btn-primary text-2xl"
+              className="text-2xl btn btn-primary"
             >
               <MdAddToQueue />
             </label>
           </div>
         </div>
         {/* list */}
-        <div className="overflow-x-auto border dark:border-none rounded-lg mb-5">
+        <div className="mb-5 overflow-x-auto border rounded-lg dark:border-none">
           <table className="table w-full">
             {/* head */}
             <thead>
@@ -364,7 +368,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <span className="mr-2">Rows per page: </span>
             <select
               value="10"
-              className="select select-bordered select-sm max-w-xs"
+              className="max-w-xs select select-bordered select-sm"
               onChange={() => {}}
             >
               <option>10</option>
@@ -375,10 +379,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           <div className="mx-4">
             {'1-10'} of {'299'}
           </div>
-          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-1 py-1 rounded cursor-pointer">
+          <div className="px-1 py-1 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
             <MdKeyboardArrowLeft className="text-2xl" />
           </div>
-          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-1 py-1 rounded cursor-pointer">
+          <div className="px-1 py-1 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
             <MdKeyboardArrowRight className="text-2xl" />
           </div>
         </div>
@@ -386,8 +390,8 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
       {/* TODO: dialog should not in loop */}
       <input type="checkbox" id="modal-pool-create" className="modal-toggle" />
-      <label className="modal cursor-pointer" htmlFor="modal-pool-create">
-        <label className="modal-box relative" htmlFor="">
+      <label className="cursor-pointer modal" htmlFor="modal-pool-create">
+        <label className="relative modal-box" htmlFor="">
           <div className="">
             <div className="flex items-center justify-between mb-4">
               <div className="text-lg font-bold">Create New Pool</div>
@@ -395,17 +399,17 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
               </label>
             </div>
-            <div className="  px-4 rounded mb-3 py-1">
+            <div className="px-4 py-1 mb-3 rounded ">
               {/*  ChainSelect*/}
-              <div className="border mb-2 p-2">
+              <div className="p-2 mb-2 border">
                 <span className="mr-2">selectChain:</span>
-                <ul className="menu menu-horizontal px-1  ">
+                <ul className="px-1 menu menu-horizontal ">
                   <li tabIndex={0}>
                     <a>
                       <span>{selectedChain.name}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10">
+                    <ul className="z-10 p-2 bg-base-100">
                       {AppConfig?.chains?.map((item, index) => {
                         return (
                           <li key={index}>
@@ -420,15 +424,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </ul>
               </div>
               {/* CoinSelect */}
-              <div className="border mb-2">
+              <div className="mb-2 border">
                 <span>selectCoin:</span>
-                <ul className="menu menu-horizontal px-1  ">
+                <ul className="px-1 menu menu-horizontal ">
                   <li tabIndex={0}>
                     <a>
                       <span>{poolPair.first?.denom}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10">
+                    <ul className="z-10 p-2 bg-base-100">
                       {balanceList?.[0]?.balances?.map((item, index) => {
                         if (!item.denom.includes('pool')) {
                           return (
@@ -445,7 +449,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </ul>
               </div>
               {/*amount  */}
-              <div className="border mb-2 flex">
+              <div className="flex mb-2 border">
                 <span>amount:</span>
                 <div>
                   <CoinInput
@@ -459,7 +463,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </div>
               </div>
               {/* weight */}
-              <div className="border flex">
+              <div className="flex border">
                 <span>weight:</span>
                 <div>{poolPair.first.weight}</div>
               </div>
@@ -473,7 +477,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                   step="10"
                   onChange={(event) => onChangeFirstWeight(event.target.value)}
                 />
-                <div className="w-full flex justify-between text-xs px-2">
+                <div className="flex justify-between w-full px-2 text-xs">
                   <span>20</span>
                   <span>30</span>
                   <span>40</span>
@@ -484,17 +488,17 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </div>
               </div>
             </div>
-            <div className="border items-center px-4 rounded py-1">
+            <div className="items-center px-4 py-1 border rounded">
               {/*  ChainSelect*/}
-              <div className="border mb-2 p-2">
+              <div className="p-2 mb-2 border">
                 <span className="mr-2">selectChain:</span>
-                <ul className="menu menu-horizontal px-1  ">
+                <ul className="px-1 menu menu-horizontal ">
                   <li tabIndex={0}>
                     <a>
                       <span>{poolPair.second.chain}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10">
+                    <ul className="z-10 p-2 bg-base-100">
                       {remoteList?.map((item, index) => {
                         return (
                           <li key={index}>
@@ -509,15 +513,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </ul>
               </div>
               {/* CoinSelect */}
-              <div className="border mb-2">
+              <div className="mb-2 border">
                 <span>selectCoin:</span>
-                <ul className="menu menu-horizontal px-1  ">
+                <ul className="px-1 menu menu-horizontal ">
                   <li tabIndex={0}>
                     <a>
                       <span>{poolPair.second?.denom}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10">
+                    <ul className="z-10 p-2 bg-base-100">
                       {otherList?.[0]?.balances?.map((item, index) => {
                         if (!item.denom.includes('pool')) {
                           return (
@@ -534,7 +538,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </ul>
               </div>
               {/*amount  */}
-              <div className="border mb-2 flex">
+              <div className="flex mb-2 border">
                 <span>amount:</span>
                 <div>
                   <CoinInput
@@ -548,7 +552,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 </div>
               </div>
               {/* weight */}
-              <div className="border flex">
+              <div className="flex border">
                 <span>weight:</span>
                 <div>{poolPair.second.weight}</div>
               </div>
@@ -560,7 +564,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                   !Number(poolPair.second?.amount || 0) ||
                   !Number(poolPair.first?.amount || 0)
                 }
-                className="btn btn-primary w-full"
+                className="w-full btn btn-primary"
                 onClick={onCreatePool}
               >
                 Confirm
