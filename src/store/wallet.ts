@@ -310,7 +310,7 @@ const useWalletStore = create<WalletState>(
       },
       setBalance: (balances: Balance[]) => {
         const { selectedChain } = get();
-        
+
         const balance = balances?.filter((item) => {
           if (item.id === selectedChain.chainID) {
             return item;
