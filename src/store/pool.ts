@@ -1,4 +1,3 @@
-import { devtools } from 'valtio/utils';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { proxy, useSnapshot } from 'valtio';
 import { toast } from 'react-hot-toast';
@@ -17,6 +16,14 @@ import {
 
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
+
+export type CounterPartyType = {
+  chainID: string;
+  name: string;
+  channelId: string;
+  portId: string;
+  type: string;
+};
 
 type Store = {
   poolList: ILiquidityPool[];
@@ -41,6 +48,7 @@ type Store = {
       amount: string;
       weight: number;
     };
+    counterParty: CounterPartyType;
     memo: string;
     gas: string;
   };
@@ -69,12 +77,18 @@ export const poolStore = proxy<Store>({
       amount: '',
       weight: 50,
     },
+    counterParty: {
+      chainID: '',
+      name: '',
+      channelId: '',
+      portId: '',
+      type: '',
+    },
     memo: '',
     gas: '200000',
   },
 });
 
-devtools(poolStore, { name: 'pool', enabled: true });
 
 export const usePoolStore = () => {
   return useSnapshot(poolStore);
@@ -492,7 +506,7 @@ export const postPoolCreate = async (selectedChain, getClient) => {
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
-      sourceChannel: 'channel-0',
+      sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,
       tokens: [
         {

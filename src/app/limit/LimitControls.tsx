@@ -110,7 +110,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       // updataFirstCoinLimit(swapPair.first.amount);
       setSelectFirst({});
       setSelectSecond({});
-      setSelectChannel({})
+      setSelectChannel({});
       fetchSwapList('sell');
       const findItem = AtomicSwapConfig.find((item) => {
         if (item.chain === selectedChain.name) {
@@ -157,11 +157,11 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     }
   }, [secondSwapList]);
 
-  useEffect(()=>{
-    if(currentAtomicSwap?.counterparties?.length > 0){
-      setSelectChannel(currentAtomicSwap?.counterparties?.[0])
+  useEffect(() => {
+    if (currentAtomicSwap?.counterparties?.length > 0) {
+      setSelectChannel(currentAtomicSwap?.counterparties?.[0]);
     }
-  },[currentAtomicSwap])
+  }, [currentAtomicSwap]);
   const fetchSwapList = async (position: string, url?: string) => {
     let list = [];
     if (position === 'sell') {
@@ -350,7 +350,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <ul className="menu menu-horizontal px-1 w-full">
                   <li tabIndex={0} className="w-full">
                     <a className="w-full truncate font-semibold">
-                      {firstSwapList?.length === 0 ? 'loading...' : swapPair.first?.denom}
+                      {firstSwapList?.length === 0
+                        ? 'loading...'
+                        : swapPair.first?.denom}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10 w-full">
@@ -389,8 +391,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
           </div>
           {/* switch icon */}
           <div className="flex items-center justify-center -mt-5 -mb-5">
-            <div className="bg-white rounded-full shadow w-14 h-14 flex items-center justify-center">
-              <MdArrowDownward className="w-8 h-8" />
+            <div className="bg-white dark:bg-gray-700 rounded-full shadow w-14 h-14 flex items-center justify-center">
+              <MdArrowDownward className="w-8 h-8 text-gray-700 dark:text-gray-300" />
             </div>
           </div>
           {/* second */}
@@ -445,7 +447,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   <li tabIndex={0} className="w-full rounded-full">
                     <a className="w-full ">
                       <span className="truncate capitalize font-semibold">
-                        {secondSwapList?.length === 0 ? 'loading...' : swapPair.second?.denom}
+                        {secondSwapList?.length === 0
+                          ? 'loading...'
+                          : swapPair.second?.denom}
                       </span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>

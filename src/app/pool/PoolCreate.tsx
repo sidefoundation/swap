@@ -1,7 +1,12 @@
 import React, { useEffect } from 'react';
 import { MdOutlineClose } from 'react-icons/md';
 import { useChainStore, getChainMap, fetchChainCoinList } from '@/store/chain';
-import { poolStore, usePoolStore, postPoolCreate } from '@/store/pool';
+import {
+  poolStore,
+  usePoolStore,
+  postPoolCreate,
+  CounterPartyType,
+} from '@/store/pool';
 import { BriefChainInfo } from '@/shared/types/chain';
 import useWalletStore, { Wallet } from '@/store/wallet';
 
@@ -19,9 +24,12 @@ export default function PoolCreate() {
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');
 
-    const remoteChainId = chainList[0]?.counterpartis?.[0]?.chainID;
+    const counterparty = chainList[0]?.counterpartis?.[0];
+    poolStore.poolFormCreate.counterParty = counterparty as CounterPartyType;
     const chainMap = getChainMap();
-    const chainRemote = chainMap?.[remoteChainId as string] as BriefChainInfo;
+    const chainRemote = chainMap?.[
+      counterparty?.chainID as string
+    ] as BriefChainInfo;
     poolStore.poolFormCreate.remote.chain = chainRemote;
     fetchChainCoinList(chainRemote?.restUrl as string, 'Remote');
   }, []);
