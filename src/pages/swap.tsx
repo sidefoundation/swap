@@ -61,7 +61,6 @@ const Swap = () => {
   });
 
   useEffect(() => {
-    console.log('swap ---loading, selectedChain')
     refetch();
   }, [loading, selectedChain]);
 
@@ -142,8 +141,9 @@ const Swap = () => {
             });
           }
         );
-        console.log(result, 'result')
-        const tx_result = result?.tx_response || result?.txs?.[0]?.tx_result || result;
+        console.log(result, 'result');
+        const tx_result =
+          result?.tx_response || result?.txs?.[0]?.tx_result || result;
         if (`${tx_result?.code}` !== '0') {
           console.log(tx_result?.log || tx_result?.raw_log, 'raw_log');
           toast.error(tx_result?.log || tx_result?.raw_log, {

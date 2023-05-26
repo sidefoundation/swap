@@ -8,6 +8,7 @@ import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
   MdOutlineClose,
+  MdArrowDownward,
 } from 'react-icons/md';
 import Image from 'next/image';
 import SwapOrder from './SwapOrder';
@@ -356,14 +357,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
           </div>
           {/* switch icon */}
           <div className="flex items-center justify-center -mt-5 -mb-5">
-            <Image
-              alt="switch"
-              src="/assets/images/switch.png"
-              width="20"
-              height="20"
-              className="bg-white rounded-full shadow w-14 h-14 "
-              onClick={() => switchSwap()}
-            />
+            <div className="bg-white rounded-full shadow w-14 h-14 flex items-center justify-center">
+              <MdArrowDownward className="w-8 h-8" />
+            </div>
           </div>
           {/* second */}
           <div className="p-5 rounded-lg bg-base-200">
