@@ -66,8 +66,8 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   useEffect(() => {
     if (selectedChain.chainID) {
       setPoolPair({
-        first: { denom: '', amount: '0', weight: '0', chain: '' },
-        second: { denom: '', amount: '0', weight: '0', chain: '' },
+        first: { denom: '', amount: '0', weight: '50', chain: '' },
+        second: { denom: '', amount: '0', weight: '50', chain: '' },
       });
       fetchBalances();
       getRemoteChainList();
@@ -79,8 +79,8 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   });
 
   const [poolPair, setPoolPair] = useState({
-    first: { denom: '', amount: '0', weight: '0', chain: '' },
-    second: { denom: '', amount: '0', weight: '0', chain: '' },
+    first: { denom: '', amount: '0', weight: '50', chain: '' },
+    second: { denom: '', amount: '0', weight: '50', chain: '' },
   });
   const [remoteList, setRemoteChainList] = useState([]);
   useEffect(() => {
@@ -398,7 +398,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <div className="  px-4 rounded mb-3 py-1">
               {/*  ChainSelect*/}
               <div className="border mb-2 p-2">
-                <span className="mr-2">selectChain:</span>
+                <span className="mr-2">NativeChain:</span>
                 <ul className="menu menu-horizontal px-1  ">
                   <li tabIndex={0}>
                     <a>
@@ -487,7 +487,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
             <div className="border items-center px-4 rounded py-1">
               {/*  ChainSelect*/}
               <div className="border mb-2 p-2">
-                <span className="mr-2">selectChain:</span>
+                <span className="mr-2">RemoteChain:</span>
                 <ul className="menu menu-horizontal px-1  ">
                   <li tabIndex={0}>
                     <a>

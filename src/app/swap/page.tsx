@@ -116,7 +116,7 @@ const Swap = () => {
         },
         timeoutTimeStamp: timeoutTimeStamp,
       };
-
+      console.log(swapMsg, 'swapMsg')
       const msg = {
         typeUrl: '/ibc.applications.interchain_swap.v1.MsgSwapRequest',
         value: swapMsg,
