@@ -4,6 +4,7 @@ import { proxy, useSnapshot } from 'valtio';
 import { toast } from 'react-hot-toast';
 import Long from 'long';
 import type { ILiquidityPool } from '@/shared/types/liquidity';
+import { BriefChainInfo } from '../shared/types/chain';
 import {
   LocalDeposit,
   MsgMultiAssetDepositRequest,
@@ -11,7 +12,9 @@ import {
   MsgSingleAssetDepositRequest,
   MsgSingleAssetWithdrawRequest,
   MsgMultiAssetWithdrawRequest,
+  MsgCreatePoolRequest,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
 
@@ -25,6 +28,22 @@ type Store = {
     remoteAmount: string;
     nativeAmount: string;
   };
+  poolFormCreate: {
+    native: {
+      chain: BriefChainInfo;
+      coin: Coin;
+      amount: string;
+      weight: number;
+    };
+    remote: {
+      chain: BriefChainInfo;
+      coin: Coin;
+      amount: string;
+      weight: number;
+    };
+    memo: string;
+    gas: string;
+  };
 };
 
 export const poolStore = proxy<Store>({
@@ -32,10 +51,26 @@ export const poolStore = proxy<Store>({
   poolItem: {} as ILiquidityPool,
   poolForm: {
     action: 'add',
-    single: {},
+    single: {} as ILiquidityPool,
     signleAmount: '',
     remoteAmount: '',
     nativeAmount: '',
+  },
+  poolFormCreate: {
+    native: {
+      chain: {} as BriefChainInfo,
+      coin: {} as Coin,
+      amount: '',
+      weight: 50,
+    },
+    remote: {
+      chain: {} as BriefChainInfo,
+      coin: {} as Coin,
+      amount: '',
+      weight: 50,
+    },
+    memo: '',
+    gas: '200000',
   },
 });
 
@@ -53,7 +88,7 @@ export const getPoolList = async () => {
 // all assets add
 export const addPoolItemMulti = async (wallets, market, getClient) => {
   const poolAssets = poolStore.poolItem.assets;
-  console.log(poolAssets, 'poolAssets')
+  console.log(poolAssets, 'poolAssets');
   const form = poolStore.poolForm;
 
   let localDenom = '';
@@ -444,6 +479,65 @@ export const redeemPoolItemSingle = async (
       console.log('there are problem in encoding');
     }
   } catch (error) {
+    console.log('error', error);
+  }
+};
+
+export const postPoolCreate = async (selectedChain, getClient) => {
+  const wallet = selectedChain;
+  const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
+
+  try {
+    const client = await getClient(wallet!.chainInfo);
+
+    const createPoolMsg: MsgCreatePoolRequest = {
+      sourcePort: 'interchainswap',
+      sourceChannel: 'channel-0',
+      sender: wallet!.address,
+      tokens: [
+        {
+          denom: poolStore?.poolFormCreate?.native?.coin?.denom,
+          amount: poolStore?.poolFormCreate?.native?.amount,
+        },
+        {
+          denom: poolStore?.poolFormCreate?.remote?.coin?.denom,
+          amount: poolStore?.poolFormCreate?.remote?.amount,
+        },
+      ],
+      decimals: [18, 18],
+      weight: `${poolStore?.poolFormCreate?.native?.weight}:${poolStore?.poolFormCreate?.remote?.weight}`,
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(10),
+        revisionNumber: Long.fromInt(10000000000),
+      },
+      timeoutTimeStamp: timeoutTimeStamp,
+    };
+
+    const msg = {
+      typeUrl: '/ibc.applications.interchain_swap.v1.MsgCreatePoolRequest',
+      value: createPoolMsg,
+    };
+
+    const fee: StdFee = {
+      amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
+      gas: poolStore?.poolFormCreate?.gas || '200000',
+    };
+    const data = await client!.signWithEthermint(
+      wallet!.address,
+      [msg],
+      wallet!.chainInfo,
+      fee,
+      'test'
+    );
+    console.log('Signed data', data);
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      console.log('TxHash:', txHash);
+    } else {
+      console.log('there are problem in encoding');
+    }
+  } catch (error) {
+    toast.error(error);
     console.log('error', error);
   }
 };

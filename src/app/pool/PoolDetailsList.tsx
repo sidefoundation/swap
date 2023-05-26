@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet, Balance } from '@/store/wallet';
 import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
@@ -59,28 +58,23 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         return item;
       }
     })?.[0]?.denom;
-    selectFirstCoin(defalutFirst);
+    selectCoin('first', defalutFirst);
 
     console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
   };
   useEffect(() => {
     if (selectedChain.chainID) {
       setPoolPair({
-        first: { denom: '', amount: '0', weight: '0', chain: '' },
-        second: { denom: '', amount: '0', weight: '0', chain: '' },
+        first: { denom: '', amount: '0', weight: '50', chain: '' },
+        second: { denom: '', amount: '0', weight: '50', chain: '' },
       });
       fetchBalances();
       getRemoteChainList();
     }
   }, [selectedChain]);
-  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
-    first: { denom: 'aside', amount: '0' },
-    second: { denom: 'bside', amount: '0' },
-  });
-
   const [poolPair, setPoolPair] = useState({
-    first: { denom: '', amount: '0', weight: '0', chain: '' },
-    second: { denom: '', amount: '0', weight: '0', chain: '' },
+    first: { denom: '', amount: '0', weight: '50', chain: '' },
+    second: { denom: '', amount: '0', weight: '50', chain: '' },
   });
   const [remoteList, setRemoteChainList] = useState([]);
   useEffect(() => {
@@ -95,45 +89,35 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     })?.counterpartis;
     setRemoteChainList(remote);
   };
-  const onChangeFirstWeight = (value) => {
+  const onChangeWeight = (value, side) => {
     setPoolPair({
       ...poolPair,
       first: {
         denom: poolPair.first.denom,
         amount: poolPair.first.amount,
-        weight: value,
+        weight: side === 'first' ? value : (100 - parseInt(value)).toString(),
         chain: poolPair.first.chain,
       },
       second: {
         denom: poolPair.second.denom,
         amount: poolPair.second.amount,
-        weight: (100 - parseInt(value)).toString(),
+        weight: side === 'first' ? (100 - parseInt(value)).toString() : value,
         chain: poolPair.second.chain,
       },
     });
   };
-  const onChangeSecondWeight = (value) => {
+  const selectCoin = (side, value) => {
     setPoolPair({
       ...poolPair,
-      second: {
-        denom: poolPair.second.denom,
-        amount: poolPair.second.amount,
-        weight: value,
-        chain: poolPair.second.chain,
-      },
-    });
-  };
-  const selectFirstCoin = (value) => {
-    setPoolPair({
-      ...poolPair,
-      first: {
+      [side]: {
         denom: value || '',
-        amount: poolPair.first.amount,
-        weight: poolPair.first.weight,
-        chain: poolPair.first.chain,
+        amount: poolPair?.[side]?.amount,
+        weight: poolPair?.[side]?.weight,
+        chain: poolPair?.[side]?.chain,
       },
     });
   };
+
   const suggestRemoteChain = (value) => {
     setPoolPair({
       ...poolPair,
@@ -149,20 +133,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         return item;
       }
     });
-    setOtherList(otherLists)
-    console.log(otherList, 'otherList')
+    setOtherList(otherLists);
+    console.log(otherList, 'otherList');
   };
-  const selectSecondCoin = (value) => {
-    setPoolPair({
-      ...poolPair,
-      second: {
-        denom: value || '',
-        amount: poolPair.second.amount,
-        weight: poolPair.second.weight,
-        chain: poolPair.second.chain,
-      },
-    });
-  };
+
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
     setPoolPair((prevPoolPair) => ({
       ...prevPoolPair,
@@ -177,9 +151,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
 
   const onCreatePool = async () => {
     setLoading(true);
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
-    if(wallet === undefined) {
-      toast.error("you don't have wallet about this chain")
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+    );
+    if (wallet === undefined) {
+      toast.error("you don't have wallet about this chain");
     }
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
@@ -243,9 +219,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   const onEnablePool = async (pool: ILiquidityPool) => {
     //setLoading(true)
     await suggestChain(selectedChain);
-  
-    const wallet = wallets.find((wallet)=>wallet.chainInfo.chainID === selectedChain.chainID);
-    
+
+    const wallet = wallets.find(
+      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+    );
+
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
@@ -325,9 +303,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <MdList />
             </button>
 
-            <label htmlFor="modal-pool-create" className="mr-2 text-2xl btn">
-              <MdAddToQueue />
-            </label>
             <label
               htmlFor="modal-create-pool"
               className="text-2xl btn btn-primary"
@@ -437,7 +412,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                         if (!item.denom.includes('pool')) {
                           return (
                             <li key={index}>
-                              <a onClick={() => selectFirstCoin(item?.denom)}>
+                              <a
+                                onClick={() => selectCoin('first', item?.denom)}
+                              >
                                 {item?.denom}
                               </a>
                             </li>
@@ -475,7 +452,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                   value={poolPair.first.weight}
                   className="range"
                   step="10"
-                  onChange={(event) => onChangeFirstWeight(event.target.value)}
+                  onChange={(event) =>
+                    onChangeWeight(event.target.value, 'first')
+                  }
                 />
                 <div className="flex justify-between w-full px-2 text-xs">
                   <span>20</span>
@@ -526,7 +505,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                         if (!item.denom.includes('pool')) {
                           return (
                             <li key={index}>
-                              <a onClick={() => selectSecondCoin(item?.denom)}>
+                              <a
+                                onClick={() =>
+                                  selectCoin('second', item?.denom)
+                                }
+                              >
                                 {item?.denom}
                               </a>
                             </li>
@@ -555,6 +538,28 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <div className="flex border">
                 <span>weight:</span>
                 <div>{poolPair.second.weight}</div>
+              </div>
+              <div>
+                <input
+                  type="range"
+                  min="20"
+                  max="80"
+                  value={poolPair.second.weight}
+                  className="range"
+                  step="10"
+                  onChange={(event) =>
+                    onChangeWeight(event.target.value, 'second')
+                  }
+                />
+                <div className="w-full flex justify-between text-xs px-2">
+                  <span>20</span>
+                  <span>30</span>
+                  <span>40</span>
+                  <span>50</span>
+                  <span>60</span>
+                  <span>70</span>
+                  <span>80</span>
+                </div>
               </div>
             </div>
 

@@ -7,6 +7,13 @@ export interface BriefChainInfo {
   restUrl: string;
   prefix: string;
   denom: string;
+  counterpartis: {
+    chainID: string;
+    name: string;
+    channelId: string;
+    portId: string;
+    type: string;
+  }[];
 }
 
 export const getSideChainInfo = (chain: BriefChainInfo): ChainInfo => ({
@@ -45,5 +52,5 @@ export const getSideChainInfo = (chain: BriefChainInfo): ChainInfo => ({
     coinDecimals: 18,
   },
   coinType: 60,
-  features: ['stargate', 'ibc-transfer', "eth-address-gen","eth-key-sign"],
+  features: ['stargate', 'ibc-transfer', 'eth-address-gen', 'eth-key-sign'],
 });
