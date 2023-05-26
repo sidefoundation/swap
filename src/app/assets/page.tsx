@@ -1,3 +1,5 @@
+'use client';
+
 import WalletDetails from '@/components/WalletDetails';
 import useWalletStore from '@/store/wallet';
 import React from 'react';

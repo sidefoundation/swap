@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import type { ReactNode } from 'react';
 
 import Nav from './Nav';
@@ -6,12 +5,6 @@ import Nav from './Nav';
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="bg-[#F2F2F2]  dark:bg-base-200  text-base-content">
-      <Head>
-        <title>Side</title>
-        <meta name="description" content="Side chain swap" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <Nav />
 
       <main className="" style={{ minHeight: 'calc(100vh - 200px)' }}>

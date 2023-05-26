@@ -1,3 +1,5 @@
+'use client';
+
 import useWalletStore from '@/store/wallet';
 import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';

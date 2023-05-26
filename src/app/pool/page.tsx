@@ -1,3 +1,5 @@
+'use client';
+
 import useWalletStore from '@/store/wallet';
 import PoolDetailsList from '@/components/PoolDetailsList';
 import { ILiquidityPool } from '@/shared/types/liquidity';
