@@ -325,15 +325,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     </a>
                     <ul className="p-2 bg-base-100 z-10 w-full">
                       {firstSwapList.map((item, index) => {
-                        return (
-                          <li key={index} className="truncate w-full">
-                            <a onClick={() => setSelectFirst(item)}>
-                              <span className="flex-1 font-semibold text-center capitalize">
-                                {item?.denom}
-                              </span>
-                            </a>
-                          </li>
-                        );
+                        if (!item?.denom?.includes('pool')) {
+                          return (
+                            <li key={index} className="truncate w-full">
+                              <a onClick={() => setSelectFirst(item)}>
+                                <span className="flex-1 font-semibold text-center capitalize">
+                                  {item?.denom}
+                                </span>
+                              </a>
+                            </li>
+                          );
+                        }
                       })}
                     </ul>
                   </li>
@@ -410,15 +412,17 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     </a>
                     <ul className="p-2 bg-base-100 z-10 w-full">
                       {secondSwapList?.map((item, index) => {
-                        return (
-                          <li key={index} className="truncate w-full">
-                            <a onClick={() => setSelectSecond(item)}>
-                              <span className="flex-1 font-semibold text-center capitalize">
-                                {item?.denom}
-                              </span>
-                            </a>
-                          </li>
-                        );
+                        if (!item?.denom?.includes('pool')) {
+                          return (
+                            <li key={index} className="truncate w-full">
+                              <a onClick={() => setSelectSecond(item)}>
+                                <span className="flex-1 font-semibold text-center capitalize">
+                                  {item?.denom}
+                                </span>
+                              </a>
+                            </li>
+                          );
+                        }
                       })}
                     </ul>
                   </li>
@@ -471,7 +475,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               <div className="flex-1 px-5 pt-3 pb-2  rounded-lg bg-base-200">
                 <div className="mb-1 text-sm">makerReceivingAddress</div>
                 <input
-                  className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
+                  className="h-10 w-full text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
                   placeholder="NONE"
                   value={makerReceivingAddress}
                   onChange={(event) =>
@@ -492,9 +496,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               </div>
               <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
                 <div className="mb-1 text-sm text-right">Expires in</div>
+                
                 <div className="flex items-center">
                   <input
-                    className="w-[80px] focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                    className="w-full text-right  focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
                     placeholder="12"
                     type="number"
                     step="1"
@@ -503,7 +508,23 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     onChange={(event) => setExpirationTime(event.target.value)}
                     id="expiration-time"
                   />
-                  <div className="flex-1 px-4 text-base rounded-full bg-base-100">
+                  {/* <div className="flex-1 px-4 text-base rounded-full bg-base-100">
+                    <select
+                      className="select w-full max-w-xs select-sm"
+                      onChange={(e) => setselectedTime(e.target.value)}
+                      value={selectedTime}
+                    >
+                      {selectList.map((option) => {
+                        return (
+                          <option key={option.key} value={option.option}>
+                            {option.option}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div> */}
+                </div>
+                <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                     <select
                       className="select w-full max-w-xs select-sm"
                       onChange={(e) => setselectedTime(e.target.value)}
@@ -518,7 +539,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                       })}
                     </select>
                   </div>
-                </div>
               </div>
             </div>
             {connected ? (
