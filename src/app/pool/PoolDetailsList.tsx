@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin } from '@cosmjs/stargate';
 import useWalletStore, { Wallet, Balance } from '@/store/wallet';
 import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
@@ -296,9 +295,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <MdList />
             </button>
 
-            <label htmlFor="modal-pool-create" className="btn text-2xl mr-2">
-              <MdAddToQueue />
-            </label>
             <label
               htmlFor="modal-create-pool"
               className="btn btn-primary text-2xl"
