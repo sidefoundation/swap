@@ -5,6 +5,7 @@ import { ILiquidityPool } from '@/shared/types/liquidity';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import React, { useEffect, useState } from 'react';
 import PoolDetailsList from './PoolDetailsList';
+import PoolCreate from './PoolCreate';
 
 export default function Pool() {
   const { selectedChain } = useWalletStore();
@@ -26,6 +27,8 @@ export default function Pool() {
   return (
     <div className="container mx-auto">
       <PoolDetailsList pools={pools} />
+
+      <PoolCreate />
     </div>
   );
 }

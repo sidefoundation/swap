@@ -52,7 +52,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
     setSwapPair((prevSwapPair) => ({
       ...prevSwapPair,
-      [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value, },
+      [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value },
     }));
   };
 
@@ -199,7 +199,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <MdList />
             </button>
 
-            <label htmlFor="modal-pool-create" className="btn text-2xl">
+            <label htmlFor="modal-pool-create" className="btn text-2xl mr-2">
+              <MdAddToQueue />
+            </label>
+            <label htmlFor="modal-create-pool" className="btn btn-primary text-2xl">
               <MdAddToQueue />
             </label>
           </div>

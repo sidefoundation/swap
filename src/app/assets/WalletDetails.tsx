@@ -1,16 +1,12 @@
-// WalletDetails.tsx
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Wallet } from '@/store/wallet';
 import { Coin } from '@cosmjs/stargate';
 import { useGetCurrentBalances } from '@/http/query/useGetCurrentBalances';
 
 import { AppConfig } from '@/utils/AppConfig';
 import useWalletStore from '@/store/wallet';
-interface WalletDetailsProps {
-  wallets: Wallet[];
-}
 
-const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
+const WalletDetails = () => {
   const { selectedChain, setBalance, selectedWallet, connectSelectedWallet } =
     useWalletStore();
   const [balances, setBalances] = useState<
@@ -26,7 +22,6 @@ const WalletDetails: React.FC<WalletDetailsProps> = ({ wallets }) => {
       balances: Coin[];
     }[]
   ) => {
-    console.log(data, 99999);
     setBalances(data);
     setBalance(data);
   };
