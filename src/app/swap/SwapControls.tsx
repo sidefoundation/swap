@@ -218,8 +218,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           </div>
         </div>
         <div className="flex items-center justify-center -mt-5 -mb-5">
-          <div className="bg-white rounded-full shadow w-14 h-14 flex items-center justify-center">
-            <MdArrowDownward className="w-8 h-8" />
+          <div className="bg-white dark:bg-gray-700 rounded-full shadow w-14 h-14 flex items-center justify-center">
+            <MdArrowDownward className="w-8 h-8 text-gray-700 dark:text-gray-300" />
           </div>
         </div>
         <div className="p-5 rounded-lg bg-base-200">
