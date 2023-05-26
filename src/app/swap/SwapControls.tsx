@@ -11,9 +11,11 @@ import {
 } from 'react-icons/md';
 import Image from 'next/image';
 import { useGetBalances } from '@/http/query/useGetBalances';
+import { ILiquidityPool } from '@/shared/types/liquidity';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
 
 interface SwapControlsProps {
+  pools: ILiquidityPool[];
   swapPair: { first: Coin; second: Coin; type: string };
   setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
   updateFirstCoin: (value: string) => void;
@@ -22,6 +24,7 @@ interface SwapControlsProps {
 }
 
 const SwapControls: React.FC<SwapControlsProps> = ({
+  pools,
   swapPair,
   updateFirstCoin,
   updateSecondCoin,
@@ -37,7 +40,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   } = useWalletStore();
   const { balanceList } = useAssetsStore();
   const [connected, setConnected] = useState(false);
-
+  const [sellCoins, setSellCoins] = useState([]);
+  const [buyCoins, setBuyCoins] = useState([]);
   const onSuccess = (
     data: {
       address: string;
@@ -60,7 +64,26 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   useEffect(() => {
     refetch();
   }, []);
-
+  useEffect(() => {
+    if (pools.length > 0) {
+      const sellList: any = [];
+      const buyList: any = [];
+      pools.forEach((pool) => {
+        pool?.assets?.forEach((asset) => {
+          if (asset.side === 'NATIVE') {
+            sellList.push(asset);
+          }
+          if (asset.side === 'REMOTE') {
+            buyList.push(asset);
+          }
+        });
+      });
+      setSellCoins(sellList);
+      setBuyCoins(buyList);
+      console.log(sellCoins, buyCoins, 'buyCoins');
+    }
+    console.log(pools, 99999);
+  }, [pools]);
   useEffect(() => {
     getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
   }, [selectedChain, wallets]);
@@ -70,6 +93,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   }, [isConnected]);
   useEffect(() => {
     if (isConnected) {
+      setSellCoins([]);
+      setBuyCoins([]);
       setBalance([{ address: '', balances: [], id: '' }]);
       refetch();
     }
@@ -87,8 +112,6 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     );
   };
 
-  // TODO:
-  const switchSwap = async () => {};
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
@@ -106,8 +129,10 @@ const SwapControls: React.FC<SwapControlsProps> = ({
       <div>
         <div className="p-5 rounded-lg bg-base-200">
           <div className="flex items-center mb-2">
-            <div className="flex-1">Sell
-            <span className="text-sm ml-1">({selectedChain.name})</span></div>
+            <div className="flex-1">
+              Sell
+              <span className="text-sm ml-1">({selectedChain.name})</span>
+            </div>
             <div className="mr-2">
               Balance: {filterBalance(swapPair.first?.denom)}
             </div>
@@ -118,18 +143,32 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
           <div className="flex items-center mb-2">
             <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-              <Image
-                alt="logo"
-                src="/assets/images/Side.png"
-                width={20}
-                height={20}
-                className="w-7 h-7"
-              />
-              <div className="flex-1 font-semibold text-center capitalize">
-                {swapPair.first?.denom}
-              </div>
-
-              <MdKeyboardArrowDown className="text-base" />
+              <ul className="menu menu-horizontal px-1">
+                <li tabIndex={0}>
+                  <a>
+                    <span> {swapPair.first?.denom}</span>
+                    <MdKeyboardArrowDown className="fill-current" />
+                  </a>
+                  <ul className="p-2 bg-base-100 z-10">
+                    {sellCoins?.map((item, index) => {
+                      return (
+                        <li key={index}>
+                          <a onClick={() => {}}>
+                            {/* <Image
+                              alt="logo"
+                              src="/assets/images/Side.png"
+                              width={20}
+                              height={20}
+                              className="w-7 h-7"
+                            /> */}
+                            {item?.balance?.denom}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              </ul>
             </div>
 
             <CoinInput
@@ -162,18 +201,25 @@ const SwapControls: React.FC<SwapControlsProps> = ({
 
           <div className="flex items-center mb-2">
             <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-              <Image
-                alt="logo"
-                src="/assets/images/Side.png"
-                width={20}
-                height={20}
-                className="w-7 h-7"
-              />
-              <div className="flex-1 font-semibold text-center capitalize">
-                {swapPair.second?.denom}
-              </div>
-
-              <MdKeyboardArrowDown className="text-base" />
+              <ul className="menu menu-horizontal px-1">
+                <li tabIndex={0}>
+                  <a>
+                    <span> {swapPair.second?.denom}</span>
+                    <MdKeyboardArrowDown className="fill-current" />
+                  </a>
+                  <ul className="p-2 bg-base-100 z-10">
+                    {buyCoins?.map((item, index) => {
+                      return (
+                        <li key={index}>
+                          <a onClick={() => {}}>
+                            {item?.balance?.denom}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              </ul>
             </div>
             <CoinInput
               coin={swapPair.second}

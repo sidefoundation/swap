@@ -175,6 +175,7 @@ const Swap = () => {
   return (
     <div>
       <SwapControls
+        pools={pools}
         swapPair={swapPair}
         setSwapPair={setSwapPair}
         updateFirstCoin={updateFirstCoin}
