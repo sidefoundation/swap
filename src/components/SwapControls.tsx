@@ -236,14 +236,6 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               {swapPair.second?.denom}
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 pb-1 text-sm">
-            <div>Price impact</div>
-            <div>{`--`}</div>
-          </div>
-          <div className="flex items-center justify-between px-4 pb-1 text-sm">
-            <div>Swap fees</div>
-            <div>≈ {`--`}</div>
-          </div>
         </div>
       </div>
 
