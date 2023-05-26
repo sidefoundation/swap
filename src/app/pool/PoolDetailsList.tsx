@@ -73,11 +73,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       getRemoteChainList();
     }
   }, [selectedChain]);
-  const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
-    first: { denom: 'aside', amount: '0' },
-    second: { denom: 'bside', amount: '0' },
-  });
-
   const [poolPair, setPoolPair] = useState({
     first: { denom: '', amount: '0', weight: '50', chain: '' },
     second: { denom: '', amount: '0', weight: '50', chain: '' },
@@ -108,17 +103,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         denom: poolPair.second.denom,
         amount: poolPair.second.amount,
         weight: side === 'first' ? (100 - parseInt(value)).toString() : value,
-        chain: poolPair.second.chain,
-      },
-    });
-  };
-  const onChangeSecondWeight = (value) => {
-    setPoolPair({
-      ...poolPair,
-      second: {
-        denom: poolPair.second.denom,
-        amount: poolPair.second.amount,
-        weight: value,
         chain: poolPair.second.chain,
       },
     });

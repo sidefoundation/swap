@@ -562,7 +562,7 @@ export default function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
           <div className="flex items-center justify-between w-full">
             <div className="text-red-500">POOL_STATUS_INITIAL</div>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm ml-1"
               onClick={() => {
                 onEnablePool(pool);
               }}
