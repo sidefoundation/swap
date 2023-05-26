@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
-
+import { AppConfig } from '@/utils/AppConfig';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -195,11 +195,27 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         </div>
         <div className="p-5 rounded-lg bg-base-200">
           <div className="flex items-center mb-2">
-            <div className="flex-1">Buy</div>
+            <div className="flex-1">
+              Buy
+              <span className="text-sm ml-1">
+                (
+                {AppConfig?.chains?.find((item) => {
+                  if (item.denom === swapPair?.second?.denom) {
+                    return item;
+                  }
+                })?.name}
+                )
+              </span>
+            </div>
             <div className="mr-2">
               Balance: {filterBalance(swapPair.second?.denom)}
             </div>
-            <div className="font-semibold cursor-pointer" onClick={() =>updateSecondCoin(filterBalance(swapPair.second?.denom)) }>
+            <div
+              className="font-semibold cursor-pointer"
+              onClick={() =>
+                updateSecondCoin(filterBalance(swapPair.second?.denom))
+              }
+            >
               Max
             </div>
           </div>
