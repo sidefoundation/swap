@@ -59,7 +59,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         return item;
       }
     })?.[0]?.denom;
-    selectFirstCoin(defalutFirst);
+    selectCoin('first', defalutFirst);
 
     console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
   };
@@ -95,19 +95,19 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     })?.counterpartis;
     setRemoteChainList(remote);
   };
-  const onChangeFirstWeight = (value) => {
+  const onChangeWeight = (value, side) => {
     setPoolPair({
       ...poolPair,
       first: {
         denom: poolPair.first.denom,
         amount: poolPair.first.amount,
-        weight: value,
+        weight: side === 'first' ? value : (100 - parseInt(value)).toString(),
         chain: poolPair.first.chain,
       },
       second: {
         denom: poolPair.second.denom,
         amount: poolPair.second.amount,
-        weight: (100 - parseInt(value)).toString(),
+        weight: side === 'first' ? (100 - parseInt(value)).toString() : value,
         chain: poolPair.second.chain,
       },
     });
@@ -123,17 +123,18 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       },
     });
   };
-  const selectFirstCoin = (value) => {
+  const selectCoin = (side, value) => {
     setPoolPair({
       ...poolPair,
-      first: {
+      [side]: {
         denom: value || '',
-        amount: poolPair.first.amount,
-        weight: poolPair.first.weight,
-        chain: poolPair.first.chain,
+        amount: poolPair?.[side]?.amount,
+        weight: poolPair?.[side]?.weight,
+        chain: poolPair?.[side]?.chain,
       },
     });
   };
+
   const suggestRemoteChain = (value) => {
     setPoolPair({
       ...poolPair,
@@ -149,20 +150,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         return item;
       }
     });
-    setOtherList(otherLists)
-    console.log(otherList, 'otherList')
+    setOtherList(otherLists);
+    console.log(otherList, 'otherList');
   };
-  const selectSecondCoin = (value) => {
-    setPoolPair({
-      ...poolPair,
-      second: {
-        denom: value || '',
-        amount: poolPair.second.amount,
-        weight: poolPair.second.weight,
-        chain: poolPair.second.chain,
-      },
-    });
-  };
+
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
     setPoolPair((prevPoolPair) => ({
       ...prevPoolPair,
@@ -433,7 +424,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                         if (!item.denom.includes('pool')) {
                           return (
                             <li key={index}>
-                              <a onClick={() => selectFirstCoin(item?.denom)}>
+                              <a
+                                onClick={() => selectCoin('first', item?.denom)}
+                              >
                                 {item?.denom}
                               </a>
                             </li>
@@ -471,7 +464,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                   value={poolPair.first.weight}
                   className="range"
                   step="10"
-                  onChange={(event) => onChangeFirstWeight(event.target.value)}
+                  onChange={(event) =>
+                    onChangeWeight(event.target.value, 'first')
+                  }
                 />
                 <div className="w-full flex justify-between text-xs px-2">
                   <span>20</span>
@@ -522,7 +517,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                         if (!item.denom.includes('pool')) {
                           return (
                             <li key={index}>
-                              <a onClick={() => selectSecondCoin(item?.denom)}>
+                              <a
+                                onClick={() =>
+                                  selectCoin('second', item?.denom)
+                                }
+                              >
                                 {item?.denom}
                               </a>
                             </li>
@@ -551,6 +550,28 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               <div className="border flex">
                 <span>weight:</span>
                 <div>{poolPair.second.weight}</div>
+              </div>
+              <div>
+                <input
+                  type="range"
+                  min="20"
+                  max="80"
+                  value={poolPair.second.weight}
+                  className="range"
+                  step="10"
+                  onChange={(event) =>
+                    onChangeWeight(event.target.value, 'second')
+                  }
+                />
+                <div className="w-full flex justify-between text-xs px-2">
+                  <span>20</span>
+                  <span>30</span>
+                  <span>40</span>
+                  <span>50</span>
+                  <span>60</span>
+                  <span>70</span>
+                  <span>80</span>
+                </div>
               </div>
             </div>
 
