@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { CoinInput } from '@/components/CoinInput';
 import { Coin } from '@cosmjs/stargate';
-import useWalletStore, { Wallet } from '@/store/wallet';
+import useWalletStore, { Wallet, Balance } from '@/store/wallet';
 import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
@@ -30,24 +30,62 @@ interface PoolDetailsListProps {
 }
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
-  const { setLoading, wallets, suggestChain, getClient, selectedChain } =
-    useWalletStore();
+  const {
+    setLoading,
+    wallets,
+    suggestChain,
+    getClient,
+    selectedChain,
+    balanceList,
+    getBalance,
+    setBalance,
+  } = useWalletStore();
 
   const [signers, setSigners] = useState<Wallet[]>([]);
+  const [allBalances, setAllBalances] = useState<Balance[]>([]);
+  const fetchBalances = async () => {
+    const balance = await getBalance(true);
+    setAllBalances(balance);
+    setBalance(balance);
 
+    const balanceItem = balance?.filter((item) => {
+      if (item.id === selectedChain.chainID) {
+        return item;
+      }
+    });
+    const defalutFirst = balanceItem?.[0]?.balances?.filter((item) => {
+      if (!item.denom.includes('pool')) {
+        return item;
+      }
+    })?.[0]?.denom;
+    selectFirstCoin(defalutFirst);
+    
+    console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
+  };
   useEffect(() => {
-    setSigners(wallets);
-  }, [wallets]);
-
+    if (selectedChain.chainID) {
+      // selectFirstCoin('');
+      // selectSecondCoin('');
+      setPoolPair({
+        first: { denom: '', amount: '0', weight: '0', chain: '' },
+        second: { denom: '', amount: '0', weight: '0', chain: '' },
+      });
+      console.log(poolPair, 'poolPairpoolPairpoolPairpoolPair');
+      fetchBalances();
+    }
+  }, [selectedChain]);
   const [swapPair, setSwapPair] = useState<{ first: Coin; second: Coin }>({
     first: { denom: 'aside', amount: '0' },
     second: { denom: 'bside', amount: '0' },
   });
 
   const [poolPair, setPoolPair] = useState({
-    first: { denom: 'aside', amount: '0', weight: '0', chain: '' },
-    second: { denom: 'bside', amount: '0', weight: '0', chain: '' },
+    first: { denom: '', amount: '0', weight: '0', chain: '' },
+    second: { denom: '', amount: '0', weight: '0', chain: '' },
   });
+  useEffect(() => {
+    setSigners(wallets);
+  }, [wallets]);
   const onChangeFirstWeight = (value) => {
     setPoolPair({
       ...poolPair,
@@ -76,25 +114,45 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       },
     });
   };
+  const selectFirstCoin = (value) => {
+    console.log(value, 99999);
+    setPoolPair({
+      ...poolPair,
+      first: {
+        denom: value || '',
+        amount: poolPair.first.amount,
+        weight: poolPair.first.weight,
+        chain: poolPair.first.chain,
+      },
+    });
+    console.log(poolPair, 'poolPair9999');
+  };
+  const selectSecondCoin = (value) => {
+    setPoolPair({
+      ...poolPair,
+      second: {
+        denom: value || '',
+        amount: poolPair.second.amount,
+        weight: poolPair.second.weight,
+        chain: poolPair.second.chain,
+      },
+    });
+  };
   const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
-    // setSwapPair((prevSwapPair) => ({
-    //   ...prevSwapPair,
-    //   [type]: { denom: type === 'first' ? 'aside' : 'bside', amount: value },
-    // }));
     setPoolPair((prevPoolPair) => ({
       ...prevPoolPair,
       [type]: {
-        denom: type === 'first' ? 'aside' : 'bside',
+        denom: poolPair[type].denom,
         amount: value,
         chain: poolPair[type].chain,
         weight: poolPair[type].weight,
       },
     }));
-    console.log(poolPair, 'prevPoolPair')
+    console.log(poolPair, 'prevPoolPair');
   };
 
   const onCreatePool = async () => {
-    console.log(poolPair, 'poolPairpoolPair')
+    console.log(poolPair, 'poolPairpoolPair');
     setLoading(true);
     const wallet = signers[0];
     const timeoutTimeStamp = Long.fromNumber(
@@ -108,9 +166,12 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         sourcePort: 'interchainswap',
         sourceChannel: 'channel-0',
         sender: wallet!.address,
-        tokens: [swapPair.first, swapPair.second],
+        tokens: [
+          { denom: poolPair.first.denom, amount: poolPair.first.amount },
+          { denom: poolPair.second.denom, amount: poolPair.second.amount },
+        ],
         decimals: [18, 18],
-        weight: '50:50',
+        weight: `${poolPair.first?.weight}:${poolPair.second?.weight}`,
         timeoutHeight: {
           revisionHeight: Long.fromInt(10),
           revisionNumber: Long.fromInt(10000000000),
@@ -341,18 +402,20 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                 <ul className="menu menu-horizontal px-1  ">
                   <li tabIndex={0}>
                     <a>
-                      <span>{swapPair.first?.denom}</span>
+                      <span>{poolPair.first?.denom}</span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="p-2 bg-base-100 z-10">
-                      {AppConfig?.chains?.map((item, index) => {
-                        return (
-                          <li key={index}>
-                            <a onClick={() => suggestChain(item)}>
-                              {item?.name}
-                            </a>
-                          </li>
-                        );
+                      {balanceList?.[0]?.balances?.map((item, index) => {
+                        if (!item.denom.includes('pool')) {
+                          return (
+                            <li key={index}>
+                              <a onClick={() => selectFirstCoin(item?.denom)}>
+                                {item?.denom}
+                              </a>
+                            </li>
+                          );
+                        }
                       })}
                     </ul>
                   </li>
