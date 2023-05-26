@@ -1,4 +1,3 @@
-import { devtools } from 'valtio/utils';
 import { proxy, useSnapshot } from 'valtio';
 
 import fetchBalances from '../http/requests/get/fetchBalance';
@@ -14,8 +13,6 @@ export const assetsStore = proxy<Store>({
   balanceList: [] as Coin[],
   remoteBalanceList: [] as Coin[],
 });
-
-devtools(assetsStore, { name: 'assets', enabled: true });
 
 export const useAssetsStore = () => {
   return useSnapshot(assetsStore);

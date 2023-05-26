@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
+import '@/store';
 import Nav from './Nav';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

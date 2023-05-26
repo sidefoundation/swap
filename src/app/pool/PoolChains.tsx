@@ -6,7 +6,7 @@ import {
   fetchChainCoinList,
   chainStore,
 } from '@/store/chain';
-import { usePoolStore, poolStore } from '@/store/pool';
+import { usePoolStore, poolStore, CounterPartyType } from '@/store/pool';
 import { BriefChainInfo } from '@/shared/types/chain';
 import { Coin } from '@cosmjs/stargate';
 
@@ -40,7 +40,10 @@ export default function PoolChains({
                 poolStore.poolFormCreate[type].chain = item as BriefChainInfo;
                 const chainMap = getChainMap();
                 if (type === 'native') {
-                  const remoteChainId = item?.counterpartis?.[0]?.chainID;
+                  const counterparty = item?.counterpartis?.[0];
+                  poolStore.poolFormCreate.counterParty =
+                    counterparty as CounterPartyType;
+                  const remoteChainId = counterparty?.chainID;
                   const remoteChain = chainMap?.[
                     remoteChainId as string
                   ] as BriefChainInfo;
@@ -56,7 +59,10 @@ export default function PoolChains({
                   fetchChainCoinList(remoteChain?.restUrl, 'Remote');
                 }
                 if (type === 'remote') {
-                  const nativeChainId = item?.counterpartis?.[0]?.chainID;
+                  const counterparty = item?.counterpartis?.[0];
+                  poolStore.poolFormCreate.counterParty =
+                    counterparty as CounterPartyType;
+                  const nativeChainId = counterparty?.chainID;
                   const nativeChain = chainMap?.[
                     nativeChainId as string
                   ] as BriefChainInfo;

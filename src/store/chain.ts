@@ -1,5 +1,4 @@
 import { proxy, useSnapshot } from 'valtio';
-import { devtools } from 'valtio/utils';
 
 import { Coin } from '@cosmjs/stargate';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
@@ -19,8 +18,6 @@ export const chainStore = proxy<Store>({
   chainCoinListNative: [] as Coin[],
   chainCoinListRemote: [] as Coin[],
 });
-
-devtools(chainStore, { name: 'chain', enabled: true });
 
 export const useChainStore = () => {
   return useSnapshot(chainStore);
