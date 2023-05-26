@@ -26,6 +26,7 @@ interface SwapControlsProps {
 const SwapControls: React.FC<SwapControlsProps> = ({
   pools,
   swapPair,
+  setSwapPair,
   updateFirstCoin,
   updateSecondCoin,
   onSwap,
@@ -66,18 +67,35 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   }, []);
   useEffect(() => {
     if (pools.length > 0) {
-      const sellList: any = [];
+      let sellList: any = [];
       const buyList: any = [];
       pools.forEach((pool) => {
         pool?.assets?.forEach((asset) => {
           if (asset.side === 'NATIVE') {
-            sellList.push(asset);
+            const hasCoin =
+              sellList.find((sellItem) => {
+                if (sellItem?.balance?.denom === asset?.balance?.denom) {
+                  return sellItem;
+                }
+              }) || {};
+            if (!hasCoin.side) {
+              sellList.push(asset);
+            }
           }
           if (asset.side === 'REMOTE') {
-            buyList.push(asset);
+            const hasCoin =
+              buyList.find((buyItem) => {
+                if (buyItem?.balance?.denom === asset?.balance?.denom) {
+                  return buyItem;
+                }
+              }) || {};
+            if (!hasCoin.side) {
+              buyList.push(asset);
+            }
           }
         });
       });
+      // sellList = sellList.filter((item)=>{})
       setSellCoins(sellList);
       setBuyCoins(buyList);
       console.log(sellCoins, buyCoins, 'buyCoins');
@@ -110,6 +128,13 @@ const SwapControls: React.FC<SwapControlsProps> = ({
         return item.denom === denom;
       })?.amount || 0
     );
+  };
+
+  const updateCoins = (side, value) => {
+    setSwapPair((preswapPair) => ({
+      ...preswapPair,
+      [side]: { denom: value, amount: swapPair[side].amount },
+    }));
   };
 
   return (
@@ -158,7 +183,11 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     {sellCoins?.map((item, index) => {
                       return (
                         <li key={index}>
-                          <a onClick={() => {}}>
+                          <a
+                            onClick={() =>
+                              updateCoins('first', item?.balance?.denom)
+                            }
+                          >
                             {/* <Image
                               alt="logo"
                               src="/assets/images/Side.png"
@@ -199,11 +228,13 @@ const SwapControls: React.FC<SwapControlsProps> = ({
               Buy
               <span className="text-sm ml-1">
                 (
-                {AppConfig?.chains?.find((item) => {
-                  if (item.denom === swapPair?.second?.denom) {
-                    return item;
-                  }
-                })?.name}
+                {
+                  AppConfig?.chains?.find((item) => {
+                    if (item.denom === swapPair?.second?.denom) {
+                      return item;
+                    }
+                  })?.name
+                }
                 )
               </span>
             </div>
@@ -232,7 +263,13 @@ const SwapControls: React.FC<SwapControlsProps> = ({
                     {buyCoins?.map((item, index) => {
                       return (
                         <li key={index}>
-                          <a onClick={() => {}}>{item?.balance?.denom}</a>
+                          <a
+                            onClick={() =>
+                              updateCoins('second', item?.balance?.denom)
+                            }
+                          >
+                            {item?.balance?.denom}
+                          </a>
                         </li>
                       );
                     })}
