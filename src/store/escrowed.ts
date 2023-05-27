@@ -4,6 +4,7 @@ import fetchChannels, {
 } from '@/http/requests/get/fetchChannels';
 import fetchBalances from '@/http/requests/get/fetchBalance';
 import { Coin } from '@cosmjs/stargate';
+import { toast } from 'react-hot-toast';
 
 type Channel = { channel_id: string; port_id: string };
 type EscrowedAddress = {
@@ -23,6 +24,7 @@ export const useEscrowedStore = () => {
 
 // api
 export const fetchAllChannels = async (restUrl: string) => {
+  toast.loading('Loading...');
   const res: Channel[] = await fetchChannels(restUrl);
   escrowedStore.channels = res as Channel[];
 
@@ -47,5 +49,6 @@ export const fetchAllChannels = async (restUrl: string) => {
     );
   }
   const resAll = await Promise.all(promiseAll);
+  toast.dismiss();
   escrowedStore.escrowedAddressList = resAll as EscrowedAddress[];
 };

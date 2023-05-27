@@ -36,7 +36,16 @@ export default function Escrowed() {
                 <td width="30%">
                   {item?.channel?.channel_id} / {item?.channel?.port_id}
                 </td>
-                <td>{JSON.stringify(item?.balances)}</td>
+                <td>
+                  <div>
+                    {item?.balances?.map((balance, key) => (
+                      <div key={key}>
+                        {balance?.amount} {balance?.denom}
+                      </div>
+                    ))}
+                    {item?.balances?.length === 0 ? '--' : null}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
