@@ -44,8 +44,15 @@ export default function Balances() {
                 return (
                   <tr key={index}>
                     <td className="">
-                      <div className="font-semibold capitalize dark:text-white ">
-                        {balance.denom}
+                      <div>
+                        <div className="font-semibold capitalize dark:text-white ">
+                          {balance.denom?.length > 10
+                            ? 'Pool Asset'
+                            : balance.denom}
+                        </div>
+                        {balance.denom?.length > 10 ? (
+                          <div className="text-xs">{balance.denom}</div>
+                        ) : null}
                       </div>
                     </td>
                     <td className="capitalize dark:text-white ">
