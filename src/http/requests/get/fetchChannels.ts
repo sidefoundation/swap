@@ -15,3 +15,15 @@ const fetchChannels = async (restUrl: string) => {
   return data.channels;
 };
 export default fetchChannels;
+
+export const fetchEscrowAddress = async (
+  restUrl: string,
+  channelId: string,
+  portId: string
+) => {
+  const { data } = await axios.get(
+    `${restUrl}/ibc/apps/atomicswap/v1/channels/${channelId}/ports/${portId}/escrow_address`
+  );
+
+  return data;
+};

@@ -5,13 +5,14 @@ import React, { useEffect, useState } from 'react';
 import useWalletStore from '@/store/wallet';
 import ThemeToggle from './NavTheme';
 import ToggleChain from './NavChain';
+import FaucetModal from './FaucetModal';
 
 function Nav() {
   const {
     isConnected,
     disconnect,
-    charge,
     selectedWallet,
+    connectWallet,
     connectSelectedWallet,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
@@ -64,6 +65,9 @@ function Nav() {
                 <Link href="/pool">Pool</Link>
               </li>
               <li>
+                <Link href="/escrowed">Escrowed</Link>
+              </li>
+              <li>
                 <Link href="/assets">Assets</Link>
               </li>
             </ul>
@@ -99,6 +103,11 @@ function Nav() {
                 Pool
               </Link>
             </li>
+            <li>
+              <Link href="/escrowed" className="btn btn-ghost">
+                Escrowed
+              </Link>
+            </li>
             {connected ? (
               <li>
                 <Link href="/assets" className="btn btn-ghost">
@@ -114,19 +123,18 @@ function Nav() {
             <ToggleChain />
 
             {connected && (
-              <button
-                className="mr-2 truncate btn-primary btn"
-                onClick={charge}
+              <label
+                htmlFor="modal-faucet-modal"
+                className="truncate btn-primary btn"
+                onClick={() => {}}
               >
                 Faucet
-              </button>
+              </label>
             )}
 
             {!connected ? (
-              <button
-                className="btn btn-primary"
-                onClick={connectSelectedWallet}
-              >
+              <button className="btn btn-primary" onClick={connectWallet}>
+                {/* connectSelectedWallet */}
                 Connect Wallet
               </button>
             ) : (
@@ -158,6 +166,7 @@ function Nav() {
           </div>
         </div>
       </div>
+      <FaucetModal />
     </div>
   );
 }

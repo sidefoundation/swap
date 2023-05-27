@@ -504,22 +504,6 @@ export default function PoolDetails({ pool, onEnablePool }: PoolDetailsProps) {
     <tr>
       <td>
         <div className="flex items-center">
-          <div className="flex items-center mr-3">
-            <Image
-              className="w-10 h-10 -mr-4"
-              src="/assets/images/atom.png"
-              alt="side"
-              width="48"
-              height="48"
-            />
-            <Image
-              className="w-10 h-10"
-              src="/assets/images/Side.png"
-              alt="side"
-              width="48"
-              height="48"
-            />
-          </div>
           <div className="">
             <div className="font-semibold flex items-center">
               <div className="capitalize">

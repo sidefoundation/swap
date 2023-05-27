@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import WalletDetails from './WalletDetails';
+import Balances from './Balances';
 
 export default function Assets() {
   return (
     <div className="bg-base-100 container mx-auto mt-10 rounded-lg">
-      <WalletDetails />
+      <Balances />
     </div>
   );
 }
