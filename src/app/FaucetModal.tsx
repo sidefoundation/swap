@@ -24,11 +24,10 @@ export default function FaucetModal() {
   }, [selectedChain]);
 
   useEffect(() => {
-    console.log(chainCoinListNative, chainCoinListNative[0]);
     if (!chainFaucetCoin?.denom && chainCoinListNative?.length > 0) {
       chainStore.chainFaucetCoin = chainCoinListNative[0] as Coin;
     }
-  }, [chainCoinListNative]);
+  }, [chainCoinListNative, chainFaucetCoin]);
   return (
     <div>
       <input type="checkbox" id="modal-faucet-modal" className="modal-toggle" />
