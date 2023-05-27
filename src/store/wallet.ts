@@ -207,6 +207,11 @@ const useWalletStore = create<WalletState>(
             ...state,
             isConnected: true,
             wallets: newWallets,
+            selectedWallet: newWallets.find((item) => {
+              if (item.chainInfo.chainID === selectedChain.chainID) {
+                return item;
+              }
+            }),
           }));
         } else {
           console.log('Not all chains could be registered.');

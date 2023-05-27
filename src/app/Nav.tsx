@@ -11,8 +11,8 @@ function Nav() {
   const {
     isConnected,
     disconnect,
-    charge,
     selectedWallet,
+    connectWallet,
     connectSelectedWallet,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
@@ -123,23 +123,18 @@ function Nav() {
             <ToggleChain />
 
             {connected && (
-         
-                <label
-                  htmlFor="modal-faucet-modal"
-                  className="truncate btn-primary btn"
-                  onClick={() => {}}
-                >
-                  Faucet
-                </label>
-              
-            
+              <label
+                htmlFor="modal-faucet-modal"
+                className="truncate btn-primary btn"
+                onClick={() => {}}
+              >
+                Faucet
+              </label>
             )}
 
             {!connected ? (
-              <button
-                className="btn btn-primary"
-                onClick={connectSelectedWallet}
-              >
+              <button className="btn btn-primary" onClick={connectWallet}>
+                {/* connectSelectedWallet */}
                 Connect Wallet
               </button>
             ) : (
