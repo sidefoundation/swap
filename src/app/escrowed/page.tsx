@@ -20,7 +20,7 @@ export default function Escrowed() {
         <div className="text-xl font-semibold flex-1">Escrowed Accounts</div>
         <div></div>
       </div>
-      <div className="overflow-x-auto border rounded-lg">
+      <div className="overflow-x-auto border rounded-lg dark:border-gray-700">
         <table className="table  w-full">
           <thead>
             <tr>
