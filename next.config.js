@@ -10,4 +10,5 @@ module.exports = withBundleAnalyzer({
   trailingSlash: true,
   basePath: '',
   reactStrictMode: false,
+  output: 'export',
 });
