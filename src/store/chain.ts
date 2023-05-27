@@ -3,6 +3,7 @@ import { proxy, useSnapshot } from 'valtio';
 import { Coin } from '@cosmjs/stargate';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import chargeCoins from '@/http/requests/post/chargeCoins';
+import { getBalanceList } from '@/store/assets';
 import { BriefChainInfo } from '../shared/types/chain';
 import { AppConfig } from '../utils/AppConfig';
 export interface Wallet {
@@ -61,7 +62,7 @@ export const rechargeCoins = async (
   const currentWallets = wallets.find((item) => {
     return item.chainInfo?.chainID === selectedChain?.chainID;
   });
-  chainStore.chainFaucetLoading = true
+  chainStore.chainFaucetLoading = true;
   const url = new URL(selectedChain.rpcUrl);
   await chargeCoins(
     url.hostname,
@@ -69,6 +70,8 @@ export const rechargeCoins = async (
     currentWallets?.address as string,
     chainStore.chainFaucetAmount
   );
-  chainStore.chainFaucetLoading = false
-  
+
+  getBalanceList(selectedChain?.restUrl, currentWallets?.address as string);
+  chainStore.chainFaucetLoading = false;
+  (document as any).getElementById('modal-faucet-modal').checked = false;
 };
