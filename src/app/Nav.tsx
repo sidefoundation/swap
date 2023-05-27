@@ -64,6 +64,9 @@ function Nav() {
                 <Link href="/pool">Pool</Link>
               </li>
               <li>
+                <Link href="/escrowed">Escrowed</Link>
+              </li>
+              <li>
                 <Link href="/assets">Assets</Link>
               </li>
             </ul>
@@ -97,6 +100,11 @@ function Nav() {
             <li>
               <Link href="/pool" className="btn btn-ghost">
                 Pool
+              </Link>
+            </li>
+            <li>
+              <Link href="/escrowed" className="btn btn-ghost">
+                Escrowed
               </Link>
             </li>
             {connected ? (

@@ -43,7 +43,7 @@ export default function Balances() {
               {balanceList?.map((balance, index) => {
                 return (
                   <tr key={index}>
-                    <td className="">
+                    <td width="50%">
                       <div>
                         <div className="font-semibold capitalize dark:text-white ">
                           {balance.denom?.length > 10
@@ -55,7 +55,7 @@ export default function Balances() {
                         ) : null}
                       </div>
                     </td>
-                    <td className="capitalize dark:text-white ">
+                    <td width="50%" className="capitalize dark:text-white ">
                       <div className="font-semibold">{balance.amount}</div>
                     </td>
                   </tr>
