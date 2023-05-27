@@ -1,12 +1,22 @@
 import React, { useEffect } from 'react';
 import { MdOutlineClose } from 'react-icons/md';
 import useWalletStore from '@/store/wallet';
-import { chainStore, fetchChainCoinList, useChainStore,rechargeCoins,chainFaucetLoading } from '@/store/chain';
+import {
+  chainStore,
+  fetchChainCoinList,
+  useChainStore,
+  rechargeCoins,
+} from '@/store/chain';
 import { Coin } from '@cosmjs/stargate';
 export default function FaucetModal() {
-  const { chainCoinListNative, chainFaucetCoin, chainFaucetAmount } =
-    useChainStore();
-  const { selectedChain,wallets } = useWalletStore();
+  const {
+    chainCoinListNative,
+    chainFaucetCoin,
+    chainFaucetAmount,
+    chainFaucetLoading,
+  } = useChainStore();
+  const { selectedChain, wallets } = useWalletStore();
+
   useEffect(() => {
     if (selectedChain?.restUrl) {
       fetchChainCoinList(selectedChain.restUrl, 'Native');
@@ -47,7 +57,11 @@ export default function FaucetModal() {
                         onClick={() => {
                           chainStore.chainFaucetCoin = item;
                         }}
-                        className={`cursor-pointer text-sm inline-block my-1 mx-2 px-4 py-1 bg-base-200 rounded-full ${chainFaucetCoin?.denom===item?.denom? 'border bg-primary text-white':''}`}
+                        className={`cursor-pointer text-sm inline-block my-1 mx-2 px-4 py-1 bg-base-200 rounded-full ${
+                          chainFaucetCoin?.denom === item?.denom
+                            ? 'border bg-primary text-white'
+                            : ''
+                        }`}
                       >
                         <span className=" capitalize">
                           {item?.denom || '--'}
@@ -56,7 +70,7 @@ export default function FaucetModal() {
                     );
                   })}
                 </div>
-         
+
                 <input
                   value={chainFaucetAmount || ''}
                   onChange={(e) => {
@@ -66,14 +80,14 @@ export default function FaucetModal() {
                   className="w-full placeholder:text-sm dark:text-white border border-gray-200  dark:border-gray-700 bg-base-200 rounded-full text-base text-right px-4 h-9 focus-within:outline-gray-300 dark:focus-within:outline-gray-800"
                 />
                 <div className="text-right">
-                 <span className="text-sm">Max: </span> 
-                 <span className="text-xs">{chainFaucetCoin.amount}</span>
+                  <span className="text-sm">Max: </span>
+                  <span className="text-xs">{chainFaucetCoin.amount}</span>
                 </div>
               </div>
               <div className="text-right mt-6 ">
                 <button
                   className="mr-2 truncate btn-primary btn"
-                  onClick={() =>rechargeCoins(wallets,selectedChain)}
+                  onClick={() => rechargeCoins(wallets, selectedChain)}
                   disabled={chainFaucetLoading}
                 >
                   Faucet
