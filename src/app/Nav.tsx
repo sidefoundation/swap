@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import useWalletStore from '@/store/wallet';
 import ThemeToggle from './NavTheme';
 import ToggleChain from './NavChain';
+import FaucetModal from './FaucetModal';
 
 function Nav() {
   const {
@@ -122,12 +123,16 @@ function Nav() {
             <ToggleChain />
 
             {connected && (
-              <button
-                className="mr-2 truncate btn-primary btn"
-                onClick={charge}
-              >
-                Faucet
-              </button>
+         
+                <label
+                  htmlFor="modal-faucet-modal"
+                  className="truncate btn-primary btn"
+                  onClick={() => {}}
+                >
+                  Faucet
+                </label>
+              
+            
             )}
 
             {!connected ? (
@@ -166,6 +171,7 @@ function Nav() {
           </div>
         </div>
       </div>
+      <FaucetModal />
     </div>
   );
 }
