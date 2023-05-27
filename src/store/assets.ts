@@ -1,8 +1,9 @@
 import { proxy, useSnapshot } from 'valtio';
 
+import { Coin } from '@cosmjs/stargate';
+import { toast } from 'react-hot-toast';
 import fetchBalances from '../http/requests/get/fetchBalance';
 import chargeCoins from '../http/requests/post/chargeCoins';
-import { Coin } from '@cosmjs/stargate';
 
 type Store = {
   balanceList: Coin[];
@@ -18,14 +19,20 @@ export const useAssetsStore = () => {
   return useSnapshot(assetsStore);
 };
 
-export const getBalanceList = async (restUrl, acc) => {
+export const getBalanceList = async (
+  restUrl: string,
+  acc: string,
+  isLoading?: boolean
+) => {
+  if (isLoading) toast.loading('Loading...');
   const res = await fetchBalances(restUrl, acc);
+  if (isLoading) toast.dismiss();
   if (res) {
     assetsStore.balanceList = res;
   }
 };
 
-export const setRemoteBalanceList = async (restUrl, acc) => {
+export const setRemoteBalanceList = async (restUrl: string, acc: string) => {
   const res = await fetchBalances(restUrl, acc);
   if (res) {
     assetsStore.remoteBalanceList = res;
