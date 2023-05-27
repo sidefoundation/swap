@@ -4,7 +4,7 @@ const chargeCoins = async (
   domain: string,
   denom: string,
   wallet: string,
-  amount?: String
+  amount: string
 ) => {
   const toastItem = toast.loading('Charging');
   try {
@@ -12,7 +12,7 @@ const chargeCoins = async (
       `http://${domain}:4500`,
       {
         address: wallet,
-        coins: [`${amount ? amount : '10000000000000'}${denom}`],
+        coins: [`${amount}${denom}`],
       },
       {
         headers: {
@@ -24,7 +24,7 @@ const chargeCoins = async (
       id: toastItem,
     });
   } catch (error) {
-    toast.error('Charge Error', {
+    toast.error(error?.message, {
       id: toastItem,
     });
     console.log('error', error);

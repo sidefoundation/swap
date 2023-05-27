@@ -25,7 +25,7 @@ export const chainStore = proxy<Store>({
   chainCoinListNative: [] as Coin[],
   chainCoinListRemote: [] as Coin[],
   chainFaucetCoin: {} as Coin,
-  chainFaucetAmount: '',
+  chainFaucetAmount: '1000',
   chainFaucetLoading: false,
 });
 
