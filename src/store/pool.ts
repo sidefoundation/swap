@@ -17,6 +17,10 @@ import {
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
 import { Wallet } from './wallet';
+import { MarketMaker } from '@/utils/swap';
+import {} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+import { encoder } from 'protobufjs';
+import { base64StringToUnit8Array } from '@/utils/utils';
 
 export type CounterPartyType = {
   chainID: string;
@@ -100,7 +104,13 @@ export const getPoolList = async () => {
 };
 
 // all assets add
-export const addPoolItemMulti = async (wallets, market, getClient) => {
+export const addPoolItemMulti = async (
+  wallets: Wallet[],
+  selectedChain: BriefChainInfo,
+  market: MarketMaker,
+  getClient
+) => {
+  console.log('selectedchain', selectedChain);
   const poolAssets = poolStore.poolItem.assets;
   console.log(poolAssets, 'poolAssets');
   const form = poolStore.poolForm;
@@ -109,15 +119,16 @@ export const addPoolItemMulti = async (wallets, market, getClient) => {
   let localDepositCoin = {} as Coin;
   let remoteDenom = '';
   let remoteDepositCoin = {} as Coin;
+
   for (const asset of poolAssets) {
-    if (asset?.side?.toLowerCase() === 'remote') {
+    if (asset?.balance.denom !== selectedChain.denom) {
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
         amount: form.remoteAmount,
       };
     }
-    if (asset?.side?.toLowerCase() === 'native') {
+    if (asset?.balance.denom.toLowerCase() === selectedChain.denom) {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
@@ -127,10 +138,10 @@ export const addPoolItemMulti = async (wallets, market, getClient) => {
   }
   //
   const wallet = wallets.find(
-    (wallet) => wallet.chainInfo.denom === localDenom
+    (wallet) => wallet.chainInfo.denom === selectedChain.denom
   );
   const remoteWallet = wallets.find(
-    (item) => item.chainInfo.denom === remoteDenom
+    (item) => item.chainInfo.denom !== selectedChain.denom
   );
 
   if (wallet === undefined || remoteWallet === undefined) {
@@ -172,25 +183,36 @@ export const addPoolItemMulti = async (wallets, market, getClient) => {
     );
 
     const remoteDepositSignMsg = {
+      sequence: Long.fromInt(+acc.base_account.sequence),
       sender: remoteWallet.address,
       token: remoteDepositCoin,
-      sequence: Long.fromInt(+acc.base_account.sequence),
     };
-    const encoder = new TextEncoder();
+
     const remoteClient = await getClient(remoteWallet.chainInfo);
-    const rawRemoteDepositMsg = encoder.encode(
-      JSON.stringify(remoteDepositSignMsg)
-    );
-    const sig = await remoteClient!.signToMsg(
+
+    // const rawRemoteDepositMsg =
+    //   RemoteDeposit.encode(remoteDepositSignMsg).finish();
+
+    // const sig = await remoteClient!.signToMsg(
+    //   remoteWallet.address,
+    //   rawRemoteDepositMsg,
+    //   remoteWallet.chainInfo
+    // );
+
+    // const signature = base64StringToUnit8Array(sig);
+    // console.log('sig', signature);
+
+    const signBytes = LocalDeposit.encode(localDepositMsg).finish();
+    const sig = await client!.signToMsg(
       remoteWallet.address,
-      rawRemoteDepositMsg,
+      signBytes,
       remoteWallet.chainInfo
     );
 
-    const signUint8Array = encoder.encode(sig); // encode the string
+    // encode the string
     const remoteDepositMsg: RemoteDeposit = {
       ...remoteDepositSignMsg,
-      signature: signUint8Array,
+      signature: sig,
     };
 
     console.log('Remote deposit sign', remoteDepositMsg);

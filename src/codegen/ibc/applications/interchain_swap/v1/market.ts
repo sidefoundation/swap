@@ -82,6 +82,7 @@ export interface InterchainLiquidityPool {
   supply?: Coin;
   poolPrice: number;
   status: PoolStatus;
+  creatorChainId: string;
   encounterPartyPort: string;
   encounterPartyChannel: string;
 }
@@ -92,6 +93,7 @@ export interface InterchainLiquidityPoolSDKType {
   supply?: CoinSDKType;
   pool_price: number;
   status: PoolStatus;
+  creatorChainId: string;
   encounterPartyPort: string;
   encounterPartyChannel: string;
 }
@@ -186,6 +188,7 @@ function createBaseInterchainLiquidityPool(): InterchainLiquidityPool {
     supply: undefined,
     poolPrice: 0,
     status: 0,
+    creatorChainId: "",
     encounterPartyPort: "",
     encounterPartyChannel: ""
   };
@@ -210,11 +213,14 @@ export const InterchainLiquidityPool = {
     if (message.status !== 0) {
       writer.uint32(48).int32(message.status);
     }
+    if (message.creatorChainId !== "") {
+      writer.uint32(58).string(message.creatorChainId);
+    }
     if (message.encounterPartyPort !== "") {
-      writer.uint32(58).string(message.encounterPartyPort);
+      writer.uint32(66).string(message.encounterPartyPort);
     }
     if (message.encounterPartyChannel !== "") {
-      writer.uint32(66).string(message.encounterPartyChannel);
+      writer.uint32(74).string(message.encounterPartyChannel);
     }
     return writer;
   },
@@ -244,9 +250,12 @@ export const InterchainLiquidityPool = {
           message.status = (reader.int32() as any);
           break;
         case 7:
-          message.encounterPartyPort = reader.string();
+          message.creatorChainId = reader.string();
           break;
         case 8:
+          message.encounterPartyPort = reader.string();
+          break;
+        case 9:
           message.encounterPartyChannel = reader.string();
           break;
         default:
@@ -264,6 +273,7 @@ export const InterchainLiquidityPool = {
     message.supply = object.supply !== undefined && object.supply !== null ? Coin.fromPartial(object.supply) : undefined;
     message.poolPrice = object.poolPrice ?? 0;
     message.status = object.status ?? 0;
+    message.creatorChainId = object.creatorChainId ?? "";
     message.encounterPartyPort = object.encounterPartyPort ?? "";
     message.encounterPartyChannel = object.encounterPartyChannel ?? "";
     return message;

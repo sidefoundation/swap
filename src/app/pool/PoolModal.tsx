@@ -55,7 +55,7 @@ export default function PoolModal() {
   const confirmAdd = () => {
     if (poolForm?.action === 'add' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
-      addPoolItemMulti(wallets, market, getClient);
+      addPoolItemMulti(wallets,selectedChain,market, getClient);
     }
     if (poolForm?.action === 'add' && tab === 'single') {
       addPoolItemSingle(wallets, selectedChain, getClient);
@@ -72,11 +72,11 @@ export default function PoolModal() {
   return (
     <div>
       <input type="checkbox" id="modal-pool-modal" className="modal-toggle" />
-      <label htmlFor="modal-pool-modal" className="modal cursor-pointer">
-        <label className="modal-box relative" htmlFor="">
+      <label htmlFor="modal-pool-modal" className="cursor-pointer modal">
+        <label className="relative modal-box" htmlFor="">
           <div className="flex items-center justify-between">
             <div className="text-lg font-bold">
-              <span className=" capitalize">{poolForm?.action}</span> liquidity
+              <span className="capitalize ">{poolForm?.action}</span> liquidity
               to pool #
               {poolItem?.poolId?.slice(0, 8) +
                 '...' +
@@ -89,7 +89,7 @@ export default function PoolModal() {
               <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
             </label>
           </div>
-          <div className="inline-flex items-center bg-gray-100 rounded-full tabs dark:bg-gray-700 mt-4 mb-4">
+          <div className="inline-flex items-center mt-4 mb-4 bg-gray-100 rounded-full tabs dark:bg-gray-700">
             <TabItem tab={tab} setTab={setTab} title="All assets" value="all" />
             <TabItem
               tab={tab}
@@ -102,7 +102,7 @@ export default function PoolModal() {
             />
           </div>
 
-          <div className="flex items-center text-sm mb-4">
+          <div className="flex items-center mb-4 text-sm">
             Use autosawp to {poolForm?.action} liquidity with
             {tab === 'all' ? ' all assets' : ' a single asset'}
           </div>
@@ -110,8 +110,8 @@ export default function PoolModal() {
           {/* all assets */}
           {tab === 'all' ? (
             <div>
-              <div className="border dark:border-gray-600 rounded-lg pl-4 pr-4 py-3 flex items-center mb-4">
-                <div className="text-xl mr-5 font-semibold flex items-center">
+              <div className="flex items-center py-3 pl-4 pr-4 mb-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center mr-5 text-xl font-semibold">
                   {poolAsset1?.weight}%
                 </div>
                 <div className="flex-1">
@@ -130,7 +130,7 @@ export default function PoolModal() {
                           `${poolAsset1?.side?.toLowerCase()}Amount`
                         ] = e.target.value;
                       }}
-                      className="text-lg text-right bg-gray-100 dark:bg-gray-700  dark:text-white focus-within:outline-none mb-2 h-8 px-4 rounded"
+                      className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                     />
                   </div>
 
@@ -155,8 +155,8 @@ export default function PoolModal() {
                 </div>
               </div>
 
-              <div className="border dark:border-gray-600 rounded-lg pl-4 pr-4 py-3 flex items-center">
-                <div className="text-xl mr-5 font-semibold flex items-center">
+              <div className="flex items-center py-3 pl-4 pr-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center mr-5 text-xl font-semibold">
                   {poolAsset2?.weight}%
                 </div>
                 <div className="flex-1">
@@ -175,7 +175,7 @@ export default function PoolModal() {
                           `${poolAsset2?.side?.toLowerCase()}Amount`
                         ] = e.target.value;
                       }}
-                      className="text-lg text-right bg-gray-100  dark:bg-gray-700 dark:text-white focus-within:outline-none mb-2 h-8 px-4 rounded"
+                      className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                     />
                   </div>
 
@@ -204,8 +204,8 @@ export default function PoolModal() {
 
           {/* single asset */}
           {tab === 'single' ? (
-            <div className="border dark:border-gray-600 rounded-lg pl-4 pr-4 py-3 flex items-center mb-4">
-              <div className="text-xl mr-5 font-semibold flex items-center">
+            <div className="flex items-center py-3 pl-4 pr-4 mb-4 border rounded-lg dark:border-gray-600">
+              <div className="flex items-center mr-5 text-xl font-semibold">
                 {poolForm?.single?.weight}%
               </div>
               <div className="flex-1">
@@ -213,22 +213,22 @@ export default function PoolModal() {
                   <div className="dropdown">
                     <label
                       tabIndex={0}
-                      className="cursor-pointer flex items-center"
+                      className="flex items-center cursor-pointer"
                     >
                       <span className="text-lg font-semibold capitalize">
                         {poolForm?.single?.balance?.denom}
                       </span>
-                      <MdKeyboardArrowDown className="text-lg ml-1 text-gray-500" />
+                      <MdKeyboardArrowDown className="ml-1 text-lg text-gray-500" />
                     </label>
                     <ul
                       tabIndex={0}
-                      className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                      className="p-2 shadow dropdown-content menu bg-base-100 rounded-box w-52"
                     >
                       {poolItem?.assets?.map((item, index) => {
                         return (
                           <li key={index}>
                             <a
-                              className=" capitalize flex items-center justify-between"
+                              className="flex items-center justify-between capitalize "
                               onClick={() => {
                                 poolStore.poolForm.single = item;
                               }}
@@ -248,7 +248,7 @@ export default function PoolModal() {
                     onChange={(e) => {
                       poolStore.poolForm.signleAmount = e.target.value;
                     }}
-                    className="text-lg text-right bg-gray-100 dark:bg-gray-700  dark:text-white focus-within:outline-none mb-2 h-8 px-4 rounded"
+                    className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export default function PoolModal() {
 
           <div className="mt-6">
             <button
-              className="btn btn-primary w-full"
+              className="w-full btn btn-primary"
               onClick={() => confirmAdd()}
             >
               Confirm

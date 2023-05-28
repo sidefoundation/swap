@@ -8,7 +8,7 @@ interface FetchLiquidityResponse extends ResponseMessage {
   interchainLiquidityPool: ILiquidityPool[];
 }
 
-const fetchLiquidityPools = async (restUrl:string) => {
+const fetchLiquidityPools = async (restUrl: string) => {
   const { data } = await axios.get<FetchLiquidityResponse>(
     `${restUrl}/ibc/apps/interchainswap/v1/interchain_liquidity_pool`,
     {}

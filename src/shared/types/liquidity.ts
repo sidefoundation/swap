@@ -4,6 +4,7 @@ export interface ILiquidityPool {
   findAssetByDenom(denom: string): unknown;
   poolId: string;
   creator: string;
+  creatorChainId: string;
   assets: IAsset[];
   supply: ICoin;
   pool_price: string;
