@@ -121,14 +121,14 @@ export const addPoolItemMulti = async (
   let remoteDepositCoin = {} as Coin;
 
   for (const asset of poolAssets) {
-    if (asset?.balance.denom !== selectedChain.denom) {
+    if (asset?.side === 'REMOTE') {
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
         amount: form.remoteAmount,
       };
     }
-    if (asset?.balance.denom.toLowerCase() === selectedChain.denom) {
+    if (asset?.side === 'NATIVE') {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
