@@ -217,6 +217,10 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   };
 
   const onEnablePool = async (pool: ILiquidityPool) => {
+    if(selectedChain.chainID === pool.creatorChainId) {
+      toast.error("Please select counter party chain")
+      return
+    }
     //setLoading(true)
     await suggestChain(selectedChain);
 
@@ -228,16 +232,18 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
     try {
+  
       const client = await getClient(wallet!.chainInfo);
+      console.log("here", pool.assets.find(
+        (item) => item.side == "NATIVE"
+      )!.balance)
+    
       const singleDepositMsg: MsgSingleAssetDepositRequest = {
         poolId: pool.poolId,
         sender: wallet!.address,
-        token: {
-          denom: wallet!.chainInfo.denom,
-          amount: pool.assets.find(
-            (item) => item.balance.denom == wallet!.chainInfo.denom
-          )!.balance.amount,
-        },
+        token: pool.assets.find(
+          (item) => item.side == "NATIVE"
+        )!.balance,
         timeoutHeight: {
           revisionHeight: Long.fromInt(10),
           revisionNumber: Long.fromInt(10000000000),
@@ -250,13 +256,12 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           '/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest',
         value: singleDepositMsg,
       };
-      console.log(client);
+
 
       const fee: StdFee = {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
         gas: '200000',
       };
-
       const data = await client!.signWithEthermint(
         wallet!.address,
         [msg],
@@ -264,8 +269,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
         fee,
         'test'
       );
-      client?.signToMsg;
-      console.log('Signed data', data);
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
@@ -551,7 +554,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                     onChangeWeight(event.target.value, 'second')
                   }
                 />
-                <div className="w-full flex justify-between text-xs px-2">
+                <div className="flex justify-between w-full px-2 text-xs">
                   <span>20</span>
                   <span>30</span>
                   <span>40</span>

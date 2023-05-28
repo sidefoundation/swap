@@ -37,6 +37,7 @@ export interface MsgCreatePoolRequest {
   sourcePort: string;
   sourceChannel: string;
   sender: string;
+  chainId: string;
   tokens: Coin[];
   decimals: number[];
   weight: string;
@@ -47,6 +48,7 @@ export interface MsgCreatePoolRequestSDKType {
   sourcePort: string;
   sourceChannel: string;
   sender: string;
+  chainId: string;
   tokens: CoinSDKType[];
   decimals: number[];
   weight: string;
@@ -200,6 +202,7 @@ function createBaseMsgCreatePoolRequest(): MsgCreatePoolRequest {
     sourcePort: "",
     sourceChannel: "",
     sender: "",
+    chainId: "",
     tokens: [],
     decimals: [],
     weight: "",
@@ -218,22 +221,25 @@ export const MsgCreatePoolRequest = {
     if (message.sender !== "") {
       writer.uint32(26).string(message.sender);
     }
-    for (const v of message.tokens) {
-      Coin.encode(v!, writer.uint32(34).fork()).ldelim();
+    if (message.chainId !== "") {
+      writer.uint32(34).string(message.chainId);
     }
-    writer.uint32(42).fork();
+    for (const v of message.tokens) {
+      Coin.encode(v!, writer.uint32(42).fork()).ldelim();
+    }
+    writer.uint32(50).fork();
     for (const v of message.decimals) {
       writer.uint32(v);
     }
     writer.ldelim();
     if (message.weight !== "") {
-      writer.uint32(50).string(message.weight);
+      writer.uint32(58).string(message.weight);
     }
     if (message.timeoutHeight !== undefined) {
-      Height.encode(message.timeoutHeight, writer.uint32(58).fork()).ldelim();
+      Height.encode(message.timeoutHeight, writer.uint32(66).fork()).ldelim();
     }
     if (!message.timeoutTimeStamp.isZero()) {
-      writer.uint32(64).uint64(message.timeoutTimeStamp);
+      writer.uint32(72).uint64(message.timeoutTimeStamp);
     }
     return writer;
   },
@@ -254,9 +260,12 @@ export const MsgCreatePoolRequest = {
           message.sender = reader.string();
           break;
         case 4:
-          message.tokens.push(Coin.decode(reader, reader.uint32()));
+          message.chainId = reader.string();
           break;
         case 5:
+          message.tokens.push(Coin.decode(reader, reader.uint32()));
+          break;
+        case 6:
           if ((tag & 7) === 2) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
@@ -266,13 +275,13 @@ export const MsgCreatePoolRequest = {
             message.decimals.push(reader.uint32());
           }
           break;
-        case 6:
+        case 7:
           message.weight = reader.string();
           break;
-        case 7:
+        case 8:
           message.timeoutHeight = Height.decode(reader, reader.uint32());
           break;
-        case 8:
+        case 9:
           message.timeoutTimeStamp = (reader.uint64() as Long);
           break;
         default:
@@ -287,6 +296,7 @@ export const MsgCreatePoolRequest = {
     message.sourcePort = object.sourcePort ?? "";
     message.sourceChannel = object.sourceChannel ?? "";
     message.sender = object.sender ?? "";
+    message.chainId = object.chainId ?? "";
     message.tokens = object.tokens?.map(e => Coin.fromPartial(e)) || [];
     message.decimals = object.decimals?.map(e => e) || [];
     message.weight = object.weight ?? "";

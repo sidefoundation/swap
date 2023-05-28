@@ -8,7 +8,10 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "ibc/applications/interchain_swap/v1/param.proto";
 import "ibc/applications/interchain_swap/v1/market.proto";
+import "ibc/applications/interchain_swap/v1/tx.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 
 // Query provides defines the gRPC querier service.
 service Query {
@@ -40,6 +43,8 @@ service Query {
   rpc InterchainMarketMakerAll (QueryAllInterchainMarketMakerRequest) returns (QueryAllInterchainMarketMakerResponse) {
     option (google.api.http).get = "/ibc/apps/interchainswap/v1/interchain_market_maker";
   }
+
+
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -99,3 +104,4 @@ message QueryAllInterchainMarketMakerResponse {
   repeated ibc.applications.interchain_swap.v1.InterchainMarketMaker                  interchainMarketMaker = 1 [(gogoproto.nullable) = false];
            cosmos.base.query.v1beta1.PageResponse pagination            = 2;
 }
+

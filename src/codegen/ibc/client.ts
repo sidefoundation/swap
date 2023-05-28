@@ -1,6 +1,6 @@
 import { GeneratedType, Registry, OfflineSigner } from "@cosmjs/proto-signing";
 import { defaultRegistryTypes, AminoTypes, SigningStargateClient } from "@cosmjs/stargate";
-
+import { HttpEndpoint } from "@cosmjs/tendermint-rpc";
 import * as ibcApplicationsAtomicSwapV1TxRegistry from "./applications/atomic_swap/v1/tx.registry";
 import * as ibcApplicationsInterchainSwapV1TxRegistry from "./applications/interchain_swap/v1/tx.registry";
 import * as ibcApplicationsTransferV1TxRegistry from "./applications/transfer/v1/tx.registry";
@@ -44,7 +44,7 @@ export const getSigningIbcClient = async ({
   signer,
   defaultTypes = defaultRegistryTypes
 }: {
-  rpcEndpoint: string;
+  rpcEndpoint: string | HttpEndpoint;
   signer: OfflineSigner;
   defaultTypes?: ReadonlyArray<[string, GeneratedType]>;
 }) => {

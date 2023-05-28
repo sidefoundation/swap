@@ -67,7 +67,9 @@ export default class SigningKeplerEthermintClient {
       const authInfoBytes = makeAuthInfoBytes(
         [{ pubkey: pubk, sequence: +accountInfo.base_account.sequence }],
         fee.amount,
-        gasLimit
+        gasLimit,
+        signerAddress,
+        signerAddress
       );
       const signDoc = makeSignDoc(
         txBodyBytes,
