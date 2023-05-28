@@ -551,7 +551,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
                     onChangeWeight(event.target.value, 'second')
                   }
                 />
-                <div className="w-full flex justify-between text-xs px-2">
+                <div className="flex justify-between w-full px-2 text-xs">
                   <span>20</span>
                   <span>30</span>
                   <span>40</span>

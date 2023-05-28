@@ -16,6 +16,7 @@ import {
 
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
+import { Wallet } from './wallet';
 
 export type CounterPartyType = {
   chainID: string;
@@ -89,7 +90,6 @@ export const poolStore = proxy<Store>({
   },
 });
 
-
 export const usePoolStore = () => {
   return useSnapshot(poolStore);
 };
@@ -157,6 +157,8 @@ export const addPoolItemMulti = async (wallets, market, getClient) => {
 
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
   try {
+    console.log(wallet.chainInfo);
+
     const client = await getClient(wallet!.chainInfo);
 
     const localDepositMsg: LocalDeposit = {
@@ -426,13 +428,16 @@ export const redeemPoolItemMulti = async (wallets, getClient, market) => {
 
 // signle asset redeem
 export const redeemPoolItemSingle = async (
-  wallets,
+  wallets: Wallet[],
   getClient,
   selectedChain
 ) => {
   const wallet = wallets.find(
     (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
   );
+  if (wallet === undefined) {
+    return;
+  }
   console.log(wallet, 'wallet', selectedChain);
   if (wallet.chainInfo.denom !== poolStore.poolForm?.single?.balance.denom) {
     console.log('no wallet');
@@ -497,27 +502,41 @@ export const redeemPoolItemSingle = async (
   }
 };
 
-export const postPoolCreate = async (selectedChain, getClient) => {
+export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
   const wallet = selectedChain;
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
 
   try {
     const client = await getClient(wallet!.chainInfo);
 
+    const isNativeCoin =
+      poolStore.poolFormCreate.native.coin.denom === wallet.chainInfo.denom;
+
+    const nativeToken = isNativeCoin
+      ? {
+          denom: poolStore.poolFormCreate.native.coin.denom,
+          amount: poolStore.poolFormCreate.native.amount,
+        }
+      : {
+          denom: poolStore.poolFormCreate.remote.coin.denom,
+          amount: poolStore.poolFormCreate.remote.amount,
+        };
+
+    const remoteToken = isNativeCoin
+      ? {
+          denom: poolStore.poolFormCreate.remote.coin.denom,
+          amount: poolStore.poolFormCreate.remote.amount,
+        }
+      : {
+          denom: poolStore.poolFormCreate.native.coin.denom,
+          amount: poolStore.poolFormCreate.native.amount,
+        };
+
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,
-      tokens: [
-        {
-          denom: poolStore?.poolFormCreate?.native?.coin?.denom,
-          amount: poolStore?.poolFormCreate?.native?.amount,
-        },
-        {
-          denom: poolStore?.poolFormCreate?.remote?.coin?.denom,
-          amount: poolStore?.poolFormCreate?.remote?.amount,
-        },
-      ],
+      tokens: [nativeToken, remoteToken],
       decimals: [18, 18],
       weight: `${poolStore?.poolFormCreate?.native?.weight}:${poolStore?.poolFormCreate?.remote?.weight}`,
       timeoutHeight: {
