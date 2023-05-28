@@ -76,7 +76,7 @@ type WalletPersist = (
   config: StateCreator<WalletState>,
   options: PersistOptions<WalletState>
 ) => StateCreator<WalletState>;
-console.log(AppConfig.chains, 'AppConfig.chains');
+
 const useWalletStore = create<WalletState>(
   (persist as WalletPersist)(
     (set, get) => ({

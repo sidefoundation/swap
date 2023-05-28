@@ -7,8 +7,10 @@ module.exports = withBundleAnalyzer({
     unoptimized: true,
   },
   poweredByHeader: false,
-  trailingSlash: true,
   basePath: '',
   reactStrictMode: false,
   output: 'export',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 });

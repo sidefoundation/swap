@@ -1,7 +1,7 @@
 import { IAsset } from '@/shared/types/asset';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { Coin } from '@cosmjs/stargate';
-import '../extensions/string';
+import '../shared/extensions/string';
 import crypto from 'crypto';
 
 export class MarketMaker {

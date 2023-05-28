@@ -1,6 +1,6 @@
 'use client';
 
-import '@/styles/global.css';
+import '@/app/global.css';
 
 import { ThemeProvider } from 'next-themes';
 import React, { useState } from 'react';
