@@ -7,6 +7,7 @@ interface FetchBalanceResponse extends ResponseMessage {
 }
 
 const fetchBalances = async (restUrl: string, acc: string) => {
+  if (!acc) return [];
   const { data } = await axios.get<FetchBalanceResponse>(
     `${restUrl}/cosmos/bank/v1beta1/balances/${acc}`
   );
