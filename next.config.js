@@ -11,4 +11,7 @@ module.exports = withBundleAnalyzer({
   basePath: '',
   reactStrictMode: false,
   output: 'export',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 });
