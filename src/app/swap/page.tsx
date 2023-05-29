@@ -96,7 +96,12 @@ const Swap = () => {
 
   const onSwap = async (direction: '->' | '<-') => {
     setLoading(true);
-    const wallet = direction === '->' ? wallets[0] : wallets[1];
+    const wallet = wallets.find((item)=>{
+      if (item.chainInfo?.chainID=== selectedChain.chainID){
+        return item
+      }
+    })
+    // direction === '->' ? wallets[0] : wallets[1];
     const client = await getClient(wallet!.chainInfo);
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
