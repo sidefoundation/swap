@@ -7,7 +7,6 @@ import {
   EncodeObject,
   makeAuthInfoBytes,
   makeSignDoc,
-  OfflineSigner,
 } from '@cosmjs/proto-signing';
 import { SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { OfflineDirectSigner, StdSignature } from '@keplr-wallet/types';

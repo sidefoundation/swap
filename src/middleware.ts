@@ -6,7 +6,13 @@ export function middleware(request: NextRequest) {
   const search = request.nextUrl.search;
   const host = request.headers.get('apiurl');
   console.log(uri, request.headers.get('apiurl'));
-  return NextResponse.rewrite(new URL(`${host + uri + search}`, request.url));
+  let url = `${host + uri + search}`;
+  if (request.nextUrl.pathname === '/api/broadcast') {
+    url = request.nextUrl.search?.split('apiurl=')?.[1];
+    url = decodeURIComponent(url)
+    console.log(url)
+  }
+  return NextResponse.rewrite(new URL(url, request.url));
 }
 
 export const config = {
