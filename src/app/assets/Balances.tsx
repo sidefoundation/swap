@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 
 export default function Balances() {
   const { wallets, selectedChain } = useWalletStore();
-  const { balanceList } = useAssetsStore();
+  const { balanceList, balanceLoading } = useAssetsStore();
 
   useEffect(() => {
     const currentWallet = wallets.find((item) => {
@@ -40,36 +40,45 @@ export default function Balances() {
               </tr>
             </thead>
             <tbody>
-              {balanceList?.map((balance, index) => {
-                return (
-                  <tr key={index}>
-                    <td width="50%">
-                      <div>
-                        <div className="font-semibold capitalize dark:text-white ">
-                          {balance.denom?.length > 10
-                            ? 'Pool Asset'
-                            : balance.denom}
-                        </div>
-                        {balance.denom?.length > 10 ? (
-                          <div className="text-xs">{balance.denom}</div>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td width="50%" className="capitalize dark:text-white ">
-                      <div className="font-semibold">{balance.amount}</div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {balanceList.length > 0
+                ? balanceList?.map((balance, index) => {
+                    return (
+                      <tr key={index}>
+                        <td width="50%">
+                          <div>
+                            <div className="font-semibold capitalize dark:text-white ">
+                              {balance.denom?.length > 10
+                                ? 'Pool Asset'
+                                : balance.denom}
+                            </div>
+                            {balance.denom?.length > 10 ? (
+                              <div className="text-xs">{balance.denom}</div>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td width="50%" className="capitalize dark:text-white ">
+                          <div className="font-semibold">{balance.amount}</div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                : null}
             </tbody>
           </table>
         </div>
-
-        {balanceList.length === 0 ? (
+        {!balanceLoading && balanceList.length === 0 && (
+          <div className="text-center py-20">
+            <div className="m-4">
+              There is no Assets,Please click the Faucet
+            </div>
+          </div>
+        )}
+        {balanceLoading ? (
           <div className="text-center py-20">
             <progress className="progress w-56"></progress>
           </div>
         ) : null}
+        
       </div>
     </div>
   );
