@@ -13,7 +13,7 @@ module.exports = withBundleAnalyzer({
   poweredByHeader: false,
   basePath: '',
   reactStrictMode: false,
-  output: 'export',
+  // output: 'export',
   typescript: {
     ignoreBuildErrors: true,
   },

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import type ResponseMessage from '@/http/types/ResponseMessage';
 
 interface FetchChannelsResponse extends ResponseMessage {
@@ -9,7 +9,12 @@ interface FetchChannelsResponse extends ResponseMessage {
 // you can find port and channel
 const fetchChannels = async (restUrl: string) => {
   const { data } = await axios.get<FetchChannelsResponse>(
-    `${restUrl}/ibc/core/channel/v1/channels`
+    `/ibc/core/channel/v1/channels`,
+    {
+      headers: {
+        apiurl: restUrl,
+      },
+    }
   );
 
   return data.channels;
@@ -22,7 +27,12 @@ export const fetchEscrowAddress = async (
   portId: string
 ) => {
   const { data } = await axios.get(
-    `${restUrl}/ibc/apps/atomicswap/v1/channels/${channelId}/ports/${portId}/escrow_address`
+    `/ibc/apps/atomicswap/v1/channels/${channelId}/ports/${portId}/escrow_address`,
+    {
+      headers: {
+        apiurl: restUrl,
+      },
+    }
   );
 
   return data;

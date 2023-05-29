@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import toast from 'react-hot-toast';
 const chargeCoins = async (
   domain: string,
@@ -9,7 +9,7 @@ const chargeCoins = async (
   const toastItem = toast.loading('Charging');
   try {
     await axios.post(
-      `http://${domain}:4500`,
+      '/api',
       {
         address: wallet,
         coins: [`${amount}${denom}`],
@@ -17,6 +17,7 @@ const chargeCoins = async (
       {
         headers: {
           'Content-Type': 'application/json',
+          apiurl: `http://${domain}:4500`,
         },
       }
     );

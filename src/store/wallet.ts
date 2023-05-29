@@ -237,7 +237,7 @@ const useWalletStore = create<WalletState>(
           const { aminoTypes, registry } = getSigningClientOptions();
           const newSigningClient =
             await SigningStargateClient.connectWithSigner(
-              chain.rpcUrl,
+              `${location.origin}/api/broadcast?apiurl=${chain.rpcUrl}`,
               offlineSigner,
               {
                 gasPrice: GasPrice.fromString(`0.01${chain.denom}`),
