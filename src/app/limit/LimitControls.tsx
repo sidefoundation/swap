@@ -349,7 +349,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
                 <ul className="menu menu-horizontal px-1 w-full">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full truncate font-semibold">
+                    <a className="w-full truncate text-sm">
                       {firstSwapList?.length === 0
                         ? 'loading...'
                         : swapPair.first?.denom}
@@ -376,17 +376,12 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
               <input
                 type="number"
-                className="text-right h-10 flex-1 bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
+                className="text-right h-10 flex-1 w-0 bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
                 placeholder="Amount"
                 onChange={(event) => updataFirstCoinLimit(event.target.value)}
                 value={swapPair.first.amount}
                 min="0"
               />
-            </div>
-
-            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
-              <div className="flex-1">Side Hub</div>
-              <div></div>
             </div>
           </div>
           {/* switch icon */}
@@ -416,10 +411,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             </div>
 
             <div className="flex items-center mb-2">
-              <div className=" mr-4  w-[200px]">
-                <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[200px]">
+              <div className=" mr-4  w-[100px]">
+                <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[100px]">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full truncate font-semibold">
+                    <a className="w-full truncate text-sm">
                       {currentAtomicSwap?.counterparties?.length === 0
                         ? 'loading...'
                         : selectedChannel?.name}
@@ -430,7 +425,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                         return (
                           <li key={index} className="truncate w-full">
                             <a onClick={() => setSelectChannel(item)}>
-                              <span className="flex-1 font-semibold text-center capitalize">
+                              <span className="flex-1 text-sm text-center capitalize">
                                 {item?.name}
                               </span>
                             </a>
@@ -441,12 +436,11 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   </li>
                 </ul>
               </div>
-              <div></div>
-              <div className="bg-base-100  mr-4 rounded-full h-10 flex items-center justify-center  w-[200px]">
-                <ul className="menu menu-horizontal px-1 w-[180px] ">
+              <div className="bg-base-100  mr-4 rounded-full h-10 flex items-center justify-center  w-[100px]">
+                <ul className="menu menu-horizontal px-1 w-[100px] ">
                   <li tabIndex={0} className="w-full rounded-full">
                     <a className="w-full ">
-                      <span className="truncate capitalize font-semibold">
+                      <span className="truncate capitalize text-sm">
                         {secondSwapList?.length === 0
                           ? 'loading...'
                           : swapPair.second?.denom}
@@ -471,8 +465,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   </li>
                 </ul>
               </div>
-            </div>
-            <div className="">
               <input
                 type="number"
                 className="text-right h-10 w-full bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
@@ -481,10 +473,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 value={swapPair.second.amount}
                 min="0"
               />
-            </div>
-            <div className="flex items-center text-gray-500 dark:text-gray-400 hidden">
-              <div className="flex-1">Side Hub</div>
-              <div>~$9999</div>
             </div>
           </div>
 

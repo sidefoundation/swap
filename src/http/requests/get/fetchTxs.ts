@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import type ResponseMessage from '@/http/types/ResponseMessage';
 interface FetchResultTxResponse extends ResponseMessage {
   tx: any;
@@ -7,7 +7,12 @@ interface FetchResultTxResponse extends ResponseMessage {
 
 const fetchTxs = async (restUrl: string, hash: string) => {
   const { data } = await axios.get<FetchResultTxResponse>(
-    `${restUrl}/cosmos/tx/v1beta1/txs/${hash}`
+    `/cosmos/tx/v1beta1/txs/${hash}`,
+    {
+      headers: {
+        apiurl: restUrl,
+      },
+    }
   );
   return data.tx_response;
 };
