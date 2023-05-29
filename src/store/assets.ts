@@ -8,11 +8,13 @@ import chargeCoins from '../http/requests/post/chargeCoins';
 type Store = {
   balanceList: Coin[];
   remoteBalanceList: Coin[];
+  balanceLoading: boolean;
 };
 
 export const assetsStore = proxy<Store>({
   balanceList: [] as Coin[],
   remoteBalanceList: [] as Coin[],
+  balanceLoading: false,
 });
 
 export const useAssetsStore = () => {
@@ -25,11 +27,13 @@ export const getBalanceList = async (
   isLoading?: boolean
 ) => {
   if (isLoading) toast.loading('Loading...');
+  assetsStore.balanceLoading = true;
   const res = await fetchBalances(restUrl, acc);
   if (isLoading) toast.dismiss();
   if (res) {
     assetsStore.balanceList = res;
   }
+  assetsStore.balanceLoading = false;
 };
 
 export const setRemoteBalanceList = async (restUrl: string, acc: string) => {
