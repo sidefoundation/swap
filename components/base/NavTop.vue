@@ -49,8 +49,8 @@
 
 <script setup>
 const menuLinks = [
-  { name: 'Atomic Swap', path: '/atomic_swap' },
-  { name: 'Interchain Swap', path: '/swap' },
+  { name: 'Atomic OTC Market', path: '/atomic_swap' },
+  { name: 'Cross-chain Convert', path: '/swap' },
   { name: 'Dashboard', path: '/swap' },
 ];
 </script>
