@@ -150,6 +150,27 @@ const localChains = computed(() => {
                         </div>
                     </div>
 
+                    <div class="flex justify-between mt-4">
+                        <div v-if="special">
+                            <input type="text" class="input w-96" placeholder="Input address which can only take this offer"/>
+                        </div>
+                        <div v-else>
+                            <input id="special" v-model="special" type="checkbox" class="checkbox checkbox-success"/>
+                            <label for="special">Special Offer</label> 
+                        </div>
+                        <div>
+                            <label class="input-group">
+                                <span>Expires in</span>
+                                <select class="select select-bordered">
+                                    <option>1 hour</option>
+                                    <option>12 hours</option>
+                                    <option>1 day</option>
+                                    <option>1 week</option>
+                                    <option>1 year</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
 
                     <div class="card-actions justify-end mt-4">
                         <button class="btn btn-primary">Submit & Publish Offer</button>
