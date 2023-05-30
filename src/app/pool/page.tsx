@@ -16,7 +16,7 @@ export default function Pool() {
   useEffect(() => {
     getCurrentPoolList();
   }, [selectedChain]);
-  
+
   const getCurrentPoolList = () => {
     if (selectedChain?.restUrl) {
       getPoolList(selectedChain?.restUrl);
@@ -24,7 +24,6 @@ export default function Pool() {
   };
   return (
     <div className="container mx-auto">
-      {/* <PoolDetailsList pools={pools} /> */}
       <PoolDetailsList />
       <PoolCreate />
     </div>
