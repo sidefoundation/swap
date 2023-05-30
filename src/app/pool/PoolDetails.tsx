@@ -39,7 +39,7 @@ export default function PoolDetails({
     setBalance(balance);
   };
   useEffect(() => {
-    fetchBalances();
+    // fetchBalances();
   }, []);
 
   const onSingleDeposit = async (denom: string) => {

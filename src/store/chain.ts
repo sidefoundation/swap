@@ -16,6 +16,7 @@ type Store = {
   chainFaucetCoin: Coin;
   chainFaucetAmount: string;
   chainFaucetLoading: boolean;
+  showFaucetModal: boolean;
 };
 
 export const chainStore = proxy<Store>({
@@ -71,5 +72,5 @@ export const rechargeCoins = async (
 
   getBalanceList(selectedChain?.restUrl, currentWallets?.address as string);
   chainStore.chainFaucetLoading = false;
-  (document as any).getElementById('modal-faucet-modal').checked = false;
+  chainStore.showFaucetModal = false;
 };

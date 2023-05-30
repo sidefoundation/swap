@@ -26,6 +26,7 @@ function PoolCreate() {
     'balanceList, remoteBalanceList '
   );
   useEffect(() => {
+    console.log(8888)
     const chainNative = chainList[0] as BriefChainInfo;
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');

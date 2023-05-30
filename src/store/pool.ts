@@ -576,6 +576,7 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
+      // sourceChannel: 'channel-0',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,
       tokens: [nativeToken, remoteToken],

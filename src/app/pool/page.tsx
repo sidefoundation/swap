@@ -9,9 +9,9 @@ import PoolCreate from './PoolCreate';
 export default function Pool() {
   const { selectedChain } = useWalletStore();
 
-  useEffect(() => {
-    getCurrentPoolList();
-  }, []);
+  // useEffect(() => {
+  //   getCurrentPoolList();
+  // }, []);
 
   useEffect(() => {
     getCurrentPoolList();

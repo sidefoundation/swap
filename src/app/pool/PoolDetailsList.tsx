@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import useWalletStore, { Wallet, Balance } from '@/store/wallet';
-import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
 import PoolPagination from './PoolPagination';
@@ -15,7 +14,6 @@ import {
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
 import { usePoolStore, poolStore, getPoolList } from '@/store/pool';
-import { MdList, MdSearch, MdAddToQueue } from 'react-icons/md';
 
 interface PoolDetailsListProps {}
 
@@ -30,7 +28,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     getBalance,
     setBalance,
   } = useWalletStore();
-  const { poolList, poolFormCreate, } = usePoolStore();
+  const { poolList } = usePoolStore();
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
   const fetchBalances = async () => {
     const balance = await getBalance(true);
@@ -47,43 +45,18 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
         return item;
       }
     })?.[0]?.denom;
-    selectCoin('first', defalutFirst);
 
     console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
   };
-  useEffect(() => {
-    if (selectedChain.chainID) {
-      setPoolPair({
-        first: { denom: '', amount: '0', weight: '50', chain: '' },
-        second: { denom: '', amount: '0', weight: '50', chain: '' },
-      });
-      fetchBalances();
-      getRemoteChainList();
-    }
-  }, [selectedChain]);
-  const [poolPair, setPoolPair] = useState({
+  // useEffect(() => {
+  //   if (selectedChain.chainID) {
+  //     fetchBalances();
+  //   }
+  // }, [selectedChain]);
+  const [poolPair] = useState({
     first: { denom: '', amount: '0', weight: '50', chain: '' },
     second: { denom: '', amount: '0', weight: '50', chain: '' },
   });
-  const getRemoteChainList = () => {
-    const remote = AppConfig.chains.find((chain) => {
-      if (chain.chainID === selectedChain.chainID) {
-        return chain;
-      }
-    })?.counterpartis;
-  };
-
-  const selectCoin = (side, value) => {
-    setPoolPair({
-      ...poolPair,
-      [side]: {
-        denom: value || '',
-        amount: poolPair?.[side]?.amount,
-        weight: poolPair?.[side]?.weight,
-        chain: poolPair?.[side]?.chain,
-      },
-    });
-  };
 
   // old createPool
   const onCreatePool = async () => {
