@@ -39,7 +39,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     setBalance,
   } = useWalletStore();
   const { poolList } = usePoolStore();
-  const [signers, setSigners] = useState<Wallet[]>([]);
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
   const [otherList, setOtherList] = useState<Balance[]>([]);
   const fetchBalances = async () => {
@@ -76,9 +75,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     second: { denom: '', amount: '0', weight: '50', chain: '' },
   });
   const [remoteList, setRemoteChainList] = useState([]);
-  useEffect(() => {
-    setSigners(wallets);
-  }, [wallets]);
 
   const getRemoteChainList = () => {
     const remote = AppConfig.chains.find((chain) => {
@@ -328,6 +324,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
             <tbody>
               {poolList.map((pool: any, index) => (
                 <PoolDetails
+                  keyIndex={index}
                   key={index}
                   pool={pool}
                   onEnablePool={onEnablePool}
