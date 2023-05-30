@@ -98,9 +98,10 @@ export const usePoolStore = () => {
   return useSnapshot(poolStore);
 };
 
-export const getPoolList = async () => {
-  const res = await fetchLiquidityPools('');
-  poolStore.poolList = res.interchainLiquidityPool;
+export const getPoolList = async (restUrl: string) => {
+  const res = await fetchLiquidityPools(restUrl);
+  console.log(res, 'r888es');
+  poolStore.poolList = res.interchainLiquidityPool || [];
 };
 
 // all assets add
@@ -261,7 +262,11 @@ export const addPoolItemMulti = async (
 };
 
 // single asset add
-export const addPoolItemSingle = async (wallets, selectedChain, getClient) => {
+export const addPoolItemSingle = async (
+  wallets: Wallet[],
+  selectedChain: BriefChainInfo,
+  getClient
+) => {
   const selectedCoin = poolStore?.poolForm?.single;
   const denom = selectedCoin?.balance?.denom;
   const wallet = wallets.find(
@@ -328,7 +333,11 @@ export const addPoolItemSingle = async (wallets, selectedChain, getClient) => {
 };
 
 // all assets redeem
-export const redeemPoolItemMulti = async (wallets, getClient, market) => {
+export const redeemPoolItemMulti = async (
+  wallets: Wallet[],
+  getClient,
+  market: MarketMaker
+) => {
   const poolAssets = poolStore.poolItem.assets;
   const form = poolStore.poolForm;
 
@@ -452,7 +461,7 @@ export const redeemPoolItemMulti = async (wallets, getClient, market) => {
 export const redeemPoolItemSingle = async (
   wallets: Wallet[],
   getClient,
-  selectedChain
+  selectedChain: BriefChainInfo
 ) => {
   const wallet = wallets.find(
     (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
