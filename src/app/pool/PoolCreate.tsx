@@ -66,6 +66,7 @@ export default function PoolCreate() {
               <PoolChains type="native" />
               <PoolCoins type="native" />
               <input
+                type="number"
                 value={poolFormCreate?.native?.amount || ''}
                 onChange={(e) => {
                   poolStore.poolFormCreate.native.amount = e.target.value;
@@ -84,6 +85,7 @@ export default function PoolCreate() {
               <PoolChains type="remote" />
               <PoolCoins type="remote" />
               <input
+                type="number"
                 value={poolFormCreate?.remote?.amount || ''}
                 onChange={(e) => {
                   poolStore.poolFormCreate.remote.amount = e.target.value;

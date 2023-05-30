@@ -40,7 +40,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   } = useWalletStore();
   const { poolList } = usePoolStore();
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
-  const [otherList, setOtherList] = useState<Balance[]>([]);
   const fetchBalances = async () => {
     const balance = await getBalance(true);
     setAllBalances(balance);
@@ -84,23 +83,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     })?.counterpartis;
     setRemoteChainList(remote);
   };
-  const onChangeWeight = (value, side) => {
-    setPoolPair({
-      ...poolPair,
-      first: {
-        denom: poolPair.first.denom,
-        amount: poolPair.first.amount,
-        weight: side === 'first' ? value : (100 - parseInt(value)).toString(),
-        chain: poolPair.first.chain,
-      },
-      second: {
-        denom: poolPair.second.denom,
-        amount: poolPair.second.amount,
-        weight: side === 'first' ? (100 - parseInt(value)).toString() : value,
-        chain: poolPair.second.chain,
-      },
-    });
-  };
+ 
   const selectCoin = (side, value) => {
     setPoolPair({
       ...poolPair,
@@ -113,37 +96,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     });
   };
 
-  const suggestRemoteChain = (value) => {
-    setPoolPair({
-      ...poolPair,
-      second: {
-        denom: poolPair.second.denom,
-        amount: poolPair.second.amount,
-        weight: poolPair.second.weight,
-        chain: value,
-      },
-    });
-    const otherLists = allBalances?.filter((item) => {
-      if (item.id !== selectedChain.chainID) {
-        return item;
-      }
-    });
-    setOtherList(otherLists);
-    console.log(otherList, 'otherList');
-  };
 
-  const handleCoinUpdate = (type: 'first' | 'second', value: string) => {
-    setPoolPair((prevPoolPair) => ({
-      ...prevPoolPair,
-      [type]: {
-        denom: poolPair[type].denom,
-        amount: value,
-        chain: poolPair[type].chain,
-        weight: poolPair[type].weight,
-      },
-    }));
-  };
 
+  // old createPool
   const onCreatePool = async () => {
     setLoading(true);
     const wallet = wallets.find(
@@ -358,222 +313,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
           </div>
         </div>
       </div>
-
-      {/* TODO: dialog should not in loop */}
-      <input type="checkbox" id="modal-pool-create" className="modal-toggle" />
-      <label className="cursor-pointer modal" htmlFor="modal-pool-create">
-        <label className="relative modal-box" htmlFor="">
-          <div className="">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-bold">Create New Pool</div>
-              <label htmlFor="modal-pool-create" className="cursor-pointer">
-                <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
-              </label>
-            </div>
-            <div className="px-4 py-1 mb-3 rounded ">
-              {/*  ChainSelect*/}
-              <div className="p-2 mb-2 border">
-                <span className="mr-2">selectChain:</span>
-                <ul className="px-1 menu menu-horizontal ">
-                  <li tabIndex={0}>
-                    <a>
-                      <span>{selectedChain.name}</span>
-                      <MdKeyboardArrowDown className="fill-current" />
-                    </a>
-                    <ul className="z-10 p-2 bg-base-100">
-                      {AppConfig?.chains?.map((item, index) => {
-                        return (
-                          <li key={index}>
-                            <a onClick={() => suggestChain(item)}>
-                              {item?.name}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-              {/* CoinSelect */}
-              <div className="mb-2 border">
-                <span>selectCoin:</span>
-                <ul className="px-1 menu menu-horizontal ">
-                  <li tabIndex={0}>
-                    <a>
-                      <span>{poolPair.first?.denom}</span>
-                      <MdKeyboardArrowDown className="fill-current" />
-                    </a>
-                    <ul className="z-10 p-2 bg-base-100">
-                      {balanceList?.[0]?.balances?.map((item, index) => {
-                        if (!item.denom.includes('pool')) {
-                          return (
-                            <li key={index}>
-                              <a
-                                onClick={() => selectCoin('first', item?.denom)}
-                              >
-                                {item?.denom}
-                              </a>
-                            </li>
-                          );
-                        }
-                      })}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-              {/*amount  */}
-              <div className="flex mb-2 border">
-                <span>amount:</span>
-                <div>
-                  <CoinInput
-                    coin={{
-                      amount: poolPair.first.amount,
-                      denom: poolPair.first.denom,
-                    }}
-                    placeholder="Amount ..."
-                    onChange={(value) => handleCoinUpdate('first', value)}
-                  />
-                </div>
-              </div>
-              {/* weight */}
-              <div className="flex border">
-                <span>weight:</span>
-                <div>{poolPair.first.weight}</div>
-              </div>
-              <div>
-                <input
-                  type="range"
-                  min="20"
-                  max="80"
-                  value={poolPair.first.weight}
-                  className="range"
-                  step="10"
-                  onChange={(event) =>
-                    onChangeWeight(event.target.value, 'first')
-                  }
-                />
-                <div className="flex justify-between w-full px-2 text-xs">
-                  <span>20</span>
-                  <span>30</span>
-                  <span>40</span>
-                  <span>50</span>
-                  <span>60</span>
-                  <span>70</span>
-                  <span>80</span>
-                </div>
-              </div>
-            </div>
-            <div className="items-center px-4 py-1 border rounded">
-              {/*  ChainSelect*/}
-              <div className="p-2 mb-2 border">
-                <span className="mr-2">selectChain:</span>
-                <ul className="px-1 menu menu-horizontal ">
-                  <li tabIndex={0}>
-                    <a>
-                      <span>{poolPair.second.chain}</span>
-                      <MdKeyboardArrowDown className="fill-current" />
-                    </a>
-                    <ul className="z-10 p-2 bg-base-100">
-                      {remoteList?.map((item, index) => {
-                        return (
-                          <li key={index}>
-                            <a onClick={() => suggestRemoteChain(item?.name)}>
-                              {item?.name}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-              {/* CoinSelect */}
-              <div className="mb-2 border">
-                <span>selectCoin:</span>
-                <ul className="px-1 menu menu-horizontal ">
-                  <li tabIndex={0}>
-                    <a>
-                      <span>{poolPair.second?.denom}</span>
-                      <MdKeyboardArrowDown className="fill-current" />
-                    </a>
-                    <ul className="z-10 p-2 bg-base-100">
-                      {otherList?.[0]?.balances?.map((item, index) => {
-                        if (!item.denom.includes('pool')) {
-                          return (
-                            <li key={index}>
-                              <a
-                                onClick={() =>
-                                  selectCoin('second', item?.denom)
-                                }
-                              >
-                                {item?.denom}
-                              </a>
-                            </li>
-                          );
-                        }
-                      })}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-              {/*amount  */}
-              <div className="flex mb-2 border">
-                <span>amount:</span>
-                <div>
-                  <CoinInput
-                    coin={{
-                      amount: poolPair.second.amount,
-                      denom: poolPair.second.denom,
-                    }}
-                    placeholder="Amount ..."
-                    onChange={(value) => handleCoinUpdate('second', value)}
-                  />
-                </div>
-              </div>
-              {/* weight */}
-              <div className="flex border">
-                <span>weight:</span>
-                <div>{poolPair.second.weight}</div>
-              </div>
-              <div>
-                <input
-                  type="range"
-                  min="20"
-                  max="80"
-                  value={poolPair.second.weight}
-                  className="range"
-                  step="10"
-                  onChange={(event) =>
-                    onChangeWeight(event.target.value, 'second')
-                  }
-                />
-                <div className="flex justify-between w-full px-2 text-xs">
-                  <span>20</span>
-                  <span>30</span>
-                  <span>40</span>
-                  <span>50</span>
-                  <span>60</span>
-                  <span>70</span>
-                  <span>80</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                disabled={
-                  !Number(poolPair.second?.amount || 0) ||
-                  !Number(poolPair.first?.amount || 0)
-                }
-                className="w-full btn btn-primary"
-                onClick={onCreatePool}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </label>
-      </label>
 
       <PoolModal />
     </div>
