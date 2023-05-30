@@ -14,7 +14,7 @@ import {
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
-
+import { usePoolStore, poolStore, getPoolList } from '@/store/pool';
 import {
   MdList,
   MdSearch,
@@ -25,10 +25,9 @@ import {
 } from 'react-icons/md';
 
 interface PoolDetailsListProps {
-  pools: ILiquidityPool[];
 }
 
-const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
+const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   const {
     setLoading,
     wallets,
@@ -39,7 +38,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
     getBalance,
     setBalance,
   } = useWalletStore();
-
+  const { poolList } = usePoolStore();
   const [signers, setSigners] = useState<Wallet[]>([]);
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
   const [otherList, setOtherList] = useState<Balance[]>([]);
@@ -217,9 +216,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
   };
 
   const onEnablePool = async (pool: ILiquidityPool) => {
-    if(selectedChain.chainID === pool.creatorChainId) {
-      toast.error("Please select counter party chain")
-      return
+    if (selectedChain.chainID === pool.creatorChainId) {
+      toast.error('Please select counter party chain');
+      return;
     }
     //setLoading(true)
     await suggestChain(selectedChain);
@@ -232,18 +231,16 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
       (Date.now() + 60 * 1000) * 1000000
     ); // 1 hour from now
     try {
-  
       const client = await getClient(wallet!.chainInfo);
-      console.log("here", pool.assets.find(
-        (item) => item.side == "NATIVE"
-      )!.balance)
-    
+      console.log(
+        'here',
+        pool.assets.find((item) => item.side == 'NATIVE')!.balance
+      );
+
       const singleDepositMsg: MsgSingleAssetDepositRequest = {
         poolId: pool.poolId,
         sender: wallet!.address,
-        token: pool.assets.find(
-          (item) => item.side == "NATIVE"
-        )!.balance,
+        token: pool.assets.find((item) => item.side == 'NATIVE')!.balance,
         timeoutHeight: {
           revisionHeight: Long.fromInt(10),
           revisionNumber: Long.fromInt(10000000000),
@@ -256,7 +253,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
           '/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest',
         value: singleDepositMsg,
       };
-
 
       const fee: StdFee = {
         amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
@@ -330,7 +326,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = ({ pools }) => {
               </tr>
             </thead>
             <tbody>
-              {pools.map((pool, index) => (
+              {poolList.map((pool: any, index) => (
                 <PoolDetails
                   key={index}
                   pool={pool}
