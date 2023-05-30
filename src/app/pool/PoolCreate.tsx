@@ -7,26 +7,24 @@ import {
   postPoolCreate,
   CounterPartyType,
 } from '@/store/pool';
-import { useAssetsStore } from '@/store/assets';
+import {
+  useAssetsStore,
+  getBalanceList,
+  setRemoteBalanceList,
+} from '@/store/assets';
 import { BriefChainInfo } from '@/shared/types/chain';
 import useWalletStore, { Wallet } from '@/store/wallet';
 
 import PoolChains from './PoolChains';
 import PoolCoins from './PoolCoins';
-import event from 'next-seo/lib/jsonld/event';
+import { AppConfig } from '@/utils/AppConfig';
 
 function PoolCreate() {
   const { chainList } = useChainStore();
   const { poolFormCreate } = usePoolStore();
   const { balanceList, remoteBalanceList } = useAssetsStore();
   const { wallets, getClient, selectedChain } = useWalletStore();
-  console.log(
-    balanceList,
-    remoteBalanceList,
-    'balanceList, remoteBalanceList '
-  );
   useEffect(() => {
-    console.log(8888)
     const chainNative = chainList[0] as BriefChainInfo;
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');
@@ -40,6 +38,16 @@ function PoolCreate() {
     poolStore.poolFormCreate.remote.chain = chainRemote;
     fetchChainCoinList(chainRemote?.restUrl as string, 'Remote');
   }, []);
+  useEffect(() => {
+    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+    const otherChain = AppConfig?.chains?.find((item) => {
+      if (item.restUrl !== selectedChain?.restUrl) {
+        return item;
+      }
+    });
+    console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
+    setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
+  }, [selectedChain, wallets]);
 
   const confirmCreatePool = () => {
     let currentWallet = {} as Wallet;
