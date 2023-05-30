@@ -39,6 +39,7 @@ type Store = {
     signleAmount: string;
     remoteAmount: string;
     nativeAmount: string;
+    modalShow: boolean;
   };
   poolFormCreate: {
     native: {
@@ -56,6 +57,10 @@ type Store = {
     counterParty: CounterPartyType;
     memo: string;
     gas: string;
+    modalShow: boolean;
+  };
+  poolPagination: {
+    total: string;
   };
 };
 
@@ -68,6 +73,7 @@ export const poolStore = proxy<Store>({
     signleAmount: '',
     remoteAmount: '',
     nativeAmount: '',
+    modalShow: false,
   },
   poolFormCreate: {
     native: {
@@ -91,6 +97,10 @@ export const poolStore = proxy<Store>({
     },
     memo: '',
     gas: '200000',
+    modalShow: false,
+  },
+  poolPagination: {
+    total: '0',
   },
 });
 
@@ -98,9 +108,11 @@ export const usePoolStore = () => {
   return useSnapshot(poolStore);
 };
 
-export const getPoolList = async () => {
-  const res = await fetchLiquidityPools('');
-  poolStore.poolList = res.interchainLiquidityPool;
+export const getPoolList = async (restUrl: string) => {
+  const res = await fetchLiquidityPools(restUrl);
+  const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
+  poolStore.poolList = interchainLiquidityPool || [];
+  poolStore.poolPagination = pagination || { total: '0' };
 };
 
 // all assets add
@@ -261,7 +273,11 @@ export const addPoolItemMulti = async (
 };
 
 // single asset add
-export const addPoolItemSingle = async (wallets, selectedChain, getClient) => {
+export const addPoolItemSingle = async (
+  wallets: Wallet[],
+  selectedChain: BriefChainInfo,
+  getClient
+) => {
   const selectedCoin = poolStore?.poolForm?.single;
   const denom = selectedCoin?.balance?.denom;
   const wallet = wallets.find(
@@ -328,7 +344,11 @@ export const addPoolItemSingle = async (wallets, selectedChain, getClient) => {
 };
 
 // all assets redeem
-export const redeemPoolItemMulti = async (wallets, getClient, market) => {
+export const redeemPoolItemMulti = async (
+  wallets: Wallet[],
+  getClient,
+  market: MarketMaker
+) => {
   const poolAssets = poolStore.poolItem.assets;
   const form = poolStore.poolForm;
 
@@ -452,7 +472,7 @@ export const redeemPoolItemMulti = async (wallets, getClient, market) => {
 export const redeemPoolItemSingle = async (
   wallets: Wallet[],
   getClient,
-  selectedChain
+  selectedChain: BriefChainInfo
 ) => {
   const wallet = wallets.find(
     (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
@@ -556,6 +576,7 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
+      // sourceChannel: 'channel-0',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,
       tokens: [nativeToken, remoteToken],

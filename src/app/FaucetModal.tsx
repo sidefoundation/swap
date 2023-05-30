@@ -8,7 +8,7 @@ import {
   rechargeCoins,
 } from '@/store/chain';
 import { Coin } from '@cosmjs/stargate';
-export default function FaucetModal() {
+function FaucetModal() {
   const {
     chainCoinListNative,
     chainFaucetCoin,
@@ -30,9 +30,19 @@ export default function FaucetModal() {
   }, [chainCoinListNative, chainFaucetCoin]);
   return (
     <div>
-      <input type="checkbox" id="modal-faucet-modal" className="modal-toggle" />
-      <label htmlFor="modal-faucet-modal" className="modal cursor-pointer">
-        <label className="modal-box " htmlFor="">
+      <div
+        className="modal cursor-pointer pointer-events-auto opacity-100 visible"
+        onClick={() => {
+          chainStore.showFaucetModal = false;
+        }}
+      >
+        <div
+          className="modal-box cursor-default "
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-medium">
@@ -41,7 +51,13 @@ export default function FaucetModal() {
                   {selectedChain.name}
                 </span>
               </h3>
-              <label htmlFor="modal-faucet-modal" className="cursor-pointer">
+              <label
+                htmlFor="modal-faucet-modal"
+                className="cursor-pointer"
+                onClick={() => {
+                  chainStore.showFaucetModal = false;
+                }}
+              >
                 <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
               </label>
             </div>
@@ -95,8 +111,16 @@ export default function FaucetModal() {
               </button>
             </div>
           </div>
-        </label>
-      </label>
+        </div>
+      </div>
     </div>
   );
+}
+
+export default function ChainFaucetModal() {
+  const { showFaucetModal } = useChainStore();
+  if (!showFaucetModal) {
+    return null;
+  }
+  return <FaucetModal />;
 }

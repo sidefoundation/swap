@@ -6,6 +6,7 @@ import useWalletStore from '@/store/wallet';
 import ThemeToggle from './NavTheme';
 import ToggleChain from './NavChain';
 import FaucetModal from './FaucetModal';
+import { chainStore } from '@/store/chain';
 
 function Nav() {
   const {
@@ -123,13 +124,14 @@ function Nav() {
             <ToggleChain />
 
             {connected && (
-              <label
-                htmlFor="modal-faucet-modal"
+              <div
                 className="truncate btn-primary btn"
-                onClick={() => {}}
+                onClick={() => {
+                  chainStore.showFaucetModal = true;
+                }}
               >
                 Faucet
-              </label>
+              </div>
             )}
 
             {!connected ? (

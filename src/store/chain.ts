@@ -5,11 +5,9 @@ import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import chargeCoins from '@/http/requests/post/chargeCoins';
 import { getBalanceList } from '@/store/assets';
 import { BriefChainInfo } from '../shared/types/chain';
+import { Wallet } from '@/shared/types/wallet';
 import { AppConfig } from '../utils/AppConfig';
-export interface Wallet {
-  address: string;
-  chainInfo: BriefChainInfo;
-}
+
 type Store = {
   chainList: BriefChainInfo[];
   chainCurrent: BriefChainInfo;
@@ -18,6 +16,7 @@ type Store = {
   chainFaucetCoin: Coin;
   chainFaucetAmount: string;
   chainFaucetLoading: boolean;
+  showFaucetModal: boolean;
 };
 
 export const chainStore = proxy<Store>({
@@ -73,5 +72,5 @@ export const rechargeCoins = async (
 
   getBalanceList(selectedChain?.restUrl, currentWallets?.address as string);
   chainStore.chainFaucetLoading = false;
-  (document as any).getElementById('modal-faucet-modal').checked = false;
+  chainStore.showFaucetModal = false;
 };

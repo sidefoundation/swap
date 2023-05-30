@@ -1,10 +1,10 @@
 'use client';
 
 import useWalletStore from '@/store/wallet';
-import toast from 'react-hot-toast';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
-
+import { Wallet } from '@/shared/types/wallet';
+import toast from 'react-hot-toast';
 import {
   MsgSwapRequest,
   SwapMsgType,
@@ -49,7 +49,6 @@ const Swap = () => {
   const [swapPair, setSwapPair] = useState<{
     first: Coin;
     second: Coin;
-    type: string;
   }>({
     first: {
       denom: '',
@@ -59,7 +58,6 @@ const Swap = () => {
       denom: '',
       amount: '0',
     },
-    type: 'swap',
   });
 
   useEffect(() => {
@@ -94,14 +92,13 @@ const Swap = () => {
     }));
   };
 
-  const onSwap = async (direction: '->' | '<-') => {
+  const onSwap = async () => {
     setLoading(true);
-    const wallet = wallets.find((item)=>{
-      if (item.chainInfo?.chainID=== selectedChain.chainID){
-        return item
+    const wallet = wallets.find((item: Wallet) => {
+      if (item.chainInfo?.chainID === selectedChain.chainID) {
+        return item;
       }
-    })
-    // direction === '->' ? wallets[0] : wallets[1];
+    });
     const client = await getClient(wallet!.chainInfo);
     const timeoutTimeStamp = Long.fromNumber(
       (Date.now() + 60 * 1000) * 1000000
@@ -121,7 +118,7 @@ const Swap = () => {
         },
         timeoutTimeStamp: timeoutTimeStamp,
       };
-      console.log(swapMsg, 'swapMsg')
+      console.log(swapMsg, 'swapMsg');
       const msg = {
         typeUrl: '/ibc.applications.interchain_swap.v1.MsgSwapRequest',
         value: swapMsg,

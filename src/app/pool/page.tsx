@@ -1,33 +1,30 @@
 'use client';
 
 import useWalletStore from '@/store/wallet';
-import { ILiquidityPool } from '@/shared/types/liquidity';
-import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
-import React, { useEffect, useState } from 'react';
+import { getPoolList } from '@/store/pool';
+import React, { useEffect } from 'react';
 import PoolDetailsList from './PoolDetailsList';
 import PoolCreate from './PoolCreate';
 
 export default function Pool() {
   const { selectedChain } = useWalletStore();
-  const [pools, setPools] = useState<ILiquidityPool[]>([]);
-  const getPools = (pools: ILiquidityPool[]) => setPools(pools);
-  const { refetch } = useGetLiquidityPools({
-    restUrl: selectedChain.restUrl,
-    onSuccess: getPools,
-  });
+
+  // useEffect(() => {
+  //   getCurrentPoolList();
+  // }, []);
 
   useEffect(() => {
-    refetch();
-  }, []);
-
-  useEffect(() => {
-    refetch();
+    getCurrentPoolList();
   }, [selectedChain]);
 
+  const getCurrentPoolList = () => {
+    if (selectedChain?.restUrl) {
+      getPoolList(selectedChain?.restUrl);
+    }
+  };
   return (
     <div className="container mx-auto">
-      <PoolDetailsList pools={pools} />
-
+      <PoolDetailsList />
       <PoolCreate />
     </div>
   );
