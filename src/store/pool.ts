@@ -56,6 +56,7 @@ type Store = {
     counterParty: CounterPartyType;
     memo: string;
     gas: string;
+    modalShow: boolean;
   };
   poolPagination: {
     total: string;
@@ -94,6 +95,7 @@ export const poolStore = proxy<Store>({
     },
     memo: '',
     gas: '200000',
+    modalShow: false,
   },
   poolPagination: {
     total: '0',
@@ -107,7 +109,6 @@ export const usePoolStore = () => {
 export const getPoolList = async (restUrl: string) => {
   const res = await fetchLiquidityPools(restUrl);
   const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
-  console.log(res, 'r888es');
   poolStore.poolList = interchainLiquidityPool || [];
   poolStore.poolPagination = pagination || { total: '0' };
 };

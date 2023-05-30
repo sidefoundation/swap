@@ -34,12 +34,7 @@ export default function PoolModal() {
   for (const item of remoteBalanceList) {
     balanceRemoteMap[item.denom] = item?.amount;
   }
-  const [allBalance, setAllBalanc] = useState([]);
-  const { wallets, getClient, selectedChain, getBalance } = useWalletStore();
-  const fetchBalances = async () => {
-    const balance = await getBalance(true);
-    setAllBalanc(balance);
-  };
+  const { wallets, getClient, selectedChain } = useWalletStore();
   useEffect(() => {
     getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
     const otherChain = AppConfig?.chains?.find((item) => {
@@ -49,7 +44,6 @@ export default function PoolModal() {
     });
     console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
     setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
-    // fetchBalances()
   }, [selectedChain, wallets]);
 
   const confirmAdd = () => {

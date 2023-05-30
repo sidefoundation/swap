@@ -25,14 +25,13 @@ export type PoolDetailsProps = {
   onEnablePool: (pool: ILiquidityPool) => void;
 };
 
-export default function PoolDetails({ keyIndex, pool, onEnablePool }: PoolDetailsProps) {
-  const {
-    wallets,
-    getClient,
-    setLoading,
-    setBalance,
-    getBalance,
-  } = useWalletStore();
+export default function PoolDetails({
+  keyIndex,
+  pool,
+  onEnablePool,
+}: PoolDetailsProps) {
+  const { wallets, getClient, setLoading, setBalance, getBalance } =
+    useWalletStore();
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const market = new MarketMaker(pool, 300);
   const fetchBalances = async () => {
@@ -104,7 +103,7 @@ export default function PoolDetails({ keyIndex, pool, onEnablePool }: PoolDetail
     }
     setLoading(false);
   };
-  
+
   const onDoubleDeposit = async (localDenom: string, remoteDenom: string) => {
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.denom === localDenom
@@ -416,8 +415,10 @@ export default function PoolDetails({ keyIndex, pool, onEnablePool }: PoolDetail
                 {pool?.assets?.[0]?.weight}:{pool?.assets?.[1]?.weight}
               </div>
             </div>
+            {/* <div className="tooltip" data-tip={pool?.poolId}> */}
             <div className="text-sm opacity-50 truncate w-[200px]">
               {pool.poolId}
+              {/* </div> */}
             </div>
           </div>
         </div>
@@ -492,7 +493,7 @@ export default function PoolDetails({ keyIndex, pool, onEnablePool }: PoolDetail
         />
         <label className="modal cursor-pointer" htmlFor="modal-pool-manage">
           <label className="modal-box relative max-w-modal w-full" htmlFor="">
-            <div className="w-full max-w-modal overflow-auto">            
+            <div className="w-full max-w-modal overflow-auto">
               <div className="grid justify-between w-full gap-4 mt-6">
                 {pool.status === 'POOL_STATUS_READY' && (
                   <div className="flex justify-between gap-4">

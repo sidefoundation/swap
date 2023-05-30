@@ -15,14 +15,9 @@ import {
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
 import { usePoolStore, poolStore, getPoolList } from '@/store/pool';
-import {
-  MdList,
-  MdSearch,
-  MdAddToQueue,
-} from 'react-icons/md';
+import { MdList, MdSearch, MdAddToQueue } from 'react-icons/md';
 
-interface PoolDetailsListProps {
-}
+interface PoolDetailsListProps {}
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   const {
@@ -35,7 +30,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     getBalance,
     setBalance,
   } = useWalletStore();
-  const { poolList } = usePoolStore();
+  const { poolList, poolFormCreate } = usePoolStore();
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
   const fetchBalances = async () => {
     const balance = await getBalance(true);
@@ -77,7 +72,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
       }
     })?.counterpartis;
   };
- 
+
   const selectCoin = (side, value) => {
     setPoolPair({
       ...poolPair,
@@ -89,8 +84,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
       },
     });
   };
-
-
 
   // old createPool
   const onCreatePool = async () => {
@@ -232,7 +225,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
 
       <div className=" mt-5 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
         {/* search filter */}
-        <PoolSearch/>
+        <PoolSearch />
         {/* list */}
         <div className="mb-5 overflow-x-auto border rounded-lg dark:border-none">
           <table className="table w-full">
@@ -263,7 +256,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
         {/* pagination */}
         <PoolPagination />
       </div>
-
       <PoolModal />
     </div>
   );
