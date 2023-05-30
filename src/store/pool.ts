@@ -39,6 +39,7 @@ type Store = {
     signleAmount: string;
     remoteAmount: string;
     nativeAmount: string;
+    modalShow: boolean;
   };
   poolFormCreate: {
     native: {
@@ -72,6 +73,7 @@ export const poolStore = proxy<Store>({
     signleAmount: '',
     remoteAmount: '',
     nativeAmount: '',
+    modalShow: false,
   },
   poolFormCreate: {
     native: {

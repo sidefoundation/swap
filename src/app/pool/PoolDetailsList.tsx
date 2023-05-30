@@ -30,7 +30,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     getBalance,
     setBalance,
   } = useWalletStore();
-  const { poolList, poolFormCreate } = usePoolStore();
+  const { poolList, poolFormCreate, } = usePoolStore();
   const [allBalances, setAllBalances] = useState<Balance[]>([]);
   const fetchBalances = async () => {
     const balance = await getBalance(true);

@@ -458,26 +458,26 @@ export default function PoolDetails({
       </td>
 
       <td>
-        <label
-          htmlFor="modal-pool-modal"
+        <div
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
           onClick={() => {
+            poolStore.poolForm.modalShow = true;
             poolStore.poolForm.action = 'add';
             poolStore.poolItem = pool;
           }}
         >
           Add
-        </label>
-        <label
-          htmlFor="modal-pool-modal"
+        </div>
+        <div
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
           onClick={() => {
+            poolStore.poolForm.modalShow = true;
             poolStore.poolForm.action = 'redeem';
             poolStore.poolItem = pool;
           }}
         >
           Redeem
-        </label>
+        </div>
 
         <label
           htmlFor="modal-pool-manage"

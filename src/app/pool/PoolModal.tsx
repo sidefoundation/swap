@@ -18,7 +18,7 @@ import {
 } from '@/store/pool';
 import TabItem from '@/components/TabItem';
 
-export default function PoolModal() {
+function PoolModal() {
   const [tab, setTab] = React.useState('all');
   const { poolItem, poolForm } = usePoolStore();
   const poolAsset1 = poolItem?.assets?.[0];
@@ -35,6 +35,7 @@ export default function PoolModal() {
     balanceRemoteMap[item.denom] = item?.amount;
   }
   const { wallets, getClient, selectedChain } = useWalletStore();
+  useEffect(() => {});
   useEffect(() => {
     getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
     const otherChain = AppConfig?.chains?.find((item) => {
@@ -49,7 +50,7 @@ export default function PoolModal() {
   const confirmAdd = () => {
     if (poolForm?.action === 'add' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
-      addPoolItemMulti(wallets,selectedChain,market, getClient);
+      addPoolItemMulti(wallets, selectedChain, market, getClient);
     }
     if (poolForm?.action === 'add' && tab === 'single') {
       addPoolItemSingle(wallets, selectedChain, getClient);
@@ -65,9 +66,19 @@ export default function PoolModal() {
 
   return (
     <div>
-      <input type="checkbox" id="modal-pool-modal" className="modal-toggle" />
-      <label htmlFor="modal-pool-modal" className="cursor-pointer modal">
-        <label className="relative modal-box" htmlFor="">
+      <div
+        className="cursor-pointer modal pointer-events-auto opacity-100 visible"
+        onClick={() => {
+          poolStore.poolForm.modalShow = false;
+        }}
+      >
+        <div
+          className="relative modal-box cursor-default"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="text-lg font-bold">
               <span className="capitalize ">{poolForm?.action}</span> liquidity
@@ -79,7 +90,13 @@ export default function PoolModal() {
                   poolItem?.poolId?.length
                 )}
             </div>
-            <label htmlFor="modal-pool-modal" className="cursor-pointer">
+            <label
+              htmlFor="modal-pool-modal"
+              className="cursor-pointer"
+              onClick={() => {
+                poolStore.poolForm.modalShow = false;
+              }}
+            >
               <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
             </label>
           </div>
@@ -281,8 +298,16 @@ export default function PoolModal() {
               Confirm
             </button>
           </div>
-        </label>
-      </label>
+        </div>
+      </div>
     </div>
   );
+}
+
+export default function PoolEditModal() {
+  const { poolForm } = usePoolStore();
+  if (!poolForm.modalShow) {
+    return null;
+  }
+  return <PoolModal />;
 }

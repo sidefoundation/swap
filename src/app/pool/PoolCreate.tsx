@@ -26,7 +26,6 @@ function PoolCreate() {
     'balanceList, remoteBalanceList '
   );
   useEffect(() => {
-    console.log(444);
     const chainNative = chainList[0] as BriefChainInfo;
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');
@@ -71,7 +70,6 @@ function PoolCreate() {
             htmlFor="modal-create-pool"
             className="cursor-pointer"
             onClick={() => {
-              console.log(9999787);
               poolStore.poolFormCreate.modalShow = false;
             }}
           >
