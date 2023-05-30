@@ -6,6 +6,7 @@ import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
 import PoolPagination from './PoolPagination';
+import PoolSearch from './PoolSearch';
 import toast from 'react-hot-toast';
 import {
   MsgCreatePoolRequest,
@@ -17,8 +18,6 @@ import { usePoolStore, poolStore, getPoolList } from '@/store/pool';
 import {
   MdList,
   MdSearch,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
   MdAddToQueue,
 } from 'react-icons/md';
 
@@ -233,29 +232,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
 
       <div className=" mt-5 overflow-x-auto bg-base-100 p-8 rounded-lg min-h-[400px] mb-10">
         {/* search filter */}
-        <div className="flex w-full mb-5">
-          <div className="relative flex-1 w-full">
-            <MdSearch className="absolute top-1/2 -translate-y-[50%] left-2 text-2xl text-gray-300 dark:text-gray-400" />
-            <input
-              className="flex-1 w-full pl-10 input input-bordered"
-              placeholder="Search token name"
-              onChange={() => {}}
-            />
-          </div>
-
-          <div className="ml-4">
-            <button className="mr-2 text-2xl btn">
-              <MdList />
-            </button>
-
-            <label
-              htmlFor="modal-create-pool"
-              className="text-2xl btn btn-primary"
-            >
-              <MdAddToQueue />
-            </label>
-          </div>
-        </div>
+        <PoolSearch/>
         {/* list */}
         <div className="mb-5 overflow-x-auto border rounded-lg dark:border-none">
           <table className="table w-full">
