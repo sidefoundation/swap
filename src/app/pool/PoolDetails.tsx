@@ -480,7 +480,7 @@ export default function PoolDetails({ keyIndex, pool, onEnablePool }: PoolDetail
 
         <label
           htmlFor="modal-pool-manage"
-          className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn"
+          className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn !hidden"
         >
           Add liquidity
         </label>

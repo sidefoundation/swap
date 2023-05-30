@@ -57,6 +57,9 @@ type Store = {
     memo: string;
     gas: string;
   };
+  poolPagination: {
+    total: string;
+  };
 };
 
 export const poolStore = proxy<Store>({
@@ -92,6 +95,9 @@ export const poolStore = proxy<Store>({
     memo: '',
     gas: '200000',
   },
+  poolPagination: {
+    total: '0',
+  },
 });
 
 export const usePoolStore = () => {
@@ -100,8 +106,10 @@ export const usePoolStore = () => {
 
 export const getPoolList = async (restUrl: string) => {
   const res = await fetchLiquidityPools(restUrl);
+  const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
   console.log(res, 'r888es');
-  poolStore.poolList = res.interchainLiquidityPool || [];
+  poolStore.poolList = interchainLiquidityPool || [];
+  poolStore.poolPagination = pagination || { total: '0' };
 };
 
 // all assets add

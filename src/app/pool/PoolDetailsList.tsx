@@ -1,13 +1,11 @@
 // PoolDetailsList.tsx
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
-import { CoinInput } from '@/components/CoinInput';
 import useWalletStore, { Wallet, Balance } from '@/store/wallet';
 import { AppConfig } from '@/utils/AppConfig';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
 import toast from 'react-hot-toast';
-import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   MsgCreatePoolRequest,
   MsgSingleAssetDepositRequest,
@@ -21,7 +19,6 @@ import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
   MdAddToQueue,
-  MdOutlineClose,
 } from 'react-icons/md';
 
 interface PoolDetailsListProps {
@@ -73,15 +70,12 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
     first: { denom: '', amount: '0', weight: '50', chain: '' },
     second: { denom: '', amount: '0', weight: '50', chain: '' },
   });
-  const [remoteList, setRemoteChainList] = useState([]);
-
   const getRemoteChainList = () => {
     const remote = AppConfig.chains.find((chain) => {
       if (chain.chainID === selectedChain.chainID) {
         return chain;
       }
     })?.counterpartis;
-    setRemoteChainList(remote);
   };
  
   const selectCoin = (side, value) => {

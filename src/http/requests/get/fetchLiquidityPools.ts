@@ -5,6 +5,7 @@ import type { ILiquidityPool } from '@/shared/types/liquidity';
 
 interface FetchLiquidityResponse extends ResponseMessage {
   interchainLiquidityPool: ILiquidityPool[];
+  pagination: { total: string };
 }
 
 const fetchLiquidityPools = async (restUrl: string) => {
