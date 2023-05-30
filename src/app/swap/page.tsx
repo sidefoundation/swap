@@ -1,10 +1,10 @@
 'use client';
 
-import useWalletStore, { Wallet } from '@/store/wallet';
-import toast from 'react-hot-toast';
+import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import React, { useEffect, useState } from 'react';
-
+import { Wallet } from '@/shared/types/wallet';
+import toast from 'react-hot-toast';
 import {
   MsgSwapRequest,
   SwapMsgType,
@@ -49,7 +49,6 @@ const Swap = () => {
   const [swapPair, setSwapPair] = useState<{
     first: Coin;
     second: Coin;
-    type: string;
   }>({
     first: {
       denom: '',
@@ -59,7 +58,6 @@ const Swap = () => {
       denom: '',
       amount: '0',
     },
-    type: 'swap',
   });
 
   useEffect(() => {

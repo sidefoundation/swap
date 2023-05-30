@@ -12,11 +12,12 @@ import {
 import { useGetBalances } from '@/http/query/useGetBalances';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
+// import { useChainStore, getPoolList } from '@/store/pool';
 
 interface SwapControlsProps {
   pools: ILiquidityPool[];
-  swapPair: { first: Coin; second: Coin; type: string };
-  setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
+  swapPair: { first: Coin; second: Coin };
+  setSwapPair: (value: { first: Coin; second: Coin }) => void;
   updateFirstCoin: (value: string) => void;
   updateSecondCoin: (value: string) => void;
   onSwap: () => Promise<void>;
@@ -62,7 +63,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     onSuccess: onSuccess,
   });
   useEffect(() => {
+    // getPoolList(selectedChain?.restUrl)
     refetch();
+    
   }, []);
   useEffect(() => {
     if (pools.length > 0) {

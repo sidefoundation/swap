@@ -1,8 +1,18 @@
 import { proxy, useSnapshot } from 'valtio';
+import { Coin } from '@cosmjs/stargate';
+type Store = {
+  swapPair: {
+    native: Coin;
+    remote: Coin;
+  };
+};
 
-type Store = {};
-
-export const swapStore = proxy<Store>({});
+export const swapStore = proxy<Store>({
+  swapPair: {
+    native: { amount: '0', denom: '' } as Coin,
+    remote: { amount: '0', denom: '' } as Coin,
+  },
+});
 
 export const useSwapStore = () => {
   return useSnapshot(swapStore);
