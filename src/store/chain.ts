@@ -5,11 +5,9 @@ import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import chargeCoins from '@/http/requests/post/chargeCoins';
 import { getBalanceList } from '@/store/assets';
 import { BriefChainInfo } from '../shared/types/chain';
+import { Wallet } from '@/shared/types/wallet';
 import { AppConfig } from '../utils/AppConfig';
-export interface Wallet {
-  address: string;
-  chainInfo: BriefChainInfo;
-}
+
 type Store = {
   chainList: BriefChainInfo[];
   chainCurrent: BriefChainInfo;
