@@ -570,9 +570,9 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: deposit.denom,
-      // denomOut: 'aside'
+      denomOut: poolStore.poolForm.single?.balance?.denom
     };
+    console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom')
 
     const msg = {
       typeUrl:
