@@ -21,13 +21,30 @@ const fetchChannels = async (restUrl: string) => {
 };
 export default fetchChannels;
 
-export const fetchEscrowAddress = async (
+export const fetchAtomicEscrowAddress = async (
   restUrl: string,
   channelId: string,
   portId: string
 ) => {
   const { data } = await axios.get(
     `/ibc/apps/atomicswap/v1/channels/${channelId}/ports/${portId}/escrow_address`,
+    {
+      headers: {
+        apiurl: restUrl,
+      },
+    }
+  );
+
+  return data;
+};
+
+export const fetchInterchainEscrowAddress = async (
+  restUrl: string,
+  channelId: string,
+  portId: string
+) => {
+  const { data } = await axios.get(
+    `/ibc/apps/interchainswap/v1/channels//${channelId}/ports/${portId}/escrow_address`,
     {
       headers: {
         apiurl: restUrl,

@@ -273,12 +273,12 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       makerReceivingAddress: makerReceivingAddress,
       desiredTaker: desiredTaker,
       createTimestamp: Long.fromNumber(currentTimestamp),
+      expirationTimestamp: Long.fromInt(expirationTimestamp),
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimestamp: timeoutTimeStamp,
-      expirationTimestamp: Long.fromInt(expirationTimestamp),
     };
 
     const msg = {
@@ -330,7 +330,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             <div className="flex items-center mb-2">
               <div className="flex-1">
                 Sell
-                <span className="text-sm ml-1">({selectedChain?.name})</span>
+                <span className="ml-1 text-sm">({selectedChain?.name})</span>
               </div>
               <div className="mr-2">
                 Balance: {filterBalance(swapPair.first?.denom)}
@@ -347,19 +347,19 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
             <div className="flex items-center mb-2">
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-                <ul className="menu menu-horizontal px-1 w-full">
+                <ul className="w-full px-1 menu menu-horizontal">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full truncate text-sm">
+                    <a className="w-full text-sm truncate">
                       {firstSwapList?.length === 0
                         ? 'loading...'
                         : swapPair.first?.denom}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10 w-full">
+                    <ul className="z-10 w-full p-2 bg-base-100">
                       {firstSwapList.map((item, index) => {
                         if (!item?.denom?.includes('pool')) {
                           return (
-                            <li key={index} className="truncate w-full">
+                            <li key={index} className="w-full truncate">
                               <a onClick={() => setSelectFirst(item)}>
                                 <span className="flex-1 font-semibold text-center capitalize">
                                   {item?.denom}
@@ -376,7 +376,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
               <input
                 type="number"
-                className="text-right h-10 flex-1 w-0 bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
+                className="flex-1 w-0 h-10 text-2xl font-semibold text-right bg-transparent focus-within:outline-none placeholder:font-normal placeholder:text-sm"
                 placeholder="Amount"
                 onChange={(event) => updataFirstCoinLimit(event.target.value)}
                 value={swapPair.first.amount}
@@ -386,14 +386,14 @@ const LimitControls: React.FC<SwapControlsProps> = ({
           </div>
           {/* switch icon */}
           <div className="flex items-center justify-center -mt-5 -mb-5">
-            <div className="bg-white dark:bg-gray-700 rounded-full shadow w-14 h-14 flex items-center justify-center">
+            <div className="flex items-center justify-center bg-white rounded-full shadow dark:bg-gray-700 w-14 h-14">
               <MdArrowDownward className="w-8 h-8 text-gray-700 dark:text-gray-300" />
             </div>
           </div>
           {/* second */}
           <div className="p-5 rounded-lg bg-base-200">
             <div className="flex items-center mb-2">
-              <div className="flex-1 flex">
+              <div className="flex flex-1">
                 <span>Buy</span>
                 {/* <span>({currentAtomicSwap?.chain})</span> */}
               </div>
@@ -414,16 +414,16 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               <div className=" mr-4  w-[100px]">
                 <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[100px]">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full truncate text-sm">
+                    <a className="w-full text-sm truncate">
                       {currentAtomicSwap?.counterparties?.length === 0
                         ? 'loading...'
                         : selectedChannel?.name}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10 w-full">
+                    <ul className="z-10 w-full p-2 bg-base-100">
                       {currentAtomicSwap?.counterparties?.map((item, index) => {
                         return (
-                          <li key={index} className="truncate w-full">
+                          <li key={index} className="w-full truncate">
                             <a onClick={() => setSelectChannel(item)}>
                               <span className="flex-1 text-sm text-center capitalize">
                                 {item?.name}
@@ -440,18 +440,18 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <ul className="menu menu-horizontal px-1 w-[100px] ">
                   <li tabIndex={0} className="w-full rounded-full">
                     <a className="w-full ">
-                      <span className="truncate capitalize text-sm">
+                      <span className="text-sm capitalize truncate">
                         {secondSwapList?.length === 0
                           ? 'loading...'
                           : swapPair.second?.denom}
                       </span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
-                    <ul className="p-2 bg-base-100 z-10 w-full">
+                    <ul className="z-10 w-full p-2 bg-base-100">
                       {secondSwapList?.map((item, index) => {
                         if (!item?.denom?.includes('pool')) {
                           return (
-                            <li key={index} className="truncate w-full">
+                            <li key={index} className="w-full truncate">
                               <a onClick={() => setSelectSecond(item)}>
                                 <span className="flex-1 font-semibold text-center capitalize">
                                   {item?.denom}
@@ -467,7 +467,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               </div>
               <input
                 type="number"
-                className="text-right h-10 w-full bg-transparent text-2xl focus-within:outline-none placeholder:font-normal placeholder:text-sm font-semibold"
+                className="w-full h-10 text-2xl font-semibold text-right bg-transparent focus-within:outline-none placeholder:font-normal placeholder:text-sm"
                 placeholder="Amount"
                 onChange={(event) => updataSecondCoinLimit(event.target.value)}
                 value={swapPair.second.amount}
@@ -482,7 +482,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <div className="truncate">
                   Sell {swapPair.first.denom} at rate
                 </div>
-                <div className="font-semibold hidden">Set to maket</div>
+                <div className="hidden font-semibold">Set to maket</div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="text-2xl font-semibold">{limitRate}</div>
@@ -503,10 +503,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               </div>
             </div>
             <div className="flex items-center mt-4">
-              <div className="flex-1 px-5 pt-3 pb-2  rounded-lg bg-base-200">
+              <div className="flex-1 px-5 pt-3 pb-2 rounded-lg bg-base-200">
                 <div className="mb-1 text-sm">makerReceivingAddress</div>
                 <input
-                  className="h-10 w-full text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
+                  className="w-full h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
                   placeholder="NONE"
                   value={makerReceivingAddress}
                   onChange={(event) =>
@@ -530,7 +530,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
                 <div className="flex items-center">
                   <input
-                    className="w-full text-right  focus-within:outline-none bg-transparent h-10 text-xl placeholder:text-sm placeholder:font-normal"
+                    className="w-full h-10 text-xl text-right bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
                     placeholder="12"
                     type="number"
                     step="1"
@@ -541,7 +541,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   />
                   {/* <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                     <select
-                      className="select w-full max-w-xs select-sm"
+                      className="w-full max-w-xs select select-sm"
                       onChange={(e) => setselectedTime(e.target.value)}
                       value={selectedTime}
                     >
@@ -557,7 +557,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 </div>
                 <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                   <select
-                    className="select w-full max-w-xs select-sm"
+                    className="w-full max-w-xs select select-sm"
                     onChange={(e) => setselectedTime(e.target.value)}
                     value={selectedTime}
                   >
