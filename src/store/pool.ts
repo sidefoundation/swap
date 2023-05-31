@@ -349,10 +349,6 @@ export const addPoolItemSingle = async (
     (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
   );
   console.log(wallet, 'wallet', selectedChain);
-  if (wallet.chainInfo.denom !== selectedCoin?.balance.denom) {
-    console.log('no wallet');
-    return;
-  }
 
   const deposit = {
     denom,
@@ -570,9 +566,9 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: poolStore.poolForm.single?.balance?.denom
+      denomOut: poolStore.poolForm.single?.balance?.denom,
     };
-    console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom')
+    console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom');
 
     const msg = {
       typeUrl:
