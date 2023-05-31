@@ -2,6 +2,17 @@ import { proxy, useSnapshot } from 'valtio';
 import { Coin } from '@cosmjs/stargate';
 import { getPoolId, MarketMaker } from '@/utils/swap';
 import { ILiquidityPool } from '@/shared/types/liquidity';
+import { Wallet } from './wallet';
+import Long from 'long';
+import {chainStore} from '@/store/chain'
+import { toast } from 'react-hot-toast'
+import { StdFee } from '@cosmjs/stargate';
+import fetchTxs from '@/http/requests/get/fetchTxs';
+import { getBalanceList } from '@/store/assets';
+import {
+  MsgSwapRequest,
+  SwapMsgType,
+} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 type Store = {
   swapPair: {
     native: Coin;
@@ -53,4 +64,87 @@ export const updateCoinDenom = (value: string, side: 'native' | 'remote') => {
     amount: swapStore.swapPair[side].amount,
     denom: value,
   };
+};
+
+
+export const  onSwap = async (wallets:Wallet[],getClient,) => {
+  swapStore.swapLoading = true
+  const wallet = wallets.find((item: Wallet) => {
+    if (item.chainInfo?.chainID === chainStore.chainCurrent.chainID) {
+      return item;
+    }
+  });
+  const client = await getClient(wallet!.chainInfo);
+  const timeoutTimeStamp = Long.fromNumber(
+    (Date.now() + 60 * 1000) * 1000000
+  ); // 1 hour from now
+  const toastItem = toast.loading('Swap in progress');
+  try {
+    const swapMsg: MsgSwapRequest = {
+      swapType: SwapMsgType.LEFT,
+      sender: wallets[0]!.address,
+      tokenIn: swapStore.swapPair.native,
+      tokenOut: swapStore.swapPair.remote,
+      slippage: Long.fromInt(100),
+      recipient: wallet!.address,
+      timeoutHeight: {
+        revisionHeight: Long.fromInt(11),
+        revisionNumber: Long.fromInt(1000000000),
+      },
+      timeoutTimeStamp: timeoutTimeStamp,
+    };
+    console.log(swapMsg, 'swapMsg');
+    const msg = {
+      typeUrl: '/ibc.applications.interchain_swap.v1.MsgSwapRequest',
+      value: swapMsg,
+    };
+
+    const fee: StdFee = {
+      amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
+      gas: '200000',
+    };
+
+    const data = await client!.signWithEthermint(
+      wallet!.address,
+      [msg],
+      wallet!.chainInfo,
+      fee,
+      'test'
+    );
+    if (data !== undefined) {
+      const txHash = await client!.broadCastTx(data);
+      const result = await fetchTxs(chainStore.chainCurrent.restUrl, txHash).catch(
+        (e) => {
+          toast.error(e.message, {
+            id: toastItem,
+          });
+        }
+      );
+      console.log(result, 'result');
+      const tx_result =
+        result?.tx_response || result?.txs?.[0]?.tx_result || result;
+      if (`${tx_result?.code}` !== '0') {
+        console.log(tx_result?.log || tx_result?.raw_log, 'raw_log');
+        toast.error(tx_result?.log || tx_result?.raw_log, {
+          id: toastItem,
+        });
+      } else {
+        toast.success('Swap Success', {
+          id: toastItem,
+        });
+        getBalanceList(chainStore.chainCurrent?.restUrl, wallet!.address);
+        // getBalance();
+      }
+    } else {
+      toast.error('error', {
+        id: toastItem,
+      });
+    }
+    // await wallet!.signingClient.signAndBroadcast(wallet!.address, [msg],'auto',"test")
+  } catch (error) {
+    toast.error(error, {
+      id: toastItem,
+    });
+  }
+  swapStore.swapLoading = false
 };

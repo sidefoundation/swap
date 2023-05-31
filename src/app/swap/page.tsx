@@ -138,7 +138,7 @@ const Swap = () => {
 
   return (
     <div>
-      <SwapControls onSwap={onSwap} />
+      <SwapControls />
     </div>
   );
 };

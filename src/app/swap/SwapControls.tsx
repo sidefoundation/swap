@@ -1,56 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet } from '@/shared/types/wallet';
-import { getPoolId, MarketMaker } from '@/utils/swap';
 import useWalletStore from '@/store/wallet';
 import { CoinInput } from '@/components/CoinInput';
-import { Coin } from '@cosmjs/stargate';
 import {
-  MdKeyboardArrowDown,
   MdOutlineSettings,
   MdOutlineClose,
   MdArrowDownward,
 } from 'react-icons/md';
-import { ILiquidityPool } from '@/shared/types/liquidity';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
 import {
-  getPoolList,
   usePoolStore,
-  usePoolNativeList,
-  usePoolRemoteListByNative,
 } from '@/store/pool';
 import {
   useSwapStore,
-  swapStore,
   updateCoinAmount,
-  updateCoinDenom,
+  onSwap,
 } from '@/store/swap';
 import { useChainStore } from '@/store/chain';
+import SwapCoins from './SwapCoins';
 
-interface SwapControlsProps {
-  onSwap: () => Promise<void>;
-}
+interface SwapControlsProps {}
 
-const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
-  const { swapPair } = useSwapStore();
-  const { wallets, isConnected, connectWallet } = useWalletStore();
-  const { nativeList } = usePoolNativeList();
-  const { remoteList } = usePoolRemoteListByNative();
+const SwapControls: React.FC<SwapControlsProps> = () => {
+  const { swapPair,swapLoading } = useSwapStore();
+  const { wallets, isConnected, connectWallet, getClient } = useWalletStore();
   const { chainCurrent, chainList } = useChainStore();
   const { balanceList } = useAssetsStore();
-  const { poolList, poolLoading } = usePoolStore();
+  const { poolList } = usePoolStore();
   const [connected, setConnected] = useState(false);
   // getPoolList(chainCurrent?.restUrl)
-  useEffect(() => {
-    if (nativeList.length) {
-      swapStore.swapPair.native.denom = nativeList[0]?.balance?.denom;
-    }
-  }, [nativeList]);
-
-  useEffect(() => {
-    if (remoteList.length) {
-      swapStore.swapPair.remote.denom = remoteList[0]?.balance?.denom;
-    }
-  }, [remoteList]);
 
   useEffect(() => {
     getBalanceList(
@@ -76,16 +54,6 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
     );
   };
 
-  if (poolList.length === 0 && !poolLoading) {
-    return (
-      <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
-        <div>
-          There is no pool currently, please switch to the pool page to add a
-          new pool
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
@@ -125,7 +93,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
           </div>
 
           <div className="flex items-center mb-2">
-            <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+            {/* <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
               <ul className="menu menu-horizontal px-1">
                 <li tabIndex={0}>
                   <a>
@@ -141,7 +109,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
                               updateCoinDenom(item?.balance?.denom, 'native')
                             }
                           >
-                            {item?.balance?.denom}
+                            {item?.balance?.denom || '--'}
                           </a>
                         </li>
                       );
@@ -149,8 +117,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
                   </ul>
                 </li>
               </ul>
-            </div>
-
+            </div> */}
+            <SwapCoins type='native'/>
             <CoinInput
               coin={swapPair.native}
               placeholder="Amount"
@@ -159,7 +127,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
               }}
             />
           </div>
-
+             
           <div className="flex items-center text-gray-500 dark:text-gray-400 !hidden">
             <div className="flex-1">Side Hub</div>
             <div></div>
@@ -204,7 +172,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
           </div>
 
           <div className="flex items-center mb-2">
-            <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
+            {/* <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
               <ul className="menu menu-horizontal px-1">
                 <li tabIndex={0}>
                   <a>
@@ -220,7 +188,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
                               updateCoinDenom(item?.balance?.denom, 'remote')
                             }
                           >
-                            {item?.balance?.denom}
+                            {item?.balance?.denom || '--'}
                           </a>
                         </li>
                       );
@@ -228,7 +196,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
                   </ul>
                 </li>
               </ul>
-            </div>
+            </div> */}
+             <SwapCoins type='remote'/>
             <CoinInput
               coin={swapPair.remote}
               placeholder="Amount"
@@ -237,7 +206,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
               }}
             />
           </div>
-
+         
           <div className="flex items-center text-gray-500 dark:text-gray-400 !hidden">
             <div className="flex-1">Side Hub</div>
             <div>~$9999</div>
@@ -250,9 +219,10 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
               parseFloat(swapPair.native.amount) >
                 parseFloat(filterBalance(swapPair.native?.denom)) ||
               !parseFloat(swapPair.native?.amount) ||
-              !parseFloat(swapPair.remote?.amount)
+              !parseFloat(swapPair.remote?.amount) ||
+              swapLoading
             }
-            onClick={() => onSwap()}
+            onClick={() => onSwap(wallets, getClient)}
           >
             {parseFloat(swapPair.native.amount) >
             parseFloat(filterBalance(swapPair.native?.denom))
@@ -325,4 +295,17 @@ const SwapControls: React.FC<SwapControlsProps> = ({ onSwap }) => {
   );
 };
 
-export default SwapControls;
+export default function SwapControlsDash() {
+  const { poolList, poolLoading } = usePoolStore();
+  if (poolList.length === 0 && !poolLoading) {
+    return (
+      <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
+        <div>
+          There is no pool currently, please switch to the pool page to add a
+          new pool
+        </div>
+      </div>
+    );
+  }
+  return <SwapControls />;
+}
