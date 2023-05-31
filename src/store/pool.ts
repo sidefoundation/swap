@@ -22,7 +22,7 @@ import {} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { encoder } from 'protobufjs';
 import { base64StringToUnit8Array } from '@/utils/utils';
 import { swapStore } from '@/store/swap';
-
+import type { IAsset } from '@/shared/types/asset';
 export type CounterPartyType = {
   chainID: string;
   name: string;
@@ -36,7 +36,7 @@ type Store = {
   poolItem: ILiquidityPool;
   poolForm: {
     action: 'add' | 'redeem';
-    single: ILiquidityPool;
+    single: IAsset;
     signleAmount: string;
     remoteAmount: string;
     nativeAmount: string;
@@ -570,9 +570,9 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: poolStore.poolForm.single?.balance?.denom
+      denomOut: poolStore.poolForm.single?.balance?.denom,
     };
-    console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom')
+    console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom');
 
     const msg = {
       typeUrl:
