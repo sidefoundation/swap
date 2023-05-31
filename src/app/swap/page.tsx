@@ -13,7 +13,7 @@ import { useChainStore } from '@/store/chain';
 import { getBalanceList } from '@/store/assets';
 import useWalletStore from '@/store/wallet';
 import { useSwapStore, swapStore } from '@/store/swap';
-import { getPoolList, usePoolStore,usePoolNativeList,usePoolRemoteListByNative } from '@/store/pool';
+import { getPoolList, usePoolStore } from '@/store/pool';
 
 import Long from 'long';
 import fetchTxs from '@/http/requests/get/fetchTxs';
@@ -27,8 +27,6 @@ const Swap = () => {
   const { poolList } = usePoolStore();
   const { swapPair } = useSwapStore();
   const { wallets, setLoading, loading, getClient } = useWalletStore();
-  const {nativeList} = usePoolNativeList()
-  const {remoteList} = usePoolRemoteListByNative()
 
   useEffect(() => {
     // initData();
