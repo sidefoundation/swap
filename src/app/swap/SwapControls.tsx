@@ -12,12 +12,12 @@ import { usePoolStore } from '@/store/pool';
 import { useSwapStore, updateCoinAmount, onSwap } from '@/store/swap';
 import { useChainStore } from '@/store/chain';
 import SwapCoins from './SwapCoins';
-
+import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
 interface SwapControlsProps {}
 
 const SwapControls: React.FC<SwapControlsProps> = () => {
   const { swapPair, swapLoading } = useSwapStore();
-  const { wallets, isConnected, connectWallet, getClient } = useWalletStore();
+  const { wallets, isConnected, getClient } = useWalletStore();
   const { chainCurrent, chainList } = useChainStore();
   const { balanceList } = useAssetsStore();
   const { poolList } = usePoolStore();
@@ -174,12 +174,9 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
               : 'Swap'}
           </button>
         ) : (
-          <button
-            className="w-full mt-6 text-lg capitalize btn btn-primary"
-            onClick={connectWallet}
-          >
-            Connect Wallet
-          </button>
+          <ConnectWalletBtn
+            btnClass={'w-full mt-6 text-lg capitalize btn btn-primary'}
+          />
         )}
         <div className="pb-3 mt-5 border rounded-lg dark:border-gray-700">
           <div className="px-4 py-2 font-semibold border-b dark:border-gray-700">

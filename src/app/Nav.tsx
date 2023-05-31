@@ -7,14 +7,10 @@ import ThemeToggle from './NavTheme';
 import ToggleChain from './NavChain';
 import FaucetModal from './FaucetModal';
 import { chainStore } from '@/store/chain';
-
+import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
 function Nav() {
-  const {
-    isConnected,
-    disconnect,
-    selectedWallet,
-    connectWallet,
-  } = useWalletStore();
+  const { isConnected, disconnect, selectedWallet } =
+    useWalletStore();
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -134,10 +130,7 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn btn-primary btn-sm normal-case" onClick={connectWallet}>
-                {/* connectSelectedWallet */}
-                Connect Wallet
-              </button>
+              <ConnectWalletBtn btnClass="btn btn-primary btn-sm normal-case" />
             ) : (
               <div className="dropdown dropdown-end ml-2">
                 <label tabIndex={0} className="text-3xl cursor-pointer">

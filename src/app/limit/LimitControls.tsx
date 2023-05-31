@@ -18,7 +18,7 @@ import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
 import LimitOrder from './LimitOrder';
-
+import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin; type: string };
   setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
@@ -28,7 +28,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
 }) => {
-  const {chainCurrent} = useChainStore()
+  const { chainCurrent } = useChainStore();
   const selectList = [
     { option: 'Seconds', key: 0 },
     { option: 'Minutes', key: 60 },
@@ -40,7 +40,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     setBalance,
     wallets,
     isConnected,
-    connectWallet,
     loading,
     getClient,
   } = useWalletStore();
@@ -589,12 +588,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   : 'Make Order'}
               </button>
             ) : (
-              <button
-                className="w-full mt-6 text-lg capitalize btn btn-primary"
-                onClick={connectWallet}
-              >
-                Connect Wallet
-              </button>
+              <ConnectWalletBtn btnClass="w-full mt-6 text-lg capitalize btn btn-primary" />
             )}
           </div>
 

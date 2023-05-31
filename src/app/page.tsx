@@ -4,7 +4,7 @@ import React from 'react';
 import type { NextPage } from 'next';
 
 import useWalletStore from '@/store/wallet';
-
+import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
 const Home: NextPage = () => {
   const { loading, isConnected, connectWallet, disconnect } = useWalletStore();
   return (
@@ -36,9 +36,10 @@ const Home: NextPage = () => {
               </a>
             </p>
             {!isConnected ? (
-              <button className="btn-primary btn" onClick={connectWallet}>
-                Connect your wallet &rarr;
-              </button>
+              <ConnectWalletBtn
+                btnClass="btn-primary btn"
+                title="Connect your wallet &rarr;"
+              />
             ) : (
               <button className="btn w-[160px] truncate" onClick={disconnect}>
                 Disconnect
