@@ -611,8 +611,10 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
     if (data !== undefined) {
       const txHash = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
+      poolStore.poolFormCreate.modalShow = false
+      getPoolList(selectedChain?.chainInfo?.restUrl)
     } else {
-      console.log('there are problem in encoding');
+      toast.error('Error');
     }
   } catch (error) {
     toast.error(error);

@@ -125,7 +125,7 @@ function Nav() {
 
             {connected && (
               <div
-                className="truncate btn-primary btn"
+                className="truncate btn-primary btn btn-sm normal-case mr-2"
                 onClick={() => {
                   chainStore.showFaucetModal = true;
                 }}
@@ -135,13 +135,13 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn btn-primary" onClick={connectWallet}>
+              <button className="btn btn-primary btn-sm normal-case" onClick={connectWallet}>
                 {/* connectSelectedWallet */}
                 Connect Wallet
               </button>
             ) : (
               <div className="dropdown dropdown-end ml-2">
-                <label tabIndex={0} className="text-3xl">
+                <label tabIndex={0} className="text-3xl cursor-pointer">
                   <MdPerson />
                 </label>
                 <div
@@ -157,7 +157,7 @@ function Nav() {
 
                   <div className="divider my-1"></div>
                   <button
-                    className="btn btn-primary truncate"
+                    className="btn btn-primary truncate btn-sm normal-case"
                     onClick={disconnect}
                   >
                     Disconnect

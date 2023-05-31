@@ -27,6 +27,7 @@ export const chainStore = proxy<Store>({
   chainFaucetCoin: {} as Coin,
   chainFaucetAmount: '1000',
   chainFaucetLoading: false,
+  showFaucetModal: false,
 });
 
 export const useChainStore = () => {
