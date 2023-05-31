@@ -1,18 +1,17 @@
 'use client';
 
 import { fetchAllChannels, useEscrowedStore } from '@/store/escrowed';
-import useWalletStore from '@/store/wallet';
 import { useEffect } from 'react';
-
+import { useChainStore } from '@/store/chain';
 export default function Escrowed() {
   const { escrowedAddressList } = useEscrowedStore();
-  const { selectedChain } = useWalletStore();
+  const { chainCurrent } = useChainStore();
 
   useEffect(() => {
-    if (selectedChain?.chainID) {
-      fetchAllChannels(selectedChain?.restUrl);
+    if (chainCurrent?.chainID) {
+      fetchAllChannels(chainCurrent?.restUrl);
     }
-  }, [selectedChain]);
+  }, [chainCurrent]);
 
   return (
     <div className="bg-base-100 container mx-auto mt-10 rounded-lg px-5 pt-5 pb-10">

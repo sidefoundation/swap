@@ -6,6 +6,7 @@ export interface IAtomicSwapOrder {
   takers: Takers;
   cancel_timestamp: string;
   complete_timestamp: string;
+  side: string;
 }
 
 interface Maker {

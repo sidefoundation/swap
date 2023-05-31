@@ -1,5 +1,5 @@
 import { proxy, useSnapshot } from 'valtio';
-
+// import { getSideChainInfo } from '@/shared/types/chain';
 import { Coin } from '@cosmjs/stargate';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import chargeCoins from '@/http/requests/post/chargeCoins';
@@ -7,7 +7,6 @@ import { getBalanceList } from '@/store/assets';
 import { BriefChainInfo } from '../shared/types/chain';
 import { Wallet } from '@/shared/types/wallet';
 import { AppConfig } from '../utils/AppConfig';
-
 type Store = {
   chainList: BriefChainInfo[];
   chainCurrent: BriefChainInfo;
@@ -21,12 +20,13 @@ type Store = {
 
 export const chainStore = proxy<Store>({
   chainList: AppConfig.chains,
-  chainCurrent: {} as BriefChainInfo,
+  chainCurrent: AppConfig.chains[0] as BriefChainInfo,
   chainCoinListNative: [] as Coin[],
   chainCoinListRemote: [] as Coin[],
   chainFaucetCoin: {} as Coin,
   chainFaucetAmount: '1000',
   chainFaucetLoading: false,
+  showFaucetModal: false,
 });
 
 export const useChainStore = () => {
@@ -34,6 +34,13 @@ export const useChainStore = () => {
 };
 
 export const setChainCurrent = (val: BriefChainInfo) => {
+  // const { keplr } = window;
+  // if (!keplr) {
+  //   toast.error('You need to install Keplr');
+  //   return;
+  // }
+  // const chainInfo = getSideChainInfo(chain);
+  // await keplr.experimentalSuggestChain(chainInfo);
   chainStore.chainCurrent = val;
 };
 

@@ -6,15 +6,17 @@ import { useGetCurrentBalances } from '@/http/query/useGetCurrentBalances';
 import { AppConfig } from '@/utils/AppConfig';
 import useWalletStore from '@/store/wallet';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
+import { useChainStore } from '@/store/chain';
 import { toast } from 'react-hot-toast';
 
 export default function Balances() {
-  const { wallets, selectedChain } = useWalletStore();
+  const { wallets } = useWalletStore();
   const { balanceList, balanceLoading } = useAssetsStore();
+  const { chainCurrent } = useChainStore();
 
   useEffect(() => {
     const currentWallet = wallets.find((item) => {
-      return item.chainInfo?.chainID === selectedChain?.chainID;
+      return item.chainInfo?.chainID === chainCurrent?.chainID;
     });
     if (currentWallet?.address) {
       getBalanceList(
@@ -23,7 +25,7 @@ export default function Balances() {
         true
       );
     }
-  }, [selectedChain]);
+  }, [chainCurrent]);
   return (
     <div className="px-5 pt-5 pb-10">
       <div className="mb-5 flex items-center">
@@ -78,7 +80,6 @@ export default function Balances() {
             <progress className="progress w-56"></progress>
           </div>
         ) : null}
-        
       </div>
     </div>
   );

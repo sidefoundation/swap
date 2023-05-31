@@ -7,15 +7,10 @@ import ThemeToggle from './NavTheme';
 import ToggleChain from './NavChain';
 import FaucetModal from './FaucetModal';
 import { chainStore } from '@/store/chain';
-
+import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
 function Nav() {
-  const {
-    isConnected,
-    disconnect,
-    selectedWallet,
-    connectWallet,
-    connectSelectedWallet,
-  } = useWalletStore();
+  const { isConnected, disconnect, selectedWallet } =
+    useWalletStore();
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -125,7 +120,7 @@ function Nav() {
 
             {connected && (
               <div
-                className="truncate btn-primary btn"
+                className="truncate btn-primary btn btn-sm normal-case mr-2"
                 onClick={() => {
                   chainStore.showFaucetModal = true;
                 }}
@@ -135,13 +130,10 @@ function Nav() {
             )}
 
             {!connected ? (
-              <button className="btn btn-primary" onClick={connectWallet}>
-                {/* connectSelectedWallet */}
-                Connect Wallet
-              </button>
+              <ConnectWalletBtn btnClass="btn btn-primary btn-sm normal-case" />
             ) : (
               <div className="dropdown dropdown-end ml-2">
-                <label tabIndex={0} className="text-3xl">
+                <label tabIndex={0} className="text-3xl cursor-pointer">
                   <MdPerson />
                 </label>
                 <div
@@ -157,7 +149,7 @@ function Nav() {
 
                   <div className="divider my-1"></div>
                   <button
-                    className="btn btn-primary truncate"
+                    className="btn btn-primary truncate btn-sm normal-case"
                     onClick={disconnect}
                   >
                     Disconnect

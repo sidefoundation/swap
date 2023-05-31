@@ -1,46 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import useWalletStore from '@/store/wallet';
-import { AppConfig } from '@/utils/AppConfig';
 import { useEffect } from 'react';
 import { BriefChainInfo } from '@/shared/types/chain';
+import { useChainStore, setChainCurrent } from '@/store/chain';
 export default function ToggleChain() {
-  const { suggestChain, selectedChain, setChain, selectedWallet } =
+  const { suggestChain, selectedWallet } =
     useWalletStore();
-  const [currentChain, setCurrentChain] = useState({ name: '' });
-  const {} = useState();
-  useEffect(() => {
-    // setChain(AppConfig?.chains?.[0] as BriefChainInfo);
-    // if (AppConfig?.chains?.length > 0) {
-    //   suggestChain(AppConfig?.chains?.[0] as BriefChainInfo);
-    // }
-    return () => {
-      console.log('xioahui', selectedWallet);
-      if (selectedWallet.address) {
-        setChain(selectedWallet.chainInfo as BriefChainInfo);
-      }
-    };
-  }, []);
-  useEffect(() => {
-    if (selectedChain) {
-      setCurrentChain(selectedChain);
-      // connectSelectedWallet();
-    }
-  }, [selectedChain]);
+  const { chainList, chainCurrent } = useChainStore();
 
+  useEffect(() => {
+    if (chainCurrent) {
+      console.log(chainCurrent, 'chainCurrentchainCurrent');
+    }
+  }, [chainCurrent]);
   return (
     <div className="flex-none">
       <ul className="menu menu-horizontal px-1">
         <li tabIndex={0}>
           <a>
-            <span>{currentChain?.name || ''}</span>
+            <span>{chainCurrent?.name || ''}</span>
             <MdKeyboardArrowDown className="fill-current" />
           </a>
           <ul className="p-2 bg-base-100 z-10">
-            {AppConfig?.chains?.map((item, index) => {
+            {chainList?.map((item: BriefChainInfo, index: number) => {
               return (
                 <li key={index}>
-                  <a onClick={() => suggestChain(item)}>{item?.name}</a>
+                  <a
+                    onClick={() => {
+                      suggestChain(item);
+                      setChainCurrent(item);
+                    }}
+                  >
+                    {item?.name}
+                  </a>
                 </li>
               );
             })}

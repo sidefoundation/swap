@@ -21,6 +21,7 @@ import { MarketMaker } from '@/utils/swap';
 import {} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { encoder } from 'protobufjs';
 import { base64StringToUnit8Array } from '@/utils/utils';
+import { swapStore } from '@/store/swap';
 
 export type CounterPartyType = {
   chainID: string;
@@ -62,6 +63,7 @@ type Store = {
   poolPagination: {
     total: string;
   };
+  poolLoading: boolean
 };
 
 export const poolStore = proxy<Store>({
@@ -102,17 +104,80 @@ export const poolStore = proxy<Store>({
   poolPagination: {
     total: '0',
   },
+  poolLoading: false,
 });
 
 export const usePoolStore = () => {
-  return useSnapshot(poolStore);
+  const store = useSnapshot(poolStore);
+  return store;
+};
+
+export const usePoolNativeList = () => {
+  const poolList = useSnapshot(poolStore.poolList);
+  // transfer
+  let sellList: any = [];
+  poolList.forEach((pool) => {
+    pool?.assets?.forEach((asset) => {
+      if (asset.side === 'NATIVE') {
+        const hasCoin =
+          sellList.find((sellItem) => {
+            if (sellItem?.balance?.denom === asset?.balance?.denom) {
+              return sellItem;
+            }
+          }) || {};
+        if (!hasCoin.side) {
+          sellList.push(asset);
+        }
+      }
+    });
+  });
+  // swapStore.swapPair.native = sellList[0]
+  return {
+    nativeList: sellList,
+  };
+};
+
+// based native selected
+export const usePoolRemoteListByNative = () => {
+  const poolList = useSnapshot(poolStore.poolList);
+  const native = useSnapshot(swapStore.swapPair.native);
+  let buyList: any = [];
+  poolList.forEach((pool) => {
+    const isSameNative = pool.assets.find((item) => {
+      if (item.side === 'NATIVE' && item.balance.denom === native.denom) {
+        return item;
+      }
+    });
+    if (isSameNative?.side) {
+      pool?.assets?.forEach((asset) => {
+        if (asset.side === 'REMOTE') {
+          const hasCoin =
+            buyList.find((buyItem) => {
+              if (buyItem?.balance?.denom === asset?.balance?.denom) {
+                return buyItem;
+              }
+            }) || {};
+          if (!hasCoin.side) {
+            buyList.push(asset);
+          }
+        }
+      });
+    }
+  });
+  return {
+    remoteList: buyList,
+  };
 };
 
 export const getPoolList = async (restUrl: string) => {
+  poolStore.poolLoading = true
+  poolStore.poolList = [];
+  poolStore.poolPagination = { total: '0' };
   const res = await fetchLiquidityPools(restUrl);
   const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
   poolStore.poolList = interchainLiquidityPool || [];
   poolStore.poolPagination = pagination || { total: '0' };
+  poolStore.poolLoading = false
 };
 
 // all assets add
@@ -510,7 +575,8 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: 'aside',
+      denomOut: poolStore.poolItem.poolId,
+      // denomOut: 'aside'
     };
 
     const msg = {
@@ -609,8 +675,10 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
     if (data !== undefined) {
       const txHash = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
+      poolStore.poolFormCreate.modalShow = false;
+      getPoolList(selectedChain?.chainInfo?.restUrl);
     } else {
-      console.log('there are problem in encoding');
+      toast.error('Error');
     }
   } catch (error) {
     toast.error(error);

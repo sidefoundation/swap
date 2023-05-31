@@ -56,7 +56,6 @@ interface WalletState {
   setLoading: (isLoad: boolean) => void;
   connectSelectedWallet: () => Promise<void>;
   connectWallet: () => Promise<void>;
-  setChain: (chain: BriefChainInfo) => Promise<void>;
   suggestChain: (chain: BriefChainInfo) => Promise<void>;
   getClient: (
     chain: BriefChainInfo
@@ -93,20 +92,6 @@ const useWalletStore = create<WalletState>(
         set((state) => ({
           ...state,
           loading: isLoad,
-        }));
-      },
-      setChain: async (chain: BriefChainInfo) => {
-        const { keplr } = window;
-        if (!keplr) {
-          toast.error('You need to install Keplr');
-          return;
-        }
-        const chainInfo = getSideChainInfo(chain);
-        await keplr.experimentalSuggestChain(chainInfo);
-
-        set((state) => ({
-          ...state,
-          selectedChain: chain,
         }));
       },
       suggestChain: async (chain: BriefChainInfo) => {

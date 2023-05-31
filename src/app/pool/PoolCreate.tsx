@@ -13,17 +13,17 @@ import {
   setRemoteBalanceList,
 } from '@/store/assets';
 import { BriefChainInfo } from '@/shared/types/chain';
-import useWalletStore, { Wallet } from '@/store/wallet';
-
+import { Wallet } from '@/shared/types/wallet';
+import useWalletStore from '@/store/wallet';
 import PoolChains from './PoolChains';
 import PoolCoins from './PoolCoins';
 import { AppConfig } from '@/utils/AppConfig';
 
 function PoolCreate() {
-  const { chainList } = useChainStore();
+  const { chainList,chainCurrent } = useChainStore();
   const { poolFormCreate } = usePoolStore();
   const { balanceList, remoteBalanceList } = useAssetsStore();
-  const { wallets, getClient, selectedChain } = useWalletStore();
+  const { wallets, getClient, isConnected } = useWalletStore();
   useEffect(() => {
     const chainNative = chainList[0] as BriefChainInfo;
     poolStore.poolFormCreate.native.chain = chainNative;
@@ -39,20 +39,20 @@ function PoolCreate() {
     fetchChainCoinList(chainRemote?.restUrl as string, 'Remote');
   }, []);
   useEffect(() => {
-    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
     const otherChain = AppConfig?.chains?.find((item) => {
-      if (item.restUrl !== selectedChain?.restUrl) {
+      if (item.restUrl !== chainCurrent?.restUrl) {
         return item;
       }
     });
     console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
     setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
-  }, [selectedChain, wallets]);
+  }, [chainCurrent, wallets]);
 
   const confirmCreatePool = () => {
     let currentWallet = {} as Wallet;
     wallets.forEach((item: Wallet) => {
-      if (item?.chainInfo?.chainID === selectedChain?.chainID) {
+      if (item?.chainInfo?.chainID === chainCurrent?.chainID) {
         currentWallet = item;
       }
     });
@@ -201,13 +201,14 @@ function PoolCreate() {
               confirmCreatePool();
             }}
             disabled={
-              !poolFormCreate?.gas ||
-              !poolFormCreate?.native?.amount ||
-              !poolFormCreate?.remote?.amount ||
-              !poolFormCreate?.native?.chain?.chainID ||
-              !poolFormCreate?.remote?.chain?.chainID ||
-              !poolFormCreate?.native?.coin?.denom ||
-              !poolFormCreate?.remote?.coin?.denom
+              !isConnected &&
+              (!poolFormCreate?.gas ||
+                !poolFormCreate?.native?.amount ||
+                !poolFormCreate?.remote?.amount ||
+                !poolFormCreate?.native?.chain?.chainID ||
+                !poolFormCreate?.remote?.chain?.chainID ||
+                !poolFormCreate?.native?.coin?.denom ||
+                !poolFormCreate?.remote?.coin?.denom)
             }
           >
             Confirm

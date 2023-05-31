@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MdOutlineClose, MdKeyboardArrowDown } from 'react-icons/md';
 import { MarketMaker } from '@/utils/swap';
 import useWalletStore from '@/store/wallet';
@@ -8,6 +8,7 @@ import {
   getBalanceList,
   setRemoteBalanceList,
 } from '@/store/assets';
+import { useChainStore, chainStore } from '@/store/chain';
 import {
   poolStore,
   usePoolStore,
@@ -23,7 +24,7 @@ function PoolModal() {
   const { poolItem, poolForm } = usePoolStore();
   const poolAsset1 = poolItem?.assets?.[0];
   const poolAsset2 = poolItem?.assets?.[1];
-
+  const { chainCurrent } = useChainStore();
   const { balanceList, remoteBalanceList } = useAssetsStore();
 
   const balanceMap = {};
@@ -34,33 +35,33 @@ function PoolModal() {
   for (const item of remoteBalanceList) {
     balanceRemoteMap[item.denom] = item?.amount;
   }
-  const { wallets, getClient, selectedChain } = useWalletStore();
+  const { wallets, getClient } = useWalletStore();
   useEffect(() => {});
   useEffect(() => {
-    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
+    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
     const otherChain = AppConfig?.chains?.find((item) => {
-      if (item.restUrl !== selectedChain?.restUrl) {
+      if (item.restUrl !== chainCurrent?.restUrl) {
         return item;
       }
     });
     console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
     setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
-  }, [selectedChain, wallets]);
+  }, [chainCurrent, wallets]);
 
   const confirmAdd = () => {
     if (poolForm?.action === 'add' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
-      addPoolItemMulti(wallets, selectedChain, market, getClient);
+      addPoolItemMulti(wallets, chainStore.chainCurrent, market, getClient);
     }
     if (poolForm?.action === 'add' && tab === 'single') {
-      addPoolItemSingle(wallets, selectedChain, getClient);
+      addPoolItemSingle(wallets, chainStore.chainCurrent, getClient);
     }
     if (poolForm?.action === 'redeem' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
       redeemPoolItemMulti(wallets, getClient, market);
     }
     if (poolForm?.action === 'redeem' && tab === 'single') {
-      redeemPoolItemSingle(wallets, getClient, selectedChain);
+      redeemPoolItemSingle(wallets, getClient, chainStore.chainCurrent);
     }
   };
 

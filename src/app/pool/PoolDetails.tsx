@@ -30,8 +30,14 @@ export default function PoolDetails({
   pool,
   onEnablePool,
 }: PoolDetailsProps) {
-  const { wallets, getClient, setLoading, setBalance, getBalance } =
-    useWalletStore();
+  const {
+    wallets,
+    getClient,
+    setLoading,
+    setBalance,
+    getBalance,
+    isConnected,
+  } = useWalletStore();
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const market = new MarketMaker(pool, 300);
   const fetchBalances = async () => {
@@ -445,21 +451,25 @@ export default function PoolDetails({
         {pool.status === 'POOL_STATUS_INITIAL' && (
           <div className="flex items-center justify-between w-full">
             <div className="text-red-500">POOL_STATUS_INITIAL</div>
-            <button
-              className="btn btn-primary btn-sm ml-1"
-              onClick={() => {
-                onEnablePool(pool);
-              }}
-            >
-              Enable Pool
-            </button>
           </div>
         )}
       </td>
 
       <td>
-        <div
+        {pool.status === 'POOL_STATUS_INITIAL' && (
+          <button
+            className="btn btn-primary btn-sm mr-2 capitalize"
+            disabled={!isConnected}
+            onClick={() => {
+              onEnablePool(pool);
+            }}
+          >
+            Enable Pool
+          </button>
+        )}
+        <button
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
+          disabled={!isConnected}
           onClick={() => {
             poolStore.poolForm.modalShow = true;
             poolStore.poolForm.action = 'add';
@@ -467,9 +477,10 @@ export default function PoolDetails({
           }}
         >
           Add
-        </div>
-        <div
+        </button>
+        <button
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
+          disabled={!isConnected}
           onClick={() => {
             poolStore.poolForm.modalShow = true;
             poolStore.poolForm.action = 'redeem';
@@ -477,7 +488,7 @@ export default function PoolDetails({
           }}
         >
           Redeem
-        </div>
+        </button>
 
         <label
           htmlFor="modal-pool-manage"
