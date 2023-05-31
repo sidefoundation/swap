@@ -1,5 +1,5 @@
 // PoolDetailsList.tsx
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import useWalletStore from '@/store/wallet';
 import PoolModal from './PoolModal';
@@ -8,12 +8,11 @@ import PoolPagination from './PoolPagination';
 import PoolSearch from './PoolSearch';
 import toast from 'react-hot-toast';
 import {
-  MsgCreatePoolRequest,
   MsgSingleAssetDepositRequest,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
-import { usePoolStore } from '@/store/pool';
+import { usePoolStore,getPoolList } from '@/store/pool';
 import { useChainStore, chainStore } from '@/store/chain';
 interface PoolDetailsListProps {}
 
@@ -22,78 +21,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   const { setLoading, wallets, suggestChain, getClient } =
     useWalletStore();
   const { poolList } = usePoolStore();
-  const [poolPair] = useState({
-    first: { denom: '', amount: '0', weight: '50', chain: '' },
-    second: { denom: '', amount: '0', weight: '50', chain: '' },
-  });
-
-  // old createPool
-  const onCreatePool = async () => {
-    setLoading(true);
-    const wallet = wallets.find(
-      (wallet) => wallet.chainInfo.chainID === chainCurrent.chainID
-    );
-    if (wallet === undefined) {
-      toast.error("you don't have wallet about this chain");
-    }
-    const timeoutTimeStamp = Long.fromNumber(
-      (Date.now() + 60 * 1000) * 1000000
-    ); // 1 hour from now
-
-    try {
-      const client = await getClient(wallet!.chainInfo);
-
-      const createPoolMsg: MsgCreatePoolRequest = {
-        sourcePort: 'interchainswap',
-        sourceChannel: 'channel-0',
-        sender: wallet!.address,
-        tokens: [
-          { denom: poolPair.first.denom, amount: poolPair.first.amount },
-          { denom: poolPair.second.denom, amount: poolPair.second.amount },
-        ],
-        decimals: [18, 18],
-        weight: `${poolPair.first?.weight}:${poolPair.second?.weight}`,
-        timeoutHeight: {
-          revisionHeight: Long.fromInt(10),
-          revisionNumber: Long.fromInt(10000000000),
-        },
-        timeoutTimeStamp: timeoutTimeStamp,
-      };
-
-      const msg = {
-        typeUrl: '/ibc.applications.interchain_swap.v1.MsgCreatePoolRequest',
-        value: createPoolMsg,
-      };
-      console.log(client);
-
-      const fee: StdFee = {
-        amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
-        gas: '200000',
-      };
-      console.log(createPoolMsg, 'createPoolMsg');
-      console.log(fee, 'fee');
-      console.log(wallet, 'wallet');
-      const data = await client!.signWithEthermint(
-        wallet!.address,
-        [msg],
-        wallet!.chainInfo,
-        fee,
-        'test'
-      );
-      console.log('Signed data', data);
-      if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
-        console.log('TxHash:', txHash);
-      } else {
-        console.log('there are problem in encoding');
-      }
-    } catch (error) {
-      toast.error(error);
-
-      console.log('error', error);
-    }
-    setLoading(false);
-  };
 
   const onEnablePool = async (pool: ILiquidityPool) => {
     if (chainCurrent.chainID === pool.creatorChainId) {
@@ -148,6 +75,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
+        getPoolList(chainStore.chainCurrent.restUrl)
       } else {
         console.log('there are problem in encoding');
       }
