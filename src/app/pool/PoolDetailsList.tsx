@@ -1,7 +1,7 @@
 // PoolDetailsList.tsx
 import React, { useEffect, useState } from 'react';
 import { ILiquidityPool } from '@/shared/types/liquidity';
-import useWalletStore, { Wallet, Balance } from '@/store/wallet';
+import useWalletStore from '@/store/wallet';
 import PoolModal from './PoolModal';
 import PoolDetails from './PoolDetails';
 import PoolPagination from './PoolPagination';

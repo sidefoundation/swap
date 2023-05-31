@@ -24,7 +24,7 @@ function PoolCreate() {
   const { chainList } = useChainStore();
   const { poolFormCreate } = usePoolStore();
   const { balanceList, remoteBalanceList } = useAssetsStore();
-  const { wallets, getClient, selectedChain } = useWalletStore();
+  const { wallets, getClient, selectedChain, isConnected } = useWalletStore();
   useEffect(() => {
     const chainNative = chainList[0] as BriefChainInfo;
     poolStore.poolFormCreate.native.chain = chainNative;
@@ -202,13 +202,14 @@ function PoolCreate() {
               confirmCreatePool();
             }}
             disabled={
-              !poolFormCreate?.gas ||
-              !poolFormCreate?.native?.amount ||
-              !poolFormCreate?.remote?.amount ||
-              !poolFormCreate?.native?.chain?.chainID ||
-              !poolFormCreate?.remote?.chain?.chainID ||
-              !poolFormCreate?.native?.coin?.denom ||
-              !poolFormCreate?.remote?.coin?.denom
+              !isConnected &&
+              (!poolFormCreate?.gas ||
+                !poolFormCreate?.native?.amount ||
+                !poolFormCreate?.remote?.amount ||
+                !poolFormCreate?.native?.chain?.chainID ||
+                !poolFormCreate?.remote?.chain?.chainID ||
+                !poolFormCreate?.native?.coin?.denom ||
+                !poolFormCreate?.remote?.coin?.denom)
             }
           >
             Confirm
