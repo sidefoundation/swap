@@ -46,6 +46,39 @@ export function statusToJSON(object: Status): string {
       return "UNRECOGNIZED";
   }
 }
+/** Type defines a classification of swap messages */
+export enum Side {
+  /** TYPE_NATIVE - Default zero value enumeration */
+  TYPE_NATIVE = 0,
+  TYPE_REMOTE = 1,
+  UNRECOGNIZED = -1,
+}
+export const SideSDKType = Side;
+export function sideFromJSON(object: any): Side {
+  switch (object) {
+    case 0:
+    case "TYPE_NATIVE":
+      return Side.TYPE_NATIVE;
+    case 1:
+    case "TYPE_REMOTE":
+      return Side.TYPE_REMOTE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Side.UNRECOGNIZED;
+  }
+}
+export function sideToJSON(object: Side): string {
+  switch (object) {
+    case Side.TYPE_NATIVE:
+      return "TYPE_NATIVE";
+    case Side.TYPE_REMOTE:
+      return "TYPE_REMOTE";
+    case Side.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
 /** Params defines the set of IBC swap parameters. */
 export interface Params {
   /** swap_enabled enables or disables all cross-chain token transfers from this chain. */
@@ -107,6 +140,7 @@ export interface SwapTakerSDKType {
 }
 export interface Order {
   id: string;
+  side: Side;
   maker?: MakeSwapMsg;
   status: Status;
   path: string;
@@ -116,6 +150,7 @@ export interface Order {
 }
 export interface OrderSDKType {
   id: string;
+  side: Side;
   maker?: MakeSwapMsgSDKType;
   status: Status;
   path: string;
@@ -327,6 +362,7 @@ export const SwapTaker = {
 function createBaseOrder(): Order {
   return {
     id: "",
+    side: 0,
     maker: undefined,
     status: 0,
     path: "",
@@ -340,17 +376,20 @@ export const Order = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
+    if (message.side !== 0) {
+      writer.uint32(16).int32(message.side);
+    }
     if (message.maker !== undefined) {
-      MakeSwapMsg.encode(message.maker, writer.uint32(18).fork()).ldelim();
+      MakeSwapMsg.encode(message.maker, writer.uint32(26).fork()).ldelim();
     }
     if (message.status !== 0) {
-      writer.uint32(24).int32(message.status);
+      writer.uint32(32).int32(message.status);
     }
     if (message.path !== "") {
-      writer.uint32(34).string(message.path);
+      writer.uint32(42).string(message.path);
     }
     if (message.takers !== undefined) {
-      TakeSwapMsg.encode(message.takers, writer.uint32(42).fork()).ldelim();
+      TakeSwapMsg.encode(message.takers, writer.uint32(50).fork()).ldelim();
     }
     if (!message.cancelTimestamp.isZero()) {
       writer.uint32(56).int64(message.cancelTimestamp);
@@ -371,15 +410,18 @@ export const Order = {
           message.id = reader.string();
           break;
         case 2:
-          message.maker = MakeSwapMsg.decode(reader, reader.uint32());
+          message.side = (reader.int32() as any);
           break;
         case 3:
-          message.status = (reader.int32() as any);
+          message.maker = MakeSwapMsg.decode(reader, reader.uint32());
           break;
         case 4:
-          message.path = reader.string();
+          message.status = (reader.int32() as any);
           break;
         case 5:
+          message.path = reader.string();
+          break;
+        case 6:
           message.takers = TakeSwapMsg.decode(reader, reader.uint32());
           break;
         case 7:
@@ -398,6 +440,7 @@ export const Order = {
   fromPartial(object: DeepPartial<Order>): Order {
     const message = createBaseOrder();
     message.id = object.id ?? "";
+    message.side = object.side ?? 0;
     message.maker = object.maker !== undefined && object.maker !== null ? MakeSwapMsg.fromPartial(object.maker) : undefined;
     message.status = object.status ?? 0;
     message.path = object.path ?? "";

@@ -1,12 +1,14 @@
 import { proxy, useSnapshot } from 'valtio';
 import fetchChannels, {
-  fetchEscrowAddress,
+  fetchAtomicEscrowAddress,
+  fetchInterchainEscrowAddress,
 } from '@/http/requests/get/fetchChannels';
 import fetchBalances from '@/http/requests/get/fetchBalance';
 import { Coin } from '@cosmjs/stargate';
 import { toast } from 'react-hot-toast';
+import { EscrowPortId } from '@/shared/types/escrow';
 
-type Channel = { channel_id: string; port_id: string };
+type Channel = { channel_id: string; port_id: EscrowPortId };
 type EscrowedAddress = {
   channel: Channel;
   escrowedAddress: string;
@@ -32,21 +34,50 @@ export const fetchAllChannels = async (restUrl: string) => {
   const promiseAll = [];
   for (let i = 0; i < res?.length; i += 1) {
     const item: Channel = res[i] as Channel;
-    promiseAll.push(
-      fetchEscrowAddress(restUrl, item.channel_id, item.port_id).then((res) => {
-        if (res) {
-          return fetchBalances(restUrl, res?.escrow_address).then(
-            (res2: Coin[]) => {
-              return {
-                channel: item,
-                escrowedAddress: res?.escrow_address,
-                balances: res2,
-              };
+
+    switch (item.port_id) {
+      case 'swap':
+        promiseAll.push(
+          fetchAtomicEscrowAddress(restUrl, item.channel_id, item.port_id).then(
+            (res) => {
+              if (res) {
+                return fetchBalances(restUrl, res?.escrow_address).then(
+                  (res2: Coin[]) => {
+                    return {
+                      channel: item,
+                      escrowedAddress: res?.escrow_address,
+                      balances: res2,
+                    };
+                  }
+                );
+              }
             }
-          );
-        }
-      })
-    );
+          )
+        );
+        break;
+      case 'interchainswap':
+        promiseAll.push(
+          fetchInterchainEscrowAddress(
+            restUrl,
+            item.channel_id,
+            item.port_id
+          ).then((res) => {
+            if (res) {
+              return fetchBalances(restUrl, res?.escrow_address).then(
+                (res2: Coin[]) => {
+                  return {
+                    channel: item,
+                    escrowedAddress: res?.escrow_address,
+                    balances: res2,
+                  };
+                }
+              );
+            }
+          })
+        );
+      default:
+        break;
+    }
   }
   const resAll = await Promise.all(promiseAll);
   toast.dismiss();

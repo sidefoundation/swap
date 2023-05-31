@@ -260,7 +260,7 @@ export const addPoolItemMulti = async (
     );
 
     const remoteDepositSignMsg = {
-      sequence: Long.fromInt(+acc.base_account.sequence),
+      sequence: Long.fromInt(+acc.base_account.sequence + 1),
       sender: remoteWallet.address,
       token: remoteDepositCoin,
     };
@@ -576,6 +576,7 @@ export const redeemPoolItemSingle = async (
       },
       timeoutTimeStamp: timeoutTimeStamp,
       denomOut: poolStore.poolItem.poolId,
+      // denomOut: 'aside'
     };
 
     const msg = {
