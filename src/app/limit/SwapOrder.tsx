@@ -48,6 +48,9 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
     <div className="p-5 mb-4 rounded-lg bg-base-200">
       <div className="flex items-center justify-between">
         <div className="px-4 text-sm capitalize border rounded-full border-primary">
+          {order?.side}
+        </div>
+        <div className="px-4 text-sm capitalize border rounded-full border-primary">
           {tab}
         </div>
         <div className="text-sm">
@@ -120,7 +123,7 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 
 export default function SwapOrder() {
   const [tab, setTab] = useState('all');
-  const {chainCurrent} =useChainStore()
+  const { chainCurrent } = useChainStore();
   const { wallets, getBalance, getClient } = useWalletStore();
   const [openOrder, setOpenOrder] = useState(false);
   const [balances, setBalances] = useState<
