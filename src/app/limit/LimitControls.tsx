@@ -17,7 +17,7 @@ import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
-import SwapOrder from './SwapOrder';
+import LimitOrder from './LimitOrder';
 
 interface SwapControlsProps {
   swapPair: { first: Coin; second: Coin; type: string };
@@ -619,7 +619,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
         </div>
       ) : null}
 
-      {tab === 'order' ? <SwapOrder /> : null}
+      {tab === 'order' ? <LimitOrder /> : null}
 
       {/* Transaction settings */}
 
