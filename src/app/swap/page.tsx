@@ -9,6 +9,7 @@ import {
   MsgSwapRequest,
   SwapMsgType,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+import { useChainStore } from '@/store/chain';
 import Long from 'long';
 import { getPoolId, MarketMaker } from '@/utils/swap';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
@@ -17,7 +18,8 @@ import fetchTxs from '@/http/requests/get/fetchTxs';
 import SwapControls from './SwapControls';
 
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =
+  const {chainCurrent}=useChainStore()
+  const { wallets, setLoading, loading, getClient, getBalance } =
     useWalletStore();
 
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
@@ -43,7 +45,7 @@ const Swap = () => {
     }));
   };
   const { refetch } = useGetLiquidityPools({
-    restUrl: selectedChain.restUrl,
+    restUrl: chainCurrent?.restUrl,
     onSuccess: getPools,
   });
   const [swapPair, setSwapPair] = useState<{
@@ -62,7 +64,7 @@ const Swap = () => {
 
   useEffect(() => {
     refetch();
-  }, [loading, selectedChain]);
+  }, [loading, chainCurrent]);
 
   const updateFirstCoin = (value: string) => {
     const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
@@ -95,7 +97,7 @@ const Swap = () => {
   const onSwap = async () => {
     setLoading(true);
     const wallet = wallets.find((item: Wallet) => {
-      if (item.chainInfo?.chainID === selectedChain.chainID) {
+      if (item.chainInfo?.chainID === chainCurrent.chainID) {
         return item;
       }
     });
@@ -138,7 +140,7 @@ const Swap = () => {
       );
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
-        const result = await fetchTxs(selectedChain.restUrl, txHash).catch(
+        const result = await fetchTxs(chainCurrent.restUrl, txHash).catch(
           (e) => {
             toast.error(e.message, {
               id: toastItem,

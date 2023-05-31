@@ -4,6 +4,7 @@ import {
   TakeSwapMsg,
 } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import useWalletStore from '@/store/wallet';
+import { useChainStore } from '@/store/chain';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
 import { useEffect, useState } from 'react';
@@ -119,8 +120,8 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 
 export default function SwapOrder() {
   const [tab, setTab] = useState('all');
-
-  const { wallets, getBalance, getClient, selectedChain } = useWalletStore();
+  const {chainCurrent} =useChainStore()
+  const { wallets, getBalance, getClient } = useWalletStore();
   const [openOrder, setOpenOrder] = useState(false);
   const [balances, setBalances] = useState<
     {
@@ -144,11 +145,11 @@ export default function SwapOrder() {
 
   useEffect(() => {
     fetchBalances();
-    fetchOrders(selectedChain.restUrl);
+    fetchOrders(chainCurrent?.restUrl);
   }, []);
   useEffect(() => {
-    fetchOrders(selectedChain.restUrl);
-  }, [selectedChain]);
+    fetchOrders(chainCurrent?.restUrl);
+  }, [chainCurrent]);
 
   const onMakeOrder = async () => {
     if (tokenPair.size !== 2) {

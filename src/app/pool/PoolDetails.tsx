@@ -451,20 +451,22 @@ export default function PoolDetails({
         {pool.status === 'POOL_STATUS_INITIAL' && (
           <div className="flex items-center justify-between w-full">
             <div className="text-red-500">POOL_STATUS_INITIAL</div>
-            <button
-              className="btn btn-primary btn-sm ml-1"
-              disabled={!isConnected}
-              onClick={() => {
-                onEnablePool(pool);
-              }}
-            >
-              Enable Pool
-            </button>
           </div>
         )}
       </td>
 
       <td>
+        {pool.status === 'POOL_STATUS_INITIAL' && (
+          <button
+            className="btn btn-primary btn-sm mr-2 capitalize"
+            disabled={!isConnected}
+            onClick={() => {
+              onEnablePool(pool);
+            }}
+          >
+            Enable Pool
+          </button>
+        )}
         <button
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
           disabled={!isConnected}

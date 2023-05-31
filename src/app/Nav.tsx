@@ -14,7 +14,6 @@ function Nav() {
     disconnect,
     selectedWallet,
     connectWallet,
-    connectSelectedWallet,
   } = useWalletStore();
   const [connected, setConnected] = useState(false);
 

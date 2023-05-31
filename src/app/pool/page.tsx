@@ -1,25 +1,23 @@
 'use client';
 
-import useWalletStore from '@/store/wallet';
 import { getPoolList } from '@/store/pool';
 import React, { useEffect } from 'react';
 import PoolDetailsList from './PoolDetailsList';
 import PoolCreate from './PoolCreate';
-
+import { useChainStore } from '@/store/chain';
 export default function Pool() {
-  const { selectedChain } = useWalletStore();
-
+  const { chainCurrent } = useChainStore();
   // useEffect(() => {
   //   getCurrentPoolList();
   // }, []);
 
   useEffect(() => {
     getCurrentPoolList();
-  }, [selectedChain]);
+  }, [chainCurrent]);
 
   const getCurrentPoolList = () => {
-    if (selectedChain?.restUrl) {
-      getPoolList(selectedChain?.restUrl);
+    if (chainCurrent?.restUrl) {
+      getPoolList(chainCurrent?.restUrl);
     }
   };
   return (

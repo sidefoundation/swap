@@ -14,11 +14,11 @@ import Long from 'long';
 import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
-
+import { useChainStore } from '@/store/chain';
 const Swap = () => {
-  const { wallets, setLoading, loading, getClient, selectedChain, getBalance } =
-    useWalletStore();
-
+  const { wallets, setLoading, loading, getClient, getBalance } =
+    useWalletStore(); 
+  const {chainCurrent} =useChainStore()
   const [pools, setPools] = useState<ILiquidityPool[]>([]);
 
   const getPools = (pools: ILiquidityPool[]) => {
@@ -36,7 +36,7 @@ const Swap = () => {
     }));
   };
   const { refetch } = useGetLiquidityPools({
-    restUrl: selectedChain.restUrl,
+    restUrl: chainCurrent?.restUrl,
     onSuccess: getPools,
   });
   const [swapPair, setSwapPair] = useState<{
@@ -57,7 +57,7 @@ const Swap = () => {
 
   useEffect(() => {
     // refetch();
-  }, [loading, selectedChain]);
+  }, [loading, chainCurrent]);
 
   const onSwap = async (direction: '->' | '<-') => {
     setLoading(true);
@@ -101,7 +101,7 @@ const Swap = () => {
       );
       if (data !== undefined) {
         const txHash = await client!.broadCastTx(data);
-        const result = await fetchTxs(selectedChain.restUrl, txHash).catch(
+        const result = await fetchTxs(chainCurrent?.restUrl, txHash).catch(
           (e) => {
             toast.error(e.message, {
               id: toastItem,

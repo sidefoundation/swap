@@ -3,7 +3,7 @@ import useWalletStore from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
-
+import { useChainStore } from '@/store/chain';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -28,6 +28,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   swapPair,
   setSwapPair,
 }) => {
+  const {chainCurrent} = useChainStore()
   const selectList = [
     { option: 'Seconds', key: 0 },
     { option: 'Minutes', key: 60 },
@@ -36,7 +37,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     { option: 'Year', key: 365 * 24 * 60 * 60 },
   ];
   const {
-    selectedChain,
     setBalance,
     wallets,
     isConnected,
@@ -47,8 +47,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
   const { balanceList } = useAssetsStore();
   useEffect(() => {
-    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
-  }, [selectedChain, wallets]);
+    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
+  }, [chainCurrent, wallets]);
 
   const [makerReceivingAddress, setMakerReceivingAddress] = useState('');
   const [desiredTaker, setDesiredTaker] = useState('');
@@ -76,7 +76,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   const { refetch } = useGetBalances({
     wallets: wallets
       .map((wallet) => {
-        if (wallet.chainInfo.chainID === selectedChain.chainID) {
+        if (wallet.chainInfo.chainID === chainCurrent.chainID) {
           return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
         }
       })
@@ -99,7 +99,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     if (!isConnected) {
       setBalance([{ address: '', balances: [], id: '' }]);
     }
-  }, [selectedChain, isConnected, loading]);
+  }, [chainCurrent, isConnected, loading]);
 
   useEffect(() => {
     setSwapPair((swapPair) => ({
@@ -113,7 +113,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       setSelectChannel({});
       fetchSwapList('sell');
       const findItem = AtomicSwapConfig.find((item) => {
-        if (item.chain === selectedChain.name) {
+        if (item.chain === chainCurrent.name) {
           return item;
         }
       });
@@ -121,7 +121,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
         setAtomicSwapList(findItem);
       }
     }
-  }, [tab, selectedChain]);
+  }, [tab, chainCurrent]);
 
   useEffect(() => {
     if (selectFirst?.denom) {
@@ -166,7 +166,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     let list = [];
     if (position === 'sell') {
       setFirstSwapList([]);
-      const list = await fetchAtomicSwapList(selectedChain.restUrl);
+      const list = await fetchAtomicSwapList(chainCurrent.restUrl);
       setFirstSwapList(list);
     }
     if (position === 'buy' && url) {
@@ -226,10 +226,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
       return;
     }
     const sourceWallet = wallets.find(
-      (wallet) => selectedChain.chainID === wallet.chainInfo.chainID
+      (wallet) => chainCurrent.chainID === wallet.chainInfo.chainID
     );
     const targetWallet = wallets.find(
-      (wallet) => selectedChain.chainID !== wallet.chainInfo.chainID
+      (wallet) => chainCurrent.chainID !== wallet.chainInfo.chainID
     );
     if (sourceWallet === undefined || targetWallet === undefined) {
       toast.error('sourceWallet or targetWallet not found');
@@ -304,7 +304,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     } else {
       console.log('there are problem in encoding');
     }
-    console.log('onMakeOrder', wallets, sourceWallet, selectedChain);
+    console.log('onMakeOrder', wallets, sourceWallet, chainCurrent);
   };
   // TODO:
   const switchSwap = async () => {};
@@ -330,7 +330,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             <div className="flex items-center mb-2">
               <div className="flex-1">
                 Sell
-                <span className="text-sm ml-1">({selectedChain?.name})</span>
+                <span className="text-sm ml-1">({chainCurrent?.name})</span>
               </div>
               <div className="mr-2">
                 Balance: {filterBalance(swapPair.first?.denom)}

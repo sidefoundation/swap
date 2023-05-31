@@ -14,11 +14,12 @@ import {
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
 import { usePoolStore } from '@/store/pool';
-
+import { useChainStore, chainStore } from '@/store/chain';
 interface PoolDetailsListProps {}
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
-  const { setLoading, wallets, suggestChain, getClient, selectedChain } =
+  const {chainCurrent}=useChainStore()
+  const { setLoading, wallets, suggestChain, getClient } =
     useWalletStore();
   const { poolList } = usePoolStore();
   const [poolPair] = useState({
@@ -30,7 +31,7 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   const onCreatePool = async () => {
     setLoading(true);
     const wallet = wallets.find(
-      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+      (wallet) => wallet.chainInfo.chainID === chainCurrent.chainID
     );
     if (wallet === undefined) {
       toast.error("you don't have wallet about this chain");
@@ -95,15 +96,15 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   };
 
   const onEnablePool = async (pool: ILiquidityPool) => {
-    if (selectedChain.chainID === pool.creatorChainId) {
+    if (chainCurrent.chainID === pool.creatorChainId) {
       toast.error('Please select counter party chain');
       return;
     }
     //setLoading(true)
-    await suggestChain(selectedChain);
+    await suggestChain(chainStore.chainCurrent);
 
     const wallet = wallets.find(
-      (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
+      (wallet) => wallet.chainInfo.chainID === chainCurrent.chainID
     );
 
     const timeoutTimeStamp = Long.fromNumber(

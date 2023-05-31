@@ -7,7 +7,6 @@ import { getBalanceList } from '@/store/assets';
 import { BriefChainInfo } from '../shared/types/chain';
 import { Wallet } from '@/shared/types/wallet';
 import { AppConfig } from '../utils/AppConfig';
-
 type Store = {
   chainList: BriefChainInfo[];
   chainCurrent: BriefChainInfo;
@@ -21,7 +20,7 @@ type Store = {
 
 export const chainStore = proxy<Store>({
   chainList: AppConfig.chains,
-  chainCurrent: {} as BriefChainInfo,
+  chainCurrent: AppConfig.chains[0] as BriefChainInfo,
   chainCoinListNative: [] as Coin[],
   chainCoinListRemote: [] as Coin[],
   chainFaucetCoin: {} as Coin,

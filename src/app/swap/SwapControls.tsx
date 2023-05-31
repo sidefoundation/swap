@@ -12,7 +12,7 @@ import {
 import { useGetBalances } from '@/http/query/useGetBalances';
 import { ILiquidityPool } from '@/shared/types/liquidity';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
-// import { useChainStore, getPoolList } from '@/store/pool';
+import { useChainStore } from '@/store/chain';
 
 interface SwapControlsProps {
   pools: ILiquidityPool[];
@@ -31,14 +31,9 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   updateSecondCoin,
   onSwap,
 }) => {
-  const {
-    selectedChain,
-    setBalance,
-    wallets,
-    isConnected,
-    connectWallet,
-    loading,
-  } = useWalletStore();
+  const { setBalance, wallets, isConnected, connectWallet, loading } =
+    useWalletStore();
+  const { chainCurrent } = useChainStore();
   const { balanceList } = useAssetsStore();
   const [connected, setConnected] = useState(false);
   const [sellCoins, setSellCoins] = useState([]);
@@ -55,7 +50,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
   const { refetch } = useGetBalances({
     wallets: wallets
       .map((wallet) => {
-        if (wallet.chainInfo.chainID === selectedChain.chainID) {
+        if (wallet.chainInfo.chainID === chainCurrent?.chainID) {
           return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
         }
       })
@@ -63,9 +58,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     onSuccess: onSuccess,
   });
   useEffect(() => {
-    // getPoolList(selectedChain?.restUrl)
+    // getPoolList(chainCurrent?.restUrl)
     refetch();
-    
   }, []);
   useEffect(() => {
     if (pools.length > 0) {
@@ -105,8 +99,8 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     console.log(pools, 99999);
   }, [pools]);
   useEffect(() => {
-    getBalanceList(selectedChain?.restUrl, wallets?.[0]?.address);
-  }, [selectedChain, wallets]);
+    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
+  }, [chainCurrent, wallets]);
 
   useEffect(() => {
     setConnected(isConnected);
@@ -121,7 +115,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
     if (!isConnected) {
       setBalance([{ address: '', balances: [], id: '' }]);
     }
-  }, [selectedChain, isConnected, loading]);
+  }, [chainCurrent, isConnected, loading]);
 
   const filterBalance = (denom: string) => {
     const balances = balanceList || [];
@@ -158,7 +152,7 @@ const SwapControls: React.FC<SwapControlsProps> = ({
           <div className="flex items-center mb-2">
             <div className="flex-1">
               Sell
-              <span className="text-sm ml-1">({selectedChain.name})</span>
+              <span className="text-sm ml-1">({chainCurrent.name})</span>
             </div>
             <div className="mr-2">
               Balance: {filterBalance(swapPair.first?.denom)}

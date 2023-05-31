@@ -14,14 +14,15 @@ function FaucetModal() {
     chainFaucetCoin,
     chainFaucetAmount,
     chainFaucetLoading,
+    chainCurrent
   } = useChainStore();
-  const { selectedChain, wallets } = useWalletStore();
+  const { wallets } = useWalletStore();
 
   useEffect(() => {
-    if (selectedChain?.restUrl) {
-      fetchChainCoinList(selectedChain.restUrl, 'Native');
+    if (chainCurrent?.restUrl) {
+      fetchChainCoinList(chainCurrent.restUrl, 'Native');
     }
-  }, [selectedChain]);
+  }, [chainCurrent]);
 
   useEffect(() => {
     if (!chainFaucetCoin?.denom && chainCoinListNative?.length > 0) {
@@ -48,7 +49,7 @@ function FaucetModal() {
               <h3 className="text-xl font-medium">
                 Faucet
                 <span className="text-sm ml-4 px-3 py-[2px] bg-base-200 rounded-full">
-                  {selectedChain.name}
+                  {chainCurrent.name}
                 </span>
               </h3>
               <label
@@ -104,7 +105,7 @@ function FaucetModal() {
             <div className="text-right mt-6 ">
               <button
                 className="mr-2 truncate btn-primary btn w-full"
-                onClick={() => rechargeCoins(wallets, selectedChain)}
+                onClick={() => rechargeCoins(wallets, chainCurrent)}
                 disabled={chainFaucetLoading || !chainFaucetAmount}
               >
                 Faucet
