@@ -109,6 +109,8 @@ export const usePoolStore = () => {
 };
 
 export const getPoolList = async (restUrl: string) => {
+  poolStore.poolList = [];
+  poolStore.poolPagination = { total: '0' };
   const res = await fetchLiquidityPools(restUrl);
   const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
   poolStore.poolList = interchainLiquidityPool || [];

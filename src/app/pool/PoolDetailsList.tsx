@@ -13,46 +13,14 @@ import {
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
-import { usePoolStore, poolStore, getPoolList } from '@/store/pool';
+import { usePoolStore } from '@/store/pool';
 
 interface PoolDetailsListProps {}
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
-  const {
-    setLoading,
-    wallets,
-    suggestChain,
-    getClient,
-    selectedChain,
-    balanceList,
-    getBalance,
-    setBalance,
-  } = useWalletStore();
+  const { setLoading, wallets, suggestChain, getClient, selectedChain } =
+    useWalletStore();
   const { poolList } = usePoolStore();
-  const [allBalances, setAllBalances] = useState<Balance[]>([]);
-  const fetchBalances = async () => {
-    const balance = await getBalance(true);
-    setAllBalances(balance);
-    setBalance(balance);
-
-    const balanceItem = balance?.filter((item) => {
-      if (item.id === selectedChain.chainID) {
-        return item;
-      }
-    });
-    const defalutFirst = balanceItem?.[0]?.balances?.filter((item) => {
-      if (!item.denom.includes('pool')) {
-        return item;
-      }
-    })?.[0]?.denom;
-
-    console.log(allBalances, 'allBalancesallBalancesallBalances', balanceList);
-  };
-  // useEffect(() => {
-  //   if (selectedChain.chainID) {
-  //     fetchBalances();
-  //   }
-  // }, [selectedChain]);
   const [poolPair] = useState({
     first: { denom: '', amount: '0', weight: '50', chain: '' },
     second: { denom: '', amount: '0', weight: '50', chain: '' },
@@ -225,6 +193,11 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
               ))}
             </tbody>
           </table>
+          {poolList?.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="m-4">No Data</div>
+            </div>
+          ) : null}
         </div>
         {/* pagination */}
         <PoolPagination />

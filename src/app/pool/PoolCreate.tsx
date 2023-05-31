@@ -13,7 +13,8 @@ import {
   setRemoteBalanceList,
 } from '@/store/assets';
 import { BriefChainInfo } from '@/shared/types/chain';
-import useWalletStore, { Wallet } from '@/store/wallet';
+import { Wallet } from '@/shared/types/wallet';
+import useWalletStore from '@/store/wallet';
 
 import PoolChains from './PoolChains';
 import PoolCoins from './PoolCoins';
