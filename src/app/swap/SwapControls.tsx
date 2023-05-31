@@ -8,21 +8,15 @@ import {
   MdArrowDownward,
 } from 'react-icons/md';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
-import {
-  usePoolStore,
-} from '@/store/pool';
-import {
-  useSwapStore,
-  updateCoinAmount,
-  onSwap,
-} from '@/store/swap';
+import { usePoolStore } from '@/store/pool';
+import { useSwapStore, updateCoinAmount, onSwap } from '@/store/swap';
 import { useChainStore } from '@/store/chain';
 import SwapCoins from './SwapCoins';
 
 interface SwapControlsProps {}
 
 const SwapControls: React.FC<SwapControlsProps> = () => {
-  const { swapPair,swapLoading } = useSwapStore();
+  const { swapPair, swapLoading } = useSwapStore();
   const { wallets, isConnected, connectWallet, getClient } = useWalletStore();
   const { chainCurrent, chainList } = useChainStore();
   const { balanceList } = useAssetsStore();
@@ -93,32 +87,7 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
           </div>
 
           <div className="flex items-center mb-2">
-            {/* <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-              <ul className="menu menu-horizontal px-1">
-                <li tabIndex={0}>
-                  <a>
-                    <span> {swapPair.native?.denom}</span>
-                    <MdKeyboardArrowDown className="fill-current" />
-                  </a>
-                  <ul className="p-2 bg-base-100 z-10">
-                    {nativeList?.map((item, index) => {
-                      return (
-                        <li key={index}>
-                          <a
-                            onClick={() =>
-                              updateCoinDenom(item?.balance?.denom, 'native')
-                            }
-                          >
-                            {item?.balance?.denom || '--'}
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </li>
-              </ul>
-            </div> */}
-            <SwapCoins type='native'/>
+            <SwapCoins type="native" />
             <CoinInput
               coin={swapPair.native}
               placeholder="Amount"
@@ -127,7 +96,7 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
               }}
             />
           </div>
-             
+
           <div className="flex items-center text-gray-500 dark:text-gray-400 !hidden">
             <div className="flex-1">Side Hub</div>
             <div></div>
@@ -172,32 +141,7 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
           </div>
 
           <div className="flex items-center mb-2">
-            {/* <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
-              <ul className="menu menu-horizontal px-1">
-                <li tabIndex={0}>
-                  <a>
-                    <span> {swapPair.remote?.denom}</span>
-                    <MdKeyboardArrowDown className="fill-current" />
-                  </a>
-                  <ul className="p-2 bg-base-100 z-10">
-                    {remoteList?.map((item, index) => {
-                      return (
-                        <li key={index}>
-                          <a
-                            onClick={() =>
-                              updateCoinDenom(item?.balance?.denom, 'remote')
-                            }
-                          >
-                            {item?.balance?.denom || '--'}
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </li>
-              </ul>
-            </div> */}
-             <SwapCoins type='remote'/>
+            <SwapCoins type="remote" />
             <CoinInput
               coin={swapPair.remote}
               placeholder="Amount"
@@ -206,7 +150,7 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
               }}
             />
           </div>
-         
+
           <div className="flex items-center text-gray-500 dark:text-gray-400 !hidden">
             <div className="flex-1">Side Hub</div>
             <div>~$9999</div>
