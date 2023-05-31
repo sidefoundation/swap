@@ -411,7 +411,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
             <div className="flex items-center mb-2">
               <div className=" mr-4  w-[100px]">
-                <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[100px]">
+                <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[110px]">
                   <li tabIndex={0} className="w-full">
                     <a className="w-full truncate text-sm">
                       {currentAtomicSwap?.counterparties?.length === 0

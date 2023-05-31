@@ -5,17 +5,9 @@ import { useEffect } from 'react';
 import { BriefChainInfo } from '@/shared/types/chain';
 import { useChainStore, setChainCurrent } from '@/store/chain';
 export default function ToggleChain() {
-  const { suggestChain, setChain, selectedWallet } =
+  const { suggestChain, selectedWallet } =
     useWalletStore();
   const { chainList, chainCurrent } = useChainStore();
-
-  useEffect(() => {
-    return () => {
-      if (selectedWallet.address) {
-        setChain(selectedWallet.chainInfo as BriefChainInfo);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (chainCurrent) {

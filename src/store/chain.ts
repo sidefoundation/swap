@@ -1,5 +1,5 @@
 import { proxy, useSnapshot } from 'valtio';
-
+// import { getSideChainInfo } from '@/shared/types/chain';
 import { Coin } from '@cosmjs/stargate';
 import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import chargeCoins from '@/http/requests/post/chargeCoins';
@@ -34,6 +34,13 @@ export const useChainStore = () => {
 };
 
 export const setChainCurrent = (val: BriefChainInfo) => {
+  // const { keplr } = window;
+  // if (!keplr) {
+  //   toast.error('You need to install Keplr');
+  //   return;
+  // }
+  // const chainInfo = getSideChainInfo(chain);
+  // await keplr.experimentalSuggestChain(chainInfo);
   chainStore.chainCurrent = val;
 };
 
