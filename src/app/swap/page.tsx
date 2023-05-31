@@ -1,97 +1,58 @@
 'use client';
 
-import useWalletStore from '@/store/wallet';
-import { Coin, StdFee } from '@cosmjs/stargate';
-import React, { useEffect, useState } from 'react';
-import { Wallet } from '@/shared/types/wallet';
 import toast from 'react-hot-toast';
+
+import React, { useEffect, useState } from 'react';
+
 import {
   MsgSwapRequest,
   SwapMsgType,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+
 import { useChainStore } from '@/store/chain';
+import { getBalanceList } from '@/store/assets';
+import useWalletStore from '@/store/wallet';
+import { useSwapStore, swapStore } from '@/store/swap';
+import { getPoolList, usePoolStore,usePoolNativeList,usePoolRemoteListByNative } from '@/store/pool';
+
 import Long from 'long';
-import { getPoolId, MarketMaker } from '@/utils/swap';
-import { useGetLiquidityPools } from '@/http/query/useGetLiquidityPools';
-import { ILiquidityPool } from '@/shared/types/liquidity';
 import fetchTxs from '@/http/requests/get/fetchTxs';
+import { StdFee } from '@cosmjs/stargate';
+import { Wallet } from '@/shared/types/wallet';
+
 import SwapControls from './SwapControls';
 
 const Swap = () => {
-  const {chainCurrent}=useChainStore()
-  const { wallets, setLoading, loading, getClient, getBalance } =
-    useWalletStore();
-
-  const [pools, setPools] = useState<ILiquidityPool[]>([]);
-
-  const getPools = (pools: ILiquidityPool[]) => {
-    setPools(pools);
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'NATIVE';
-          })?.balance?.denom || '',
-        amount: swapPair.first.amount,
-      },
-      second: {
-        denom:
-          pools[0]?.assets?.find((asset) => {
-            return asset.side === 'REMOTE';
-          })?.balance?.denom || '',
-        amount: swapPair.second.amount,
-      },
-    }));
-  };
-  const { refetch } = useGetLiquidityPools({
-    restUrl: chainCurrent?.restUrl,
-    onSuccess: getPools,
-  });
-  const [swapPair, setSwapPair] = useState<{
-    first: Coin;
-    second: Coin;
-  }>({
-    first: {
-      denom: '',
-      amount: '0',
-    },
-    second: {
-      denom: '',
-      amount: '0',
-    },
-  });
+  const { chainCurrent } = useChainStore();
+  const { poolList } = usePoolStore();
+  const { swapPair } = useSwapStore();
+  const { wallets, setLoading, loading, getClient } = useWalletStore();
+  const {nativeList} = usePoolNativeList()
+  const {remoteList} = usePoolRemoteListByNative()
 
   useEffect(() => {
-    refetch();
+    // initData();
+  }, []);
+
+  useEffect(() => {
+    initData();
+    console.log(poolList, 'poolList');
   }, [loading, chainCurrent]);
 
-  const updateFirstCoin = (value: string) => {
-    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
-    const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: swapPair.first.denom, amount: value };
-    const market = new MarketMaker(pool!, 300);
-    const estimate = market.leftSwap(tokenIn, swapPair.second.denom);
+  const initData = async () => {
+    if (chainCurrent?.restUrl) {
+      await getPoolList(chainCurrent?.restUrl);
 
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: { denom: swapPair.first.denom, amount: value },
-      second: estimate,
-    }));
-  };
-
-  const updateSecondCoin = (value: string) => {
-    const poolId = getPoolId([swapPair.first.denom, swapPair.second.denom]);
-    const pool = pools.find((pool) => pool.poolId == poolId);
-    const tokenIn: Coin = { denom: swapPair.second.denom, amount: value };
-    const market = new MarketMaker(pool!, 300);
-    const estimate = market.leftSwap(tokenIn, swapPair.first.denom);
-
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: estimate,
-      second: { denom: swapPair.second.denom, amount: value },
-    }));
+      (swapStore.swapPair.native.denom =
+        poolList[0]?.assets?.find((asset) => {
+          return asset.side === 'NATIVE';
+        })?.balance?.denom || ''),
+        (swapStore.swapPair.remote.denom =
+          poolList[0]?.assets?.find((asset) => {
+            return asset.side === 'REMOTE';
+          })?.balance?.denom || ''),
+        console.log(poolList, 'poolList');
+    }
   };
 
   const onSwap = async () => {
@@ -110,8 +71,8 @@ const Swap = () => {
       const swapMsg: MsgSwapRequest = {
         swapType: SwapMsgType.LEFT,
         sender: wallets[0]!.address,
-        tokenIn: swapPair.first,
-        tokenOut: swapPair.second,
+        tokenIn: swapPair.native,
+        tokenOut: swapPair.remote,
         slippage: Long.fromInt(100),
         recipient: wallet!.address,
         timeoutHeight: {
@@ -160,7 +121,8 @@ const Swap = () => {
             id: toastItem,
           });
           // TODO: refresh
-          getBalance();
+          getBalanceList(chainCurrent?.restUrl, wallet!.address);
+          // getBalance();
         }
       } else {
         toast.error('error', {
@@ -178,14 +140,7 @@ const Swap = () => {
 
   return (
     <div>
-      <SwapControls
-        pools={pools}
-        swapPair={swapPair}
-        setSwapPair={setSwapPair}
-        updateFirstCoin={updateFirstCoin}
-        updateSecondCoin={updateSecondCoin}
-        onSwap={onSwap}
-      />
+      <SwapControls onSwap={onSwap} />
     </div>
   );
 };
