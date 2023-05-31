@@ -63,7 +63,7 @@ type Store = {
   poolPagination: {
     total: string;
   };
-  poolLoading: boolean
+  poolLoading: boolean;
 };
 
 export const poolStore = proxy<Store>({
@@ -170,14 +170,14 @@ export const usePoolRemoteListByNative = () => {
 };
 
 export const getPoolList = async (restUrl: string) => {
-  poolStore.poolLoading = true
+  poolStore.poolLoading = true;
   poolStore.poolList = [];
   poolStore.poolPagination = { total: '0' };
   const res = await fetchLiquidityPools(restUrl);
   const { interchainLiquidityPool = [], pagination = { total: '0' } } = res;
   poolStore.poolList = interchainLiquidityPool || [];
   poolStore.poolPagination = pagination || { total: '0' };
-  poolStore.poolLoading = false
+  poolStore.poolLoading = false;
 };
 
 // all assets add
@@ -546,11 +546,6 @@ export const redeemPoolItemSingle = async (
     return;
   }
   console.log(wallet, 'wallet', selectedChain);
-  if (wallet.chainInfo.denom !== poolStore.poolForm?.single?.balance.denom) {
-    console.log('no wallet');
-    return;
-  }
-
   const deposit = {
     denom: poolStore.poolItem.supply?.denom,
     amount: poolStore.poolForm.signleAmount,
@@ -575,7 +570,7 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: poolStore.poolItem.poolId,
+      denomOut: deposit.denom,
       // denomOut: 'aside'
     };
 
