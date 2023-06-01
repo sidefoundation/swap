@@ -29,7 +29,7 @@ function PoolCreate() {
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');
 
-    const counterparty = chainList[0]?.counterpartis?.[0];
+    const counterparty = chainList[0]?.counterparties?.[0];
     poolStore.poolFormCreate.counterParty = counterparty as CounterPartyType;
     const chainMap = getChainMap();
     const chainRemote = chainMap?.[

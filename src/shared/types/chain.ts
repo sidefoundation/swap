@@ -7,7 +7,7 @@ export interface BriefChainInfo {
   restUrl: string;
   prefix: string;
   denom: string;
-  counterpartis: {
+  counterparties: {
     chainID: string;
     name: string;
     channelId: string;

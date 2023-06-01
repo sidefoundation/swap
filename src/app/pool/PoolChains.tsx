@@ -40,7 +40,7 @@ export default function PoolChains({
                 poolStore.poolFormCreate[type].chain = item as BriefChainInfo;
                 const chainMap = getChainMap();
                 if (type === 'native') {
-                  const counterparty = item?.counterpartis?.[0];
+                  const counterparty = item?.counterparties?.[0];
                   poolStore.poolFormCreate.counterParty =
                     counterparty as CounterPartyType;
                   const remoteChainId = counterparty?.chainID;
@@ -59,7 +59,7 @@ export default function PoolChains({
                   fetchChainCoinList(remoteChain?.restUrl, 'Remote');
                 }
                 if (type === 'remote') {
-                  const counterparty = item?.counterpartis?.[0];
+                  const counterparty = item?.counterparties?.[0];
                   poolStore.poolFormCreate.counterParty =
                     counterparty as CounterPartyType;
                   const nativeChainId = counterparty?.chainID;
