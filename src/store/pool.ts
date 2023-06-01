@@ -349,10 +349,6 @@ export const addPoolItemSingle = async (
     (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
   );
   console.log(wallet, 'wallet', selectedChain);
-  if (wallet.chainInfo.denom !== selectedCoin?.balance.denom) {
-    console.log('no wallet');
-    return;
-  }
 
   const deposit = {
     denom,
