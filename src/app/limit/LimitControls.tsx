@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useWalletStore, { Wallet } from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
-import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
 import { selectTimeList } from '@/shared/types/limit';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
 import { useChainStore, useRemoteChainList } from '@/store/chain';
@@ -20,7 +19,6 @@ import {
 } from 'react-icons/md';
 import Image from 'next/image';
 import TabItem from '@/components/TabItem';
-import { useGetBalances } from '@/http/query/useGetBalances';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
@@ -31,7 +29,7 @@ interface SwapControlsProps {}
 const LimitControls: React.FC<SwapControlsProps> = ({}) => {
   const { chainCurrent, chainList } = useChainStore();
   const { limitRemoteChainList } = useRemoteChainList();
-  const { setBalance, wallets, isConnected, loading, getClient } =
+  const { wallets, isConnected, getClient } =
     useWalletStore();
   const {
     makerReceivingAddress,
