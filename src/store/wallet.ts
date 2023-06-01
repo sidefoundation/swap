@@ -295,7 +295,6 @@ const useWalletStore = create<WalletState>(
             return { id: chain.chainInfo.chainID, balances: balances };
           });
         setLoading(false);
-        console.log(res.results.flat(),'getBalance');
         return res.results.flat();
       },
       setBalance: (balances: Balance[]) => {

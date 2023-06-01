@@ -1,42 +1,21 @@
 import {
   CancelSwapMsg,
-  MakeSwapMsg,
   TakeSwapMsg,
 } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
-import { useEffect, useState } from 'react';
+
+import { useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { useChainStore } from '@/store/chain';
 
-import { Coin, StdFee } from '@cosmjs/stargate';
+import { StdFee } from '@cosmjs/stargate';
 import Long from 'long';
 
-import { TokenInput } from '@/components/TokenInput';
 import { IAtomicSwapOrder } from '@/shared/types/order';
-import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
 import { timestampToDate } from '@/utils/utils';
 import toast from 'react-hot-toast';
-
-const TabItem = ({
-  value,
-  title,
-  setTab,
-  tab,
-}: {
-  value: string;
-  title: string;
-  setTab: Function;
-  tab: string;
-}) => {
-  return (
-    <div
-      className={`tab tab-sm ${tab === value ? 'tab-active' : ''}`}
-      onClick={() => setTab(value)}
-    >
-      {title}
-    </div>
-  );
-};
-
+import LimitOrderSelect from './LimitOrderSelect';
+import { getBalanceList, useAssetsStore } from '@/store/assets';
+import { useLimitStore, limitStore, getOrderList } from '@/store/limit';
 export type OrderCardProps = {
   order: IAtomicSwapOrder;
   tab: string;
@@ -124,149 +103,51 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 }
 
 export default function SwapOrder() {
-  const [tab, setTab] = useState('all');
+  const { balanceList } = useAssetsStore();
+  const { orderForm } = useLimitStore();
   const { chainCurrent } = useChainStore();
-  const { wallets, getBalance, getClient } = useWalletStore();
-  const [openOrder, setOpenOrder] = useState(false);
-  const [balances, setBalances] = useState<
-    {
-      id: string;
-      balances: Coin[];
-    }[]
-  >([]);
-  const [sender, setSender] = useState(wallets[0]?.chainInfo.chainID);
-  const [tokenPair, setTokenPair] = useState<Map<number, Coin>>(new Map());
-  const [orders, setOrders] = useState<IAtomicSwapOrder[]>([]);
+  const { wallets, getClient } = useWalletStore();
 
-  const fetchBalances = async () => {
-    const balance = await getBalance();
-    setBalances(balance);
-  };
-
-  const fetchOrders = async (rpcUrl: string) => {
-    const orders = await fetchAtomicSwapOrders(rpcUrl);
-    setOrders(orders);
+  const getCurrentBalance = () => {
+    if (wallets.length > 0) {
+      const walletItem = wallets?.find((wallet) => {
+        if (wallet.chainInfo.chainID === chainCurrent.chainID) {
+          return { restUrl: wallet.chainInfo.restUrl, address: wallet.address };
+        }
+      });
+      getBalanceList(chainCurrent?.restUrl, walletItem?.address);
+    }
   };
 
   useEffect(() => {
-    fetchBalances();
-    fetchOrders(chainCurrent?.restUrl);
+    if (chainCurrent?.restUrl) {
+      getCurrentBalance();
+      getOrderList(chainCurrent?.restUrl);
+    }
   }, []);
   useEffect(() => {
-    fetchOrders(chainCurrent?.restUrl);
+    if (chainCurrent?.restUrl) {
+      getCurrentBalance();
+      getOrderList(chainCurrent?.restUrl);
+    }
   }, [chainCurrent]);
 
-  const onMakeOrder = async () => {
-    if (tokenPair.size !== 2) {
-      alert('Please input token pair value');
-      return;
-    }
-
-    const sourceWallet = wallets.find((wallet) =>
-      sender?.includes(wallet.chainInfo.chainID)
-    );
-    const targetWallet = wallets.find(
-      (wallet) => !sender?.includes(wallet.chainInfo.chainID)
-    );
-
-    if (sourceWallet === undefined || targetWallet === undefined) {
-      console.log('sourceWallet or targetWallet not found');
-      return;
-    }
-
-    const client = await getClient(sourceWallet.chainInfo);
-
-    const srcBalances = balances.find(
-      (bal) => bal.id === sourceWallet.chainInfo.chainID
-    );
-    const tarBalances = balances.find(
-      (bal) => bal.id === targetWallet.chainInfo.chainID
-    );
-    if (srcBalances === undefined || tarBalances === undefined) {
-      return;
-    }
-
-    const tokenPairArray = Array.from(tokenPair);
-    const sellToken = tokenPairArray.find((item) => {
-      const foundToken = srcBalances.balances.find(
-        (bal) => bal.denom == item[1].denom
-      );
-      return foundToken !== undefined;
-    });
-    const buyToken = tokenPairArray.find((item) => {
-      const foundToken = tarBalances.balances.find(
-        (bal) => bal.denom == item[1].denom
-      );
-      return foundToken !== undefined;
-    });
-    if (sellToken?.[1] === undefined || buyToken?.[1] === undefined) {
-      return;
-    }
-    // Get current date
-    const currentDate = new Date();
-
-    // Get current timestamp in milliseconds
-    const currentTimestamp = currentDate.getTime();
-
-    // Calculate the timestamp for 24 hours from now
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
-    const expirationTimestamp = currentTimestamp + oneDayInMilliseconds;
-
-    const timeoutTimeStamp = Long.fromNumber(
-      (Date.now() + 60 * 1000) * 1000000
-    ); //
-
-    const makeOrderMsg: MakeSwapMsg = {
-      sourcePort: 'swap',
-      sourceChannel: 'channel-1',
-      sellToken: sellToken[1],
-      buyToken: buyToken[1],
-      makerAddress: sourceWallet.address,
-
-      makerReceivingAddress: sourceWallet.address,
-      desiredTaker: '',
-      createTimestamp: Long.fromNumber(currentTimestamp),
-      timeoutHeight: {
-        revisionHeight: Long.fromInt(10),
-        revisionNumber: Long.fromInt(10000000000),
-      },
-      timeoutTimestamp: timeoutTimeStamp,
-      expirationTimestamp: Long.fromInt(expirationTimestamp),
-    };
-
-    const msg = {
-      typeUrl: '/ibc.applications.atomic_swap.v1.MakeSwapMsg',
-      value: makeOrderMsg,
-    };
-    console.log(client);
-
-    const fee: StdFee = {
-      amount: [{ denom: sourceWallet.chainInfo.denom, amount: '0.01' }],
-      gas: '200000',
-    };
-
-    const data = await client!.signWithEthermint(
-      sourceWallet.address,
-      [msg],
-      sourceWallet.chainInfo,
-      fee,
-      'test'
-    );
-    console.log('Signed data', data);
-    if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
-      console.log('TxHash:', txHash);
-    } else {
-      console.log('there are problem in encoding');
-    }
-  };
+  useEffect(() => {
+    limitStore.orderForm.filterList =
+      orderForm.orderList.filter((order, index) => {
+        if (order.side === orderForm.sideType.key) {
+          return order;
+        }
+      }) || [];
+  }, [orderForm.sideType]);
 
   const onTakeOrder = async (order: IAtomicSwapOrder) => {
-    const chainID = balances.find((bal) =>
-      bal.balances
-        .map((item) => item.denom)
-        .includes(order.maker.buy_token.denom)
-    )?.id;
+    // const chainID = balances.find((bal) =>
+    //   bal.balances
+    //     .map((item) => item.denom)
+    //     .includes(order.maker.buy_token.denom)
+    // )?.id;
+    const chainID = chainCurrent.chainID
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.chainID === chainID
     );
@@ -325,11 +206,15 @@ export default function SwapOrder() {
   };
 
   const onCancelOrder = async (order: IAtomicSwapOrder) => {
-    const chainID = balances.find((bal) =>
-      bal.balances
-        .map((item) => item.denom)
-        .includes(order.maker.sell_token.denom)
-    )?.id;
+    const chainID = chainCurrent.chainID
+    // balanceList
+    //   .map((item) => item.denom)
+    //   .includes(order.maker.sell_token.denom);
+    // balances.find((bal) =>
+    //   bal.balances
+    //     .map((item) => item.denom)
+    //     .includes(order.maker.sell_token.denom)
+    // )?.id;
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.chainID === chainID
     );
@@ -385,44 +270,14 @@ export default function SwapOrder() {
     }
   };
 
-  const onNewOrder = () => {
-    setOpenOrder(true);
-  };
-
   return (
     <div>
-      {!openOrder && (
-        <div>
-          <div className="tabs hidden">
-            <TabItem tab={tab} setTab={setTab} title="All" value="all" />
-            <TabItem
-              tab={tab}
-              setTab={setTab}
-              title="Inbound"
-              value="inbound"
-            />
-            <TabItem
-              tab={tab}
-              setTab={setTab}
-              title="Outbound"
-              value="outbound"
-            />
-            <TabItem
-              tab={tab}
-              setTab={setTab}
-              title="Completed"
-              value="completed"
-            />
-            <TabItem
-              tab={tab}
-              setTab={setTab}
-              title="Cancelled"
-              value="cancelled"
-            />
-          </div>
+      <div>
+        <LimitOrderSelect onReFresh={getCurrentBalance} />
 
-          <div className="">
-            {orders.map((order, index) => (
+        <div className="">
+          {orderForm.filterList.map((order, index) => {
+            return (
               <OrderCard
                 order={order}
                 key={index}
@@ -431,64 +286,15 @@ export default function SwapOrder() {
                 onCancel={(order) => onCancelOrder(order)}
                 wallets={wallets}
               ></OrderCard>
-            ))}
-          </div>
-        </div>
-      )}
-      {openOrder && (
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div>Input Swap Params</div>
-          {balances.map((coins, index) => {
-            return (
-              <div className="grid gap-4">
-                {coins.balances
-                  .filter((coin) => !coin.denom.includes('pool'))
-                  .map((coin) => {
-                    return (
-                      <TokenInput
-                        placeholder="Amount.."
-                        coin={
-                          tokenPair.get(index) ?? {
-                            denom: coin.denom,
-                            amount: '0',
-                          }
-                        }
-                        onChange={(amount) => {
-                          const updatedTokenPair = new Map(tokenPair);
-                          updatedTokenPair.set(index, {
-                            denom: coin.denom,
-                            amount: amount,
-                          });
-                          setTokenPair(updatedTokenPair);
-                        }}
-                      ></TokenInput>
-                    );
-                  })}
-                {index < balances.length - 1 && (
-                  <div className="w-full h-1 bg-gray-700"></div>
-                )}
-              </div>
             );
           })}
-
-          <label>
-            Select Wallet:
-            <select
-              className="ml-4"
-              onChange={(e) => setSender(e.target.value)}
-            >
-              {wallets.map((item, index) => (
-                <option value={item.chainInfo.chainID}>
-                  Wallet {index} ({item.chainInfo.chainID})
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="btn btn-primary" onClick={onMakeOrder}>
-            Make Order
-          </button>
         </div>
-      )}
+        {orderForm.filterList?.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="m-4">No Data</div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
