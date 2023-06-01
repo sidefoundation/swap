@@ -56,6 +56,7 @@ type Store = {
       weight: number;
     };
     counterParty: CounterPartyType;
+    poolEnabler: string;
     memo: string;
     gas: string;
     modalShow: boolean;
@@ -97,6 +98,7 @@ export const poolStore = proxy<Store>({
       portId: '',
       type: '',
     },
+    poolEnabler: '',
     memo: '',
     gas: '200000',
     modalShow: false,
@@ -633,6 +635,7 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
+      poolEnabler: poolStore.poolFormCreate.poolEnabler,
       // sourceChannel: 'channel-0',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,
