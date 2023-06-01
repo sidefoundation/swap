@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useWalletStore, { Wallet } from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
+import { selectTimeList } from '@/shared/types/limit';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
 import { useChainStore, useRemoteChainList } from '@/store/chain';
 import {
@@ -9,6 +10,7 @@ import {
   useLimitRate,
   limitStore,
   getSupplyList,
+  onMakeOrder,
 } from '@/store/limit';
 import {
   MdKeyboardArrowDown,
@@ -19,26 +21,16 @@ import {
 import Image from 'next/image';
 import TabItem from '@/components/TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
-import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
 import LimitOrder from './LimitOrder';
 import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
-interface SwapControlsProps {
-}
+interface SwapControlsProps {}
 
-const LimitControls: React.FC<SwapControlsProps> = ({
-}) => {
-  const { chainCurrent } = useChainStore();
+const LimitControls: React.FC<SwapControlsProps> = ({}) => {
+  const { chainCurrent, chainList } = useChainStore();
   const { limitRemoteChainList } = useRemoteChainList();
-  const selectList = [
-    { option: 'Seconds', key: 0 },
-    { option: 'Minutes', key: 60 },
-    { option: 'Hour', key: 60 * 60 },
-    { option: 'Days', key: 24 * 60 * 60 },
-    { option: 'Year', key: 365 * 24 * 60 * 60 },
-  ];
   const { setBalance, wallets, isConnected, loading, getClient } =
     useWalletStore();
   const {
@@ -49,6 +41,8 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     limitNative,
     limitRemote,
     selectedRemoteChain,
+    selectedTime,
+    expirationTime
   } = useLimitStore();
   const { limitRate } = useLimitRate();
 
@@ -78,15 +72,12 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     getCurrentBalance();
   }, [chainCurrent, wallets]);
 
-  
-
   useEffect(() => {
     if (nativeSupplyList.length > 0) {
       limitStore.limitNative.supply = nativeSupplyList[0] as Coin;
     }
   }, [nativeSupplyList]);
 
-  
   useEffect(() => {
     if (limitRemoteChainList.length > 0) {
       limitStore.selectedRemoteChain = limitRemoteChainList[0];
@@ -94,17 +85,25 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   }, [limitRemoteChainList]);
 
   useEffect(() => {
-    console.log('获取supply')
+    console.log('获取supply', selectedRemoteChain?.chainID);
+    if (selectedRemoteChain?.chainID) {
+      const url =
+        chainList.find((item) => {
+          if (item.chainID === selectedRemoteChain?.chainID) {
+            return item;
+          }
+        })?.restUrl || '';
+      getSupplyList(url, 'remote');
+    }
   }, [selectedRemoteChain]);
 
-  const [selectSecond, setSelectSecond] = useState({});
-  const [currentAtomicSwap, setAtomicSwapList] = useState({});
-  const [selectedChannel, setSelectChannel] = useState({});
-  const [connected, setConnected] = useState(false);
+  useEffect(() => {
+    if (remoteSupplyList.length > 0) {
+      limitStore.limitRemote.supply = remoteSupplyList[0] as Coin;
+    }
+  }, [remoteSupplyList]);
+
   const [tab, setTab] = useState('limit');
-  const [selectedTime, setselectedTime] = useState('Hour');
-  const [expirationTime, setExpirationTime] = useState(1);
-  const [secondSwapList, setSecondSwapList] = useState([]);
 
   const onSuccess = (
     data: {
@@ -127,55 +126,26 @@ const LimitControls: React.FC<SwapControlsProps> = ({
   });
 
   useEffect(() => {
-    setConnected(isConnected);
-  }, [isConnected]);
-  useEffect(() => {
     if (isConnected) {
-      refetch();
+      // refetch();
     }
     setBalance([{ address: '', balances: [], id: '' }]);
   }, [chainCurrent, isConnected, loading]);
 
-  useEffect(() => {
-    if (tab === 'limit') {
-      fetchSwapList('sell');
-      const findItem = AtomicSwapConfig.find((item) => {
-        if (item.chain === chainCurrent.name) {
-          return item;
-        }
-      });
-      if (findItem?.counterparties) {
-        setAtomicSwapList(findItem);
-      }
-    }
-  }, [tab, chainCurrent]);
+  // useEffect(() => {
+  //   if (tab === 'limit') {
+  //     fetchSwapList('sell');
+  //     const findItem = AtomicSwapConfig.find((item) => {
+  //       if (item.chain === chainCurrent.name) {
+  //         return item;
+  //       }
+  //     });
+  //     if (findItem?.counterparties) {
+  //       setAtomicSwapList(findItem);
+  //     }
+  //   }
+  // }, [tab, chainCurrent]);
 
-  useEffect(() => {
-    if (selectedChannel?.endpoint) {
-      fetchSwapList('buy', selectedChannel?.endpoint);
-    }
-  }, [selectedChannel]);
-
-  useEffect(() => {
-    if (secondSwapList?.length > 0) {
-      setSelectSecond(secondSwapList?.[0]);
-    }
-  }, [secondSwapList]);
-
-  useEffect(() => {
-    if (currentAtomicSwap?.counterparties?.length > 0) {
-      setSelectChannel(currentAtomicSwap?.counterparties?.[0]);
-    }
-  }, [currentAtomicSwap]);
-
-  const fetchSwapList = async (position: string, url?: string) => {
-    let list = [];
-    if (position === 'buy' && url) {
-      setSecondSwapList([]);
-      const list = await fetchAtomicSwapList(url);
-      setSecondSwapList(list);
-    }
-  };
   const filterBalance = (denom: string) => {
     const balances = balanceList;
     console.log(balanceList, 'balanceListbalanceList');
@@ -186,7 +156,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     );
   };
 
-  const onMakeOrder = async () => {
+  const onMakeOrder2 = async () => {
     if (
       parseFloat(limitNative.amount) <= 0 ||
       parseFloat(limitRemote.amount) <= 0
@@ -210,12 +180,12 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
     const sellToken = {
       denom: limitNative.supply.denom,
-      amount: limitNative.amount
+      amount: limitNative.amount,
     };
-    const buyToken ={
+    const buyToken = {
       denom: limitRemote.supply.denom,
-      amount: limitRemote.amount
-    } 
+      amount: limitRemote.amount,
+    };
     // || buyToken === undefined
     if (sellToken === undefined) {
       return;
@@ -529,32 +499,21 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     step="1"
                     min="0"
                     value={expirationTime}
-                    onChange={(event) => setExpirationTime(event.target.value)}
+                    onChange={(event) => {
+                      limitStore.expirationTime = event.target.value
+                    }}
                     id="expiration-time"
                   />
-                  {/* <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                    <select
-                      className="w-full max-w-xs select select-sm"
-                      onChange={(e) => setselectedTime(e.target.value)}
-                      value={selectedTime}
-                    >
-                      {selectList.map((option) => {
-                        return (
-                          <option key={option.key} value={option.option}>
-                            {option.option}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div> */}
                 </div>
                 <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                   <select
                     className="w-full max-w-xs select select-sm"
-                    onChange={(e) => setselectedTime(e.target.value)}
+                    onChange={(e) => {
+                      limitStore.selectedTime = e.target.value;
+                    }}
                     value={selectedTime}
                   >
-                    {selectList.map((option) => {
+                    {selectTimeList.map((option) => {
                       return (
                         <option key={option.key} value={option.option}>
                           {option.option}
@@ -565,16 +524,16 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 </div>
               </div>
             </div>
-            {connected ? (
+            {isConnected ? (
               <button
                 className="w-full mt-6 text-lg capitalize btn btn-primary"
                 disabled={
                   parseFloat(limitNative.amount) >
-                    parseFloat(filterBalance(limitNative.supply.denom )) ||
+                    parseFloat(filterBalance(limitNative.supply.denom)) ||
                   !parseFloat(limitNative.amount) ||
                   !parseFloat(limitRemote.supply.denom)
                 }
-                onClick={onMakeOrder}
+                onClick={() => onMakeOrder(wallets, chainCurrent, getClient)}
               >
                 {parseFloat(limitNative.amount) >
                 parseFloat(filterBalance(limitNative.supply.denom))
@@ -592,9 +551,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             </div>
             <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
               <div>You will receive</div>
-              <div>
-                ≈ {limitRemote.amount}
-              </div>
+              <div>≈ {limitRemote.amount}</div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
