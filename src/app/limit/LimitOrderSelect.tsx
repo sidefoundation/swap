@@ -50,7 +50,6 @@ export default function LimitOrderSelect({
         className="w-[30px] cursor-pointer"
         onClick={() => {
           onReFresh()
-          console.log(555);
         }}
       >
         <MdRefresh />
