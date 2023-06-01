@@ -3,11 +3,11 @@ import {
   TakeSwapMsg,
 } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useWalletStore from '@/store/wallet';
 import { useChainStore } from '@/store/chain';
 
-import { Coin, StdFee } from '@cosmjs/stargate';
+import { StdFee } from '@cosmjs/stargate';
 import Long from 'long';
 
 import { IAtomicSwapOrder } from '@/shared/types/order';
@@ -103,20 +103,11 @@ function OrderCard({ order, tab, onTake, onCancel, wallets }: OrderCardProps) {
 }
 
 export default function SwapOrder() {
+  const { balanceList } = useAssetsStore();
   const { orderForm } = useLimitStore();
   const { chainCurrent } = useChainStore();
-  const { wallets, getBalance, getClient } = useWalletStore();
-  const [balances, setBalances] = useState<
-    {
-      id: string;
-      balances: Coin[];
-    }[]
-  >([]);
+  const { wallets, getClient } = useWalletStore();
 
-  const fetchBalances = async () => {
-    const balance = await getBalance();
-    setBalances(balance);
-  };
   const getCurrentBalance = () => {
     if (wallets.length > 0) {
       const walletItem = wallets?.find((wallet) => {
@@ -129,7 +120,6 @@ export default function SwapOrder() {
   };
 
   useEffect(() => {
-    // fetchBalances();
     if (chainCurrent?.restUrl) {
       getCurrentBalance();
       getOrderList(chainCurrent?.restUrl);
@@ -143,7 +133,6 @@ export default function SwapOrder() {
   }, [chainCurrent]);
 
   useEffect(() => {
-    console.log(6);
     limitStore.orderForm.filterList =
       orderForm.orderList.filter((order, index) => {
         if (order.side === orderForm.sideType.key) {
@@ -153,11 +142,12 @@ export default function SwapOrder() {
   }, [orderForm.sideType]);
 
   const onTakeOrder = async (order: IAtomicSwapOrder) => {
-    const chainID = balances.find((bal) =>
-      bal.balances
-        .map((item) => item.denom)
-        .includes(order.maker.buy_token.denom)
-    )?.id;
+    // const chainID = balances.find((bal) =>
+    //   bal.balances
+    //     .map((item) => item.denom)
+    //     .includes(order.maker.buy_token.denom)
+    // )?.id;
+    const chainID = chainCurrent.chainID
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.chainID === chainID
     );
@@ -216,11 +206,15 @@ export default function SwapOrder() {
   };
 
   const onCancelOrder = async (order: IAtomicSwapOrder) => {
-    const chainID = balances.find((bal) =>
-      bal.balances
-        .map((item) => item.denom)
-        .includes(order.maker.sell_token.denom)
-    )?.id;
+    const chainID = chainCurrent.chainID
+    // balanceList
+    //   .map((item) => item.denom)
+    //   .includes(order.maker.sell_token.denom);
+    // balances.find((bal) =>
+    //   bal.balances
+    //     .map((item) => item.denom)
+    //     .includes(order.maker.sell_token.denom)
+    // )?.id;
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.chainID === chainID
     );
@@ -279,7 +273,7 @@ export default function SwapOrder() {
   return (
     <div>
       <div>
-        <LimitOrderSelect  onReFresh={getCurrentBalance}/>
+        <LimitOrderSelect onReFresh={getCurrentBalance} />
 
         <div className="">
           {orderForm.filterList.map((order, index) => {
