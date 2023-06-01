@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import useWalletStore from '@/store/wallet';
+import useWalletStore, { Wallet } from '@/store/wallet';
 import { Coin, StdFee } from '@cosmjs/stargate';
 import { AtomicSwapConfig } from '@/utils/AtomicSwapConfig';
+import { selectTimeList } from '@/shared/types/limit';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
-import { useChainStore } from '@/store/chain';
+import { useChainStore, useRemoteChainList } from '@/store/chain';
+import {
+  useLimitStore,
+  useLimitRate,
+  limitStore,
+  getSupplyList,
+  onMakeOrder,
+} from '@/store/limit';
 import {
   MdKeyboardArrowDown,
   MdOutlineSettings,
@@ -13,213 +21,117 @@ import {
 import Image from 'next/image';
 import TabItem from '@/components/TabItem';
 import { useGetBalances } from '@/http/query/useGetBalances';
-import fetchAtomicSwapList from '@/http/requests/get/fetchAtomicSwapList';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import Long from 'long';
 import toast from 'react-hot-toast';
 import LimitOrder from './LimitOrder';
 import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
-interface SwapControlsProps {
-  swapPair: { first: Coin; second: Coin; type: string };
-  setSwapPair: (value: { first: Coin; second: Coin; type: string }) => void;
-}
+interface SwapControlsProps {}
 
-const LimitControls: React.FC<SwapControlsProps> = ({
-  swapPair,
-  setSwapPair,
-}) => {
-  const { chainCurrent } = useChainStore();
-  const selectList = [
-    { option: 'Seconds', key: 0 },
-    { option: 'Minutes', key: 60 },
-    { option: 'Hour', key: 60 * 60 },
-    { option: 'Days', key: 24 * 60 * 60 },
-    { option: 'Year', key: 365 * 24 * 60 * 60 },
-  ];
+const LimitControls: React.FC<SwapControlsProps> = ({}) => {
+  const { chainCurrent, chainList } = useChainStore();
+  const { limitRemoteChainList } = useRemoteChainList();
+  const { setBalance, wallets, isConnected, loading, getClient } =
+    useWalletStore();
   const {
-    setBalance,
-    wallets,
-    isConnected,
-    loading,
-    getClient,
-  } = useWalletStore();
-
+    makerReceivingAddress,
+    desiredTaker,
+    nativeSupplyList,
+    remoteSupplyList,
+    limitNative,
+    limitRemote,
+    selectedRemoteChain,
+    selectedTime,
+    expirationTime,
+  } = useLimitStore();
+  const { limitRate } = useLimitRate();
   const { balanceList } = useAssetsStore();
-  useEffect(() => {
-    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
-  }, [chainCurrent, wallets]);
-
-  const [makerReceivingAddress, setMakerReceivingAddress] = useState('');
-  const [desiredTaker, setDesiredTaker] = useState('');
-  const [selectFirst, setSelectFirst] = useState({});
-  const [selectSecond, setSelectSecond] = useState({});
-  const [currentAtomicSwap, setAtomicSwapList] = useState({});
-  const [selectedChannel, setSelectChannel] = useState({});
-  const [connected, setConnected] = useState(false);
   const [tab, setTab] = useState('limit');
-  const [selectedTime, setselectedTime] = useState('Hour');
-  const [expirationTime, setExpirationTime] = useState(1);
-  const [limitRate, setLimitRate] = useState('0');
-  const [firstSwapList, setFirstSwapList] = useState([]);
-  const [secondSwapList, setSecondSwapList] = useState([]);
 
-  const onSuccess = (
-    data: {
-      address: string;
-      balances: Coin[];
-      id: string;
-    }[]
-  ) => {
-    setBalance(data);
-  };
-  const { refetch } = useGetBalances({
-    wallets: wallets
-      .map((wallet) => {
-        if (wallet.chainInfo.chainID === chainCurrent.chainID) {
-          return { rest: wallet.chainInfo.restUrl, acc: wallet.address };
-        }
-      })
-      .filter((item) => item),
-    onSuccess: onSuccess,
-  });
   useEffect(() => {
-    refetch();
+    if (chainCurrent?.chainID) {
+      getCurrentBalance();
+      getSupplyList(chainCurrent.restUrl, 'native');
+    }
   }, []);
-  useEffect(() => {
-    setConnected(isConnected);
-  }, [isConnected]);
-  useEffect(() => {
-    if (isConnected) {
-      setFirstSwapList([]);
-      setSecondSwapList([]);
-      setBalance([{ address: '', balances: [], id: '' }]);
-      refetch();
-    }
-    if (!isConnected) {
-      setBalance([{ address: '', balances: [], id: '' }]);
-    }
-  }, [chainCurrent, isConnected, loading]);
 
-  useEffect(() => {
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      type: tab,
-    }));
-    if (tab === 'limit') {
-      // updataFirstCoinLimit(swapPair.first.amount);
-      setSelectFirst({});
-      setSelectSecond({});
-      setSelectChannel({});
-      fetchSwapList('sell');
-      const findItem = AtomicSwapConfig.find((item) => {
-        if (item.chain === chainCurrent.name) {
-          return item;
+  const getCurrentBalance = () => {
+    if (wallets.length > 0) {
+      const walletItem = wallets?.find((wallet) => {
+        if (wallet.chainInfo.chainID === chainCurrent.chainID) {
+          return { restUrl: wallet.chainInfo.restUrl, address: wallet.address };
         }
       });
-      if (findItem?.counterparties) {
-        setAtomicSwapList(findItem);
-      }
-    }
-  }, [tab, chainCurrent]);
-
-  useEffect(() => {
-    if (selectFirst?.denom) {
-      updataFirstCoinLimit(swapPair.first.amount, selectFirst?.denom);
-    } else {
-      updataFirstCoinLimit('0', '');
-    }
-  }, [selectFirst]);
-
-  useEffect(() => {
-    if (selectedChannel?.endpoint) {
-      fetchSwapList('buy', selectedChannel?.endpoint);
-    }
-  }, [selectedChannel]);
-
-  useEffect(() => {
-    if (selectSecond?.denom) {
-      updataSecondCoinLimit(swapPair.second.amount, selectSecond?.denom);
-    } else {
-      updataSecondCoinLimit('0', '');
-    }
-  }, [selectSecond]);
-
-  useEffect(() => {
-    if (firstSwapList?.length > 0) {
-      setSelectFirst(firstSwapList?.[0]);
-    }
-  }, [firstSwapList]);
-
-  useEffect(() => {
-    if (secondSwapList?.length > 0) {
-      setSelectSecond(secondSwapList?.[0]);
-    }
-  }, [secondSwapList]);
-
-  useEffect(() => {
-    if (currentAtomicSwap?.counterparties?.length > 0) {
-      setSelectChannel(currentAtomicSwap?.counterparties?.[0]);
-    }
-  }, [currentAtomicSwap]);
-  const fetchSwapList = async (position: string, url?: string) => {
-    let list = [];
-    if (position === 'sell') {
-      setFirstSwapList([]);
-      const list = await fetchAtomicSwapList(chainCurrent.restUrl);
-      setFirstSwapList(list);
-    }
-    if (position === 'buy' && url) {
-      setSecondSwapList([]);
-      const list = await fetchAtomicSwapList(url);
-      setSecondSwapList(list);
+      getBalanceList(chainCurrent?.restUrl, walletItem?.address);
     }
   };
+
+  useEffect(() => {
+    if (isConnected && tab === 'limit' && chainCurrent?.chainID) {
+      getCurrentBalance();
+      getSupplyList(chainCurrent.restUrl, 'native');
+    }
+  }, [chainCurrent, wallets, isConnected, tab]);
+
+  useEffect(() => {
+    if (nativeSupplyList.length > 0) {
+      limitStore.limitNative.supply = nativeSupplyList[0] as Coin;
+    }
+  }, [nativeSupplyList]);
+
+  useEffect(() => {
+    if (limitRemoteChainList.length > 0) {
+      limitStore.selectedRemoteChain = limitRemoteChainList[0];
+    }
+  }, [limitRemoteChainList]);
+
+  useEffect(() => {
+    if (selectedRemoteChain?.chainID) {
+      const url =
+        chainList.find((item) => {
+          if (item.chainID === selectedRemoteChain?.chainID) {
+            return item;
+          }
+        })?.restUrl || '';
+      getSupplyList(url, 'remote');
+    }
+  }, [selectedRemoteChain]);
+
+  useEffect(() => {
+    if (remoteSupplyList.length > 0) {
+      limitStore.limitRemote.supply = remoteSupplyList[0] as Coin;
+    }
+  }, [remoteSupplyList]);
+
   const filterBalance = (denom: string) => {
     const balances = balanceList;
     return (
       balances.find((item) => {
         return item.denom === denom;
-      })?.amount || 0
+      })?.amount || '0'
     );
   };
-  // get buy chain
-  // const up
-  // limit input
-  const updataFirstCoinLimit = (value: string, denom?: string) => {
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      first: { denom: denom || swapPair.first.denom, amount: value },
-    }));
-    if (!!parseFloat(value) || !!parseFloat(swapPair.second.amount)) {
-      setLimitRate('0');
-    }
-    if (!!parseFloat(value) && !!parseFloat(swapPair.second.amount)) {
-      const rate = (
-        parseFloat(value) / parseFloat(swapPair.second.amount)
-      ).toFixed(8);
-      setLimitRate(rate);
-    }
-  };
-  const updataSecondCoinLimit = (value: string, denom?: string) => {
-    setSwapPair((swapPair) => ({
-      ...swapPair,
-      second: { denom: denom || swapPair.second.denom, amount: value },
-    }));
-    if (!!parseFloat(value) || !!parseFloat(swapPair.first.amount)) {
-      setLimitRate('0');
-    }
-    if (!!parseFloat(value) && !!parseFloat(swapPair.first.amount)) {
-      const rate = (
-        parseFloat(swapPair.first.amount) / parseFloat(value)
-      ).toFixed(8);
-      setLimitRate(rate);
-    }
-  };
 
-  const onMakeOrder = async () => {
+  const btnDisabled = () => {
+    const nativePart =
+      parseFloat(limitNative.amount) >
+        parseFloat(filterBalance(limitNative.supply.denom)) ||
+      limitNative.supply.denom === '' ||
+      !parseFloat(limitNative.amount);
+    const remotePart =
+      limitRemote.supply.denom === '' || !parseFloat(limitRemote.amount);
+
+    const otherPart = !makerReceivingAddress || !expirationTime;
+
+    // console.log(nativePart, 'nativePart');
+    // console.log(remotePart, 'remotePart');
+    // console.log(otherPart, 'otherPart');
+    return nativePart || remotePart || otherPart;
+  };
+  const onMakeOrder2 = async () => {
     if (
-      parseFloat(swapPair.first.amount) <= 0 ||
-      parseFloat(swapPair.second.amount) <= 0
+      parseFloat(limitNative.amount) <= 0 ||
+      parseFloat(limitRemote.amount) <= 0
     ) {
       toast.error('Please input token pair value');
       return;
@@ -238,8 +150,14 @@ const LimitControls: React.FC<SwapControlsProps> = ({
 
     // need to confirm balance exist
 
-    const sellToken = swapPair.first;
-    const buyToken = swapPair.second;
+    const sellToken = {
+      denom: limitNative.supply.denom,
+      amount: limitNative.amount,
+    };
+    const buyToken = {
+      denom: limitRemote.supply.denom,
+      amount: limitRemote.amount,
+    };
     // || buyToken === undefined
     if (sellToken === undefined) {
       return;
@@ -305,8 +223,6 @@ const LimitControls: React.FC<SwapControlsProps> = ({
     }
     console.log('onMakeOrder', wallets, sourceWallet, chainCurrent);
   };
-  // TODO:
-  const switchSwap = async () => {};
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20 min-h-[300px]">
       <div className="flex items-center justify-between mb-5">
@@ -332,13 +248,15 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <span className="ml-1 text-sm">({chainCurrent?.name})</span>
               </div>
               <div className="mr-2">
-                Balance: {filterBalance(swapPair.first?.denom)}
+                Balance: {filterBalance(limitStore.limitNative.supply.denom)}
               </div>
               <div
                 className="font-semibold cursor-pointer"
-                onClick={() =>
-                  updataFirstCoinLimit(filterBalance(swapPair.first?.denom))
-                }
+                onClick={() => {
+                  limitStore.limitNative.amount = filterBalance(
+                    limitStore.limitNative.supply.denom
+                  );
+                }}
               >
                 Max
               </div>
@@ -348,24 +266,28 @@ const LimitControls: React.FC<SwapControlsProps> = ({
               <div className="bg-base-100  mr-4 px-2 rounded-full h-10 w-[160px] flex items-center justify-center">
                 <ul className="w-full px-1 menu menu-horizontal">
                   <li tabIndex={0} className="w-full">
-                    <a className="w-full text-sm truncate">
-                      {firstSwapList?.length === 0
-                        ? 'loading...'
-                        : swapPair.first?.denom}
+                    <a className="w-full text-sm truncate capitalize">
+                      {limitNative.supply.denom || '--'}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="z-10 w-full p-2 bg-base-100">
-                      {firstSwapList.map((item, index) => {
+                      {nativeSupplyList.map((item: Coin, index: number) => {
                         if (!item?.denom?.includes('pool')) {
                           return (
                             <li key={index} className="w-full truncate">
-                              <a onClick={() => setSelectFirst(item)}>
+                              <a
+                                onClick={() => {
+                                  limitStore.limitNative.supply = item;
+                                }}
+                              >
                                 <span className="flex-1 font-semibold text-center capitalize">
                                   {item?.denom}
                                 </span>
                               </a>
                             </li>
                           );
+                        } else {
+                          return null;
                         }
                       })}
                     </ul>
@@ -377,8 +299,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 type="number"
                 className="flex-1 w-0 h-10 text-2xl font-semibold text-right bg-transparent focus-within:outline-none placeholder:font-normal placeholder:text-sm"
                 placeholder="Amount"
-                onChange={(event) => updataFirstCoinLimit(event.target.value)}
-                value={swapPair.first.amount}
+                onChange={(event) => {
+                  limitStore.limitNative.amount = event.target.value;
+                }}
+                value={limitNative.amount}
                 min="0"
               />
             </div>
@@ -397,13 +321,15 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 {/* <span>({currentAtomicSwap?.chain})</span> */}
               </div>
               <div className="mr-2">
-                Balance: {filterBalance(swapPair.second?.denom)}
+                Balance: {filterBalance(limitStore.limitRemote.supply.denom)}
               </div>
               <div
                 className="font-semibold cursor-pointer"
-                onClick={() =>
-                  updataSecondCoinLimit(filterBalance(swapPair.second?.denom))
-                }
+                onClick={() => {
+                  limitStore.limitRemote.amount = filterBalance(
+                    limitStore.limitRemote.supply.denom
+                  );
+                }}
               >
                 Max
               </div>
@@ -414,16 +340,18 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 <ul className="menu menu-horizontal bg-base-100 rounded-full px-1 w-[110px]">
                   <li tabIndex={0} className="w-full">
                     <a className="w-full text-sm truncate">
-                      {currentAtomicSwap?.counterparties?.length === 0
-                        ? 'loading...'
-                        : selectedChannel?.name}
+                      {selectedRemoteChain?.name || '--'}
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="z-10 w-full p-2 bg-base-100">
-                      {currentAtomicSwap?.counterparties?.map((item, index) => {
+                      {limitRemoteChainList.map((item, index) => {
                         return (
                           <li key={index} className="w-full truncate">
-                            <a onClick={() => setSelectChannel(item)}>
+                            <a
+                              onClick={() => {
+                                limitStore.selectedRemoteChain = item;
+                              }}
+                            >
                               <span className="flex-1 text-sm text-center capitalize">
                                 {item?.name}
                               </span>
@@ -440,24 +368,28 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   <li tabIndex={0} className="w-full rounded-full">
                     <a className="w-full ">
                       <span className="text-sm capitalize truncate">
-                        {secondSwapList?.length === 0
-                          ? 'loading...'
-                          : swapPair.second?.denom}
+                        {limitRemote.supply.denom || '--'}
                       </span>
                       <MdKeyboardArrowDown className="fill-current" />
                     </a>
                     <ul className="z-10 w-full p-2 bg-base-100">
-                      {secondSwapList?.map((item, index) => {
+                      {remoteSupplyList?.map((item: Coin, index: number) => {
                         if (!item?.denom?.includes('pool')) {
                           return (
                             <li key={index} className="w-full truncate">
-                              <a onClick={() => setSelectSecond(item)}>
+                              <a
+                                onClick={() => {
+                                  limitStore.limitRemote.supply = item;
+                                }}
+                              >
                                 <span className="flex-1 font-semibold text-center capitalize">
                                   {item?.denom}
                                 </span>
                               </a>
                             </li>
                           );
+                        } else {
+                          return null;
                         }
                       })}
                     </ul>
@@ -468,8 +400,10 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 type="number"
                 className="w-full h-10 text-2xl font-semibold text-right bg-transparent focus-within:outline-none placeholder:font-normal placeholder:text-sm"
                 placeholder="Amount"
-                onChange={(event) => updataSecondCoinLimit(event.target.value)}
-                value={swapPair.second.amount}
+                onChange={(event) => {
+                  limitStore.limitRemote.amount = event.target.value;
+                }}
+                value={limitRemote.amount}
                 min="0"
               />
             </div>
@@ -479,7 +413,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             <div className="p-5 mt-4 rounded-lg bg-base-200">
               <div className="flex items-center justify-between mb-2 text-sm">
                 <div className="truncate">
-                  Sell {swapPair.first.denom} at rate
+                  Sell {limitNative.supply.denom} at rate
                 </div>
                 <div className="hidden font-semibold">Set to maket</div>
               </div>
@@ -494,7 +428,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     className="w-7 h-7"
                   />
                   <div className="flex-1 font-semibold text-center capitalize">
-                    {swapPair.second?.denom}
+                    {limitRemote.supply.denom}
                   </div>
 
                   <MdKeyboardArrowDown className="text-base" />
@@ -509,7 +443,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   placeholder="NONE"
                   value={makerReceivingAddress}
                   onChange={(event) =>
-                    setMakerReceivingAddress(event?.target?.value)
+                    (limitStore.makerReceivingAddress = event?.target?.value)
                   }
                 />
               </div>
@@ -521,7 +455,9 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                   className="h-10 text-xl bg-transparent focus-within:outline-none placeholder:text-sm placeholder:font-normal"
                   placeholder="NONE"
                   value={desiredTaker}
-                  onChange={(event) => setDesiredTaker(event?.target?.value)}
+                  onChange={(event) =>
+                    (limitStore.desiredTaker = event?.target?.value)
+                  }
                 />
               </div>
               <div className="px-5 pt-3 pb-2 rounded-lg bg-base-200">
@@ -535,32 +471,21 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                     step="1"
                     min="0"
                     value={expirationTime}
-                    onChange={(event) => setExpirationTime(event.target.value)}
+                    onChange={(event) => {
+                      limitStore.expirationTime = event.target.value;
+                    }}
                     id="expiration-time"
                   />
-                  {/* <div className="flex-1 px-4 text-base rounded-full bg-base-100">
-                    <select
-                      className="w-full max-w-xs select select-sm"
-                      onChange={(e) => setselectedTime(e.target.value)}
-                      value={selectedTime}
-                    >
-                      {selectList.map((option) => {
-                        return (
-                          <option key={option.key} value={option.option}>
-                            {option.option}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div> */}
                 </div>
                 <div className="flex-1 px-4 text-base rounded-full bg-base-100">
                   <select
                     className="w-full max-w-xs select select-sm"
-                    onChange={(e) => setselectedTime(e.target.value)}
+                    onChange={(e) => {
+                      limitStore.selectedTime = e.target.value;
+                    }}
                     value={selectedTime}
                   >
-                    {selectList.map((option) => {
+                    {selectTimeList.map((option) => {
                       return (
                         <option key={option.key} value={option.option}>
                           {option.option}
@@ -571,19 +496,14 @@ const LimitControls: React.FC<SwapControlsProps> = ({
                 </div>
               </div>
             </div>
-            {connected ? (
+            {isConnected ? (
               <button
                 className="w-full mt-6 text-lg capitalize btn btn-primary"
-                disabled={
-                  parseFloat(swapPair.first.amount) >
-                    parseFloat(filterBalance(swapPair.first?.denom)) ||
-                  !parseFloat(swapPair.first?.amount) ||
-                  !parseFloat(swapPair.second?.amount)
-                }
-                onClick={onMakeOrder}
+                disabled={btnDisabled()}
+                onClick={() => onMakeOrder(wallets, chainCurrent, getClient)}
               >
-                {parseFloat(swapPair.first.amount) >
-                parseFloat(filterBalance(swapPair.first?.denom))
+                {parseFloat(limitNative.amount) >
+                parseFloat(filterBalance(limitNative.supply.denom))
                   ? 'Insufficient Balance'
                   : 'Make Order'}
               </button>
@@ -598,15 +518,12 @@ const LimitControls: React.FC<SwapControlsProps> = ({
             </div>
             <div className="flex items-center justify-between px-4 pt-3 pb-1 text-sm">
               <div>You will receive</div>
-              <div>
-                ≈ {swapPair.second?.amount} {swapPair.second?.denom}
-              </div>
+              <div>≈ {limitRemote.amount}</div>
             </div>
             <div className="flex items-center justify-between px-4 pb-1 text-sm">
               <div>Minimum received after slippage (1%)</div>
               <div>
-                ≈ {parseFloat((swapPair.second?.amount || 0) * 0.99).toFixed(6)}{' '}
-                {swapPair.second?.denom}
+                ≈ {parseFloat((limitRemote.amount || 0) * 0.99).toFixed(6)}{' '}
               </div>
             </div>
           </div>

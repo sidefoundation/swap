@@ -20,7 +20,7 @@ import PoolCoins from './PoolCoins';
 import { AppConfig } from '@/utils/AppConfig';
 
 function PoolCreate() {
-  const { chainList,chainCurrent } = useChainStore();
+  const { chainList, chainCurrent } = useChainStore();
   const { poolFormCreate } = usePoolStore();
   const { balanceList, remoteBalanceList } = useAssetsStore();
   const { wallets, getClient, isConnected } = useWalletStore();
@@ -29,7 +29,7 @@ function PoolCreate() {
     poolStore.poolFormCreate.native.chain = chainNative;
     fetchChainCoinList(chainList[0]?.restUrl as string, 'Native');
 
-    const counterparty = chainList[0]?.counterpartis?.[0];
+    const counterparty = chainList[0]?.counterparties?.[0];
     poolStore.poolFormCreate.counterParty = counterparty as CounterPartyType;
     const chainMap = getChainMap();
     const chainRemote = chainMap?.[
@@ -166,7 +166,21 @@ function PoolCreate() {
               ))}
             </div>
           </div>
-
+          {/*poolEnabler*/}
+          <div className=" mb-2 mt-4  flex items-center justify-between">
+            <div className="text-sm">POOLENABLER</div>
+            <div className="flex items-center text-xs"></div>
+          </div>
+          <div>
+            <input
+              value={poolFormCreate?.poolEnabler || ''}
+              onChange={(e) => {
+                poolStore.poolFormCreate.poolEnabler = e.target.value;
+              }}
+              className="w-full h-9 bg-base-200 focus-within:outline-gray-300 dark:focus-within:outline-gray-600 px-4 rouned"
+            />
+          </div>
+          {/* MEMO */}
           <div className=" mb-2 mt-4  flex items-center justify-between">
             <div className="text-sm">MEMO</div>
             <div className="flex items-center text-xs">(Option)</div>
@@ -180,7 +194,7 @@ function PoolCreate() {
               className="w-full h-9 bg-base-200 focus-within:outline-gray-300 dark:focus-within:outline-gray-600 px-4 rouned"
             />
           </div>
-
+          {/*GAS  */}
           <div className=" mb-2 mt-4  flex items-center justify-between">
             <div className="text-sm">GAS</div>
             <div className="flex items-center text-xs"></div>

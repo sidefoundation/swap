@@ -22,7 +22,7 @@ import {} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import { encoder } from 'protobufjs';
 import { base64StringToUnit8Array } from '@/utils/utils';
 import { swapStore } from '@/store/swap';
-
+import type { IAsset } from '@/shared/types/asset';
 export type CounterPartyType = {
   chainID: string;
   name: string;
@@ -36,7 +36,7 @@ type Store = {
   poolItem: ILiquidityPool;
   poolForm: {
     action: 'add' | 'redeem';
-    single: ILiquidityPool;
+    single: IAsset;
     signleAmount: string;
     remoteAmount: string;
     nativeAmount: string;
@@ -56,6 +56,7 @@ type Store = {
       weight: number;
     };
     counterParty: CounterPartyType;
+    poolEnabler: string;
     memo: string;
     gas: string;
     modalShow: boolean;
@@ -97,6 +98,7 @@ export const poolStore = proxy<Store>({
       portId: '',
       type: '',
     },
+    poolEnabler: '',
     memo: '',
     gas: '200000',
     modalShow: false,
@@ -633,6 +635,7 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
+      poolEnabler: poolStore.poolFormCreate.poolEnabler,
       // sourceChannel: 'channel-0',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
       sender: wallet!.address,

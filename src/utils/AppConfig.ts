@@ -11,7 +11,7 @@ export const AppConfig = {
       rpcUrl: 'http://45.63.52.25:26657',
       restUrl: 'http://45.63.52.25:1317',
       denom: 'aside',
-      counterpartis: [
+      counterparties: [
         {
           chainID: 'alice_1819-1',
           name: 'sidechain-2',
@@ -35,7 +35,7 @@ export const AppConfig = {
       rpcUrl: 'http://66.42.41.25:26657',
       restUrl: 'http://66.42.41.25:1317',
       denom: 'bside',
-      counterpartis: [
+      counterparties: [
         {
           chainID: 'sidehub_1818-1',
           channelId: 'channel-0',

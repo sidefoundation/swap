@@ -35,6 +35,7 @@ export function swapMsgTypeToJSON(object: SwapMsgType): string {
 }
 export interface MsgCreatePoolRequest {
   sourcePort: string;
+  poolEnabler:string;
   sourceChannel: string;
   sender: string;
   chainId: string;
@@ -201,6 +202,7 @@ function createBaseMsgCreatePoolRequest(): MsgCreatePoolRequest {
   return {
     sourcePort: "",
     sourceChannel: "",
+    poolEnabler: "",
     sender: "",
     chainId: "",
     tokens: [],

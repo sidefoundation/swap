@@ -3,11 +3,13 @@ import {
   MakeSwapMsg,
   TakeSwapMsg,
 } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
+import { useEffect, useState } from 'react';
 import useWalletStore from '@/store/wallet';
 import { useChainStore } from '@/store/chain';
+
 import { Coin, StdFee } from '@cosmjs/stargate';
 import Long from 'long';
-import { useEffect, useState } from 'react';
+
 import { TokenInput } from '@/components/TokenInput';
 import { IAtomicSwapOrder } from '@/shared/types/order';
 import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
