@@ -33,6 +33,19 @@ export const useChainStore = () => {
   return useSnapshot(chainStore);
 };
 
+export const useRemoteChainList = () => {
+  const nativeChain = useSnapshot(chainStore.chainCurrent);
+  const chainList = useSnapshot(chainStore.chainList);
+  const findItem = chainList.find((item) => {
+    if (item.chainID === nativeChain.chainID) {
+      return item;
+    }
+  });
+  return {
+    limitRemoteChainList: findItem?.counterparties || [],
+  };
+};
+
 export const setChainCurrent = (val: BriefChainInfo) => {
   // const { keplr } = window;
   // if (!keplr) {
