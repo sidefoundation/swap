@@ -32,6 +32,7 @@ export const getBalanceList = async (
   if (isLoading) toast.dismiss();
   if (res) {
     assetsStore.balanceList = res;
+    
   }
   assetsStore.balanceLoading = false;
 };

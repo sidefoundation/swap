@@ -16,7 +16,6 @@ const fetchBalances = async (restUrl: string, acc: string) => {
       },
     }
   );
-
   return data.balances;
 };
 export default fetchBalances;
