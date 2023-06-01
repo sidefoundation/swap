@@ -34,19 +34,10 @@ export default function PoolDetails({
     wallets,
     getClient,
     setLoading,
-    setBalance,
-    getBalance,
     isConnected,
   } = useWalletStore();
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const market = new MarketMaker(pool, 300);
-  const fetchBalances = async () => {
-    const balance = await getBalance();
-    setBalance(balance);
-  };
-  useEffect(() => {
-    // fetchBalances();
-  }, []);
 
   const onSingleDeposit = async (denom: string) => {
     const wallet = wallets.find((wallet) => wallet.chainInfo.denom === denom);
