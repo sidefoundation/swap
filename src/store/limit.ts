@@ -172,7 +172,7 @@ export const onMakeOrder = async (
 
   console.log('Signed data', data);
   if (data !== undefined) {
-    const txHash = await client!.broadCastTx(data);
+    const { txHash } = await client!.broadCastTx(data);
     toast.success('Broad sucsess');
     console.log('TxHash:', txHash);
   } else {

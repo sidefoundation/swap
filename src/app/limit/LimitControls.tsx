@@ -29,8 +29,7 @@ interface SwapControlsProps {}
 const LimitControls: React.FC<SwapControlsProps> = ({}) => {
   const { chainCurrent, chainList } = useChainStore();
   const { limitRemoteChainList } = useRemoteChainList();
-  const { wallets, isConnected, getClient } =
-    useWalletStore();
+  const { wallets, isConnected, getClient } = useWalletStore();
   const {
     makerReceivingAddress,
     desiredTaker,
@@ -214,7 +213,7 @@ const LimitControls: React.FC<SwapControlsProps> = ({}) => {
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');

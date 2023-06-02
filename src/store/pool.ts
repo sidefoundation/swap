@@ -329,7 +329,7 @@ export const addPoolItemMulti = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');
@@ -396,7 +396,7 @@ export const addPoolItemSingle = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');
@@ -521,7 +521,7 @@ export const redeemPoolItemMulti = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');
@@ -593,7 +593,7 @@ export const redeemPoolItemSingle = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');
@@ -667,7 +667,7 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
       poolStore.poolFormCreate.modalShow = false;
       getPoolList(selectedChain?.chainInfo?.restUrl);

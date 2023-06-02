@@ -30,12 +30,7 @@ export default function PoolDetails({
   pool,
   onEnablePool,
 }: PoolDetailsProps) {
-  const {
-    wallets,
-    getClient,
-    setLoading,
-    isConnected,
-  } = useWalletStore();
+  const { wallets, getClient, setLoading, isConnected } = useWalletStore();
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
   const market = new MarketMaker(pool, 300);
 
@@ -90,7 +85,7 @@ export default function PoolDetails({
       );
       console.log('Signed data', data);
       if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
+        const { txHash } = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
       } else {
         console.log('there are problem in encoding');
@@ -218,7 +213,7 @@ export default function PoolDetails({
       );
       console.log('Signed data', data);
       if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
+        const { txHash } = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
       } else {
         console.log('there are problem in encoding');
@@ -281,7 +276,7 @@ export default function PoolDetails({
       );
       console.log('Signed data', data);
       if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
+        const { txHash } = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
       } else {
         console.log('there are problem in encoding');
@@ -384,7 +379,7 @@ export default function PoolDetails({
       );
       console.log('Signed data', data);
       if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
+        const { txHash } = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
       } else {
         console.log('there are problem in encoding');
