@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Coin } from '@cosmjs/stargate';
-import { useGetCurrentBalances } from '@/http/query/useGetCurrentBalances';
 
 import { AppConfig } from '@/utils/AppConfig';
 import useWalletStore from '@/store/wallet';

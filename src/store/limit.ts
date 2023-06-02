@@ -7,6 +7,8 @@ import { selectTimeList } from '@/shared/types/limit';
 import { MakeSwapMsg } from '@/codegen/ibc/applications/atomic_swap/v1/tx';
 import fetchAtomicSwapOrders from '@/http/requests/get/fetchOrders';
 import { IAtomicSwapOrder } from '@/shared/types/order';
+import fetchTxs from '@/http/requests/get/fetchTxs';
+import { getBalanceList } from '@/store/assets';
 import Long from 'long';
 type Store = {
   limitNative: {
@@ -172,8 +174,23 @@ export const onMakeOrder = async (
 
   console.log('Signed data', data);
   if (data !== undefined) {
-    const txHash = await client!.broadCastTx(data);
-    toast.success('Broad sucsess');
+    const { txHash, status, rawLog } = await client!.broadCastTx(data);
+    if (status !== 'error') {
+      const result = await fetchTxs(chainCurrent.restUrl, txHash);
+      console.log(result, 'result');
+      if (`${result?.code}` !== '0') {
+        console.log(result?.raw_log, 'raw_log');
+        toast.error(result?.raw_log, {
+          // id: toastItem,
+          duration: 5000,
+        });
+      } else {
+        toast.success('successfully ordered', {
+          // id: toastItem,
+        });
+        getBalanceList(chainCurrent?.restUrl, sourceWallet!.address);
+      }
+    }
     console.log('TxHash:', txHash);
   } else {
     console.log('there are problem in encoding');

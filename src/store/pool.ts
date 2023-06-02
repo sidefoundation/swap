@@ -13,6 +13,7 @@ import {
   MsgMultiAssetWithdrawRequest,
   MsgCreatePoolRequest,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+import fetchTxs from '@/http/requests/get/fetchTxs';
 
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
@@ -329,8 +330,24 @@ export const addPoolItemMulti = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
+      if (status !== 'error') {
+        const result = await fetchTxs(selectedChain.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            // id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Add liquidity Success', {
+            // id: toastItem,
+          });
+          // getBalanceList(chainStore.chainCurrent?.restUrl, wallet!.address);
+        }
+      }
     } else {
       console.log('there are problem in encoding');
     }
@@ -396,8 +413,24 @@ export const addPoolItemSingle = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data);
+
       console.log('TxHash:', txHash);
+      if (status !== 'error') {
+        const result = await fetchTxs(selectedChain.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            // id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Add liquidity Success', {
+            // id: toastItem,
+          });
+        }
+      }
     } else {
       console.log('there are problem in encoding');
     }
@@ -410,7 +443,8 @@ export const addPoolItemSingle = async (
 export const redeemPoolItemMulti = async (
   wallets: Wallet[],
   getClient,
-  market: MarketMaker
+  market: MarketMaker,
+  selectedChain: BriefChainInfo
 ) => {
   const poolAssets = poolStore.poolItem.assets;
   const form = poolStore.poolForm;
@@ -521,8 +555,23 @@ export const redeemPoolItemMulti = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
+      if (status !== 'error') {
+        const result = await fetchTxs(selectedChain.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            // id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Redeem Success', {
+            // id: toastItem,
+          });
+        }
+      }
     } else {
       console.log('there are problem in encoding');
     }
@@ -593,8 +642,23 @@ export const redeemPoolItemSingle = async (
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
+      if (status !== 'error') {
+        const result = await fetchTxs(selectedChain.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            // id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Redeem Success', {
+            // id: toastItem,
+          });
+        }
+      }
     } else {
       console.log('there are problem in encoding');
     }
@@ -667,10 +731,25 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
-      poolStore.poolFormCreate.modalShow = false;
-      getPoolList(selectedChain?.chainInfo?.restUrl);
+      if (status !== 'error') {
+        const result = await fetchTxs(selectedChain.chainInfo.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            // id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Pool Create Success', {
+            // id: toastItem,
+          });
+          poolStore.poolFormCreate.modalShow = false;
+          getPoolList(selectedChain?.chainInfo?.restUrl);
+        }
+      }
     } else {
       toast.error('Error');
     }

@@ -133,13 +133,15 @@ export default function SwapOrder() {
   }, [chainCurrent]);
 
   useEffect(() => {
-    limitStore.orderForm.filterList =
+    if (orderForm.orderList.length > 0){
+      limitStore.orderForm.filterList =
       orderForm.orderList.filter((order, index) => {
         if (order.side === orderForm.sideType.key) {
           return order;
         }
       }) || [];
-  }, [orderForm.sideType]);
+    }
+  }, [orderForm.sideType,orderForm.orderList]);
 
   const onTakeOrder = async (order: IAtomicSwapOrder) => {
     // const chainID = balances.find((bal) =>
@@ -147,7 +149,7 @@ export default function SwapOrder() {
     //     .map((item) => item.denom)
     //     .includes(order.maker.buy_token.denom)
     // )?.id;
-    const chainID = chainCurrent.chainID
+    const chainID = chainCurrent.chainID;
     const wallet = wallets.find(
       (wallet) => wallet.chainInfo.chainID === chainID
     );
@@ -198,7 +200,7 @@ export default function SwapOrder() {
 
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');
@@ -206,7 +208,7 @@ export default function SwapOrder() {
   };
 
   const onCancelOrder = async (order: IAtomicSwapOrder) => {
-    const chainID = chainCurrent.chainID
+    const chainID = chainCurrent.chainID;
     // balanceList
     //   .map((item) => item.denom)
     //   .includes(order.maker.sell_token.denom);
@@ -263,7 +265,7 @@ export default function SwapOrder() {
     );
     console.log('Signed data', data);
     if (data !== undefined) {
-      const txHash = await client!.broadCastTx(data);
+      const { txHash } = await client!.broadCastTx(data);
       console.log('TxHash:', txHash);
     } else {
       console.log('there are problem in encoding');

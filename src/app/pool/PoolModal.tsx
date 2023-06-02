@@ -58,7 +58,7 @@ function PoolModal() {
     }
     if (poolForm?.action === 'redeem' && tab === 'all') {
       const market = new MarketMaker(poolItem, 300);
-      redeemPoolItemMulti(wallets, getClient, market);
+      redeemPoolItemMulti(wallets, getClient, market,chainStore.chainCurrent);
     }
     if (poolForm?.action === 'redeem' && tab === 'single') {
       redeemPoolItemSingle(wallets, getClient, chainStore.chainCurrent);

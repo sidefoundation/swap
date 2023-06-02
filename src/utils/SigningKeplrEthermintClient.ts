@@ -130,19 +130,40 @@ export default class SigningKeplerEthermintClient {
     }
   }
 
-  async broadCastTx(tx: Uint8Array): Promise<string> {
+  async broadCastTx(
+    tx: Uint8Array,
+    toastItem?: any
+  ): Promise<{ txHash: string; status: string; rawLog: string }> {
     try {
       const txData = await this.client.broadcastTx(tx);
-      toast.success('Broadcast Success');
-      // returns txBytes for broadcast
-      return txData.transactionHash;
+      console.log(txData, 'txData');
+      if (`${txData?.code}` !== '0') {
+        toast.error(txData?.rawLog || 'Error!', {
+          duration: 5000,
+          style: { overflow: 'scroll', maxHeight: '500px', maxWidth: '400px' },
+          id: toastItem || null,
+        });
+      } else {
+        toast.success('Broadcast Success', { id: toastItem || null });
+      }
+      return {
+        txHash: txData.transactionHash,
+        status: `${txData?.code}` !== '0' ? 'error' : 'success',
+        rawLog: `${txData?.code}` !== '0' ? txData?.rawLog || '' : '',
+      };
     } catch (error) {
+      console.log(error, 'broadcastTx')
       toast.error(error?.message, {
         style: {
           maxWidth: '400px',
         },
+        id: toastItem || null,
       });
-      return '';
+      return {
+        txHash: '',
+        status: 'error',
+        rawLog: 'Error!',
+      };
     }
   }
 }

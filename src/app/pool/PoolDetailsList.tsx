@@ -7,19 +7,16 @@ import PoolDetails from './PoolDetails';
 import PoolPagination from './PoolPagination';
 import PoolSearch from './PoolSearch';
 import toast from 'react-hot-toast';
-import {
-  MsgSingleAssetDepositRequest,
-} from '@/codegen/ibc/applications/interchain_swap/v1/tx';
+import { MsgSingleAssetDepositRequest } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import Long from 'long';
 import { StdFee } from '@cosmjs/stargate';
-import { usePoolStore,getPoolList } from '@/store/pool';
+import { usePoolStore, getPoolList } from '@/store/pool';
 import { useChainStore, chainStore } from '@/store/chain';
 interface PoolDetailsListProps {}
 
 const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
-  const {chainCurrent}=useChainStore()
-  const { setLoading, wallets, suggestChain, getClient } =
-    useWalletStore();
+  const { chainCurrent } = useChainStore();
+  const { setLoading, wallets, suggestChain, getClient } = useWalletStore();
   const { poolList } = usePoolStore();
 
   const onEnablePool = async (pool: ILiquidityPool) => {
@@ -73,9 +70,9 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
         'test'
       );
       if (data !== undefined) {
-        const txHash = await client!.broadCastTx(data);
+        const { txHash } = await client!.broadCastTx(data);
         console.log('TxHash:', txHash);
-        getPoolList(chainStore.chainCurrent.restUrl)
+        getPoolList(chainStore.chainCurrent.restUrl);
       } else {
         console.log('there are problem in encoding');
       }
