@@ -133,13 +133,15 @@ export default function SwapOrder() {
   }, [chainCurrent]);
 
   useEffect(() => {
-    limitStore.orderForm.filterList =
+    if (orderForm.orderList.length > 0){
+      limitStore.orderForm.filterList =
       orderForm.orderList.filter((order, index) => {
         if (order.side === orderForm.sideType.key) {
           return order;
         }
       }) || [];
-  }, [orderForm.sideType]);
+    }
+  }, [orderForm.sideType,orderForm.orderList]);
 
   const onTakeOrder = async (order: IAtomicSwapOrder) => {
     // const chainID = balances.find((bal) =>

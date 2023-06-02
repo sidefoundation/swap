@@ -109,21 +109,22 @@ export const onSwap = async (wallets: Wallet[], getClient) => {
       'test'
     );
     if (data !== undefined) {
-      const { txHash } = await client!.broadCastTx(data);
-
-      const result = await fetchTxs(chainStore.chainCurrent.restUrl, txHash);
-      console.log(result, 'result');
-      if (`${result?.code}` !== '0') {
-        console.log(result?.raw_log, 'raw_log');
-        toast.error(result?.raw_log, {
-          id: toastItem,
-          duration: 5000,
-        });
-      } else {
-        toast.success('Swap Success', {
-          id: toastItem,
-        });
-        getBalanceList(chainStore.chainCurrent?.restUrl, wallet!.address);
+      const { txHash, status, rawLog } = await client!.broadCastTx(data,toastItem);
+      if (status !== 'error') {
+        const result = await fetchTxs(chainStore.chainCurrent.restUrl, txHash);
+        console.log(result, 'result');
+        if (`${result?.code}` !== '0') {
+          console.log(result?.raw_log, 'raw_log');
+          toast.error(result?.raw_log, {
+            id: toastItem,
+            duration: 5000,
+          });
+        } else {
+          toast.success('Swap Success', {
+            id: toastItem,
+          });
+          getBalanceList(chainStore.chainCurrent?.restUrl, wallet!.address);
+        }
       }
     } else {
       toast.error('error', {
