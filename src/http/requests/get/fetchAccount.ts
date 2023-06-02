@@ -2,12 +2,16 @@ import axios from '../axios';
 
 import type ResponseMessage from '@/http/types/ResponseMessage';
 import { IAccount } from '@/shared/types/account';
-
+import { toast } from 'react-hot-toast';
 interface FetchAccountResponse extends ResponseMessage {
   account: IAccount;
 }
 
 const fetchAccount = async (rpc: string, acc: string) => {
+  if (!rpc || !acc){
+    toast.error('Missing the necessary interface parameters!')
+    return []
+  }
   const { data } = await axios.get<FetchAccountResponse>(
     `/cosmos/auth/v1beta1/accounts/${acc}`,
     {

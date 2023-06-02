@@ -1,5 +1,6 @@
 import axios from '../axios';
 import toast from 'react-hot-toast';
+
 const chargeCoins = async (
   domain: string,
   denom: string,
@@ -8,7 +9,7 @@ const chargeCoins = async (
 ) => {
   const toastItem = toast.loading('Charging');
   try {
-    await axios.post(
+    const res = await axios.post(
       '/api',
       {
         address: wallet,
@@ -21,14 +22,13 @@ const chargeCoins = async (
         },
       }
     );
-    toast.success('Charge Success', {
-      id: toastItem,
-    });
+    if (res.status === 200) {
+      toast.success('Charge Success', {
+        id: toastItem,
+      });
+    }
   } catch (error) {
-    toast.error(error?.message, {
-      id: toastItem,
-    });
-    console.log('error', error);
+    toast.dismiss(toastItem);
   }
 };
 

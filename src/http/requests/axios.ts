@@ -26,16 +26,14 @@ instance.interceptors.response.use(
   },
   (err: any) => {
     console.log(err, 'interceptors-error');
-    // try {
     toast.error(
       err?.response?.data?.message ||
+        err?.response?.data?.error ||
         err?.response?.data?.error?.message ||
-        'Abnormal service!'
+        err?.message ||
+        'Abnormal service!',
+      { duration: 5000, style: { overflow: 'scroll', maxHeight: '500px' } }
     );
-    // }
-    // catch (error) {
-    //   toast.error('Abnormal service!');
-    // }
     return Promise.reject(err);
   }
 );

@@ -1,6 +1,6 @@
 import axios from '../axios';
 import type ResponseMessage from '@/http/types/ResponseMessage';
-
+import { toast } from 'react-hot-toast';
 interface FetchChannelsResponse extends ResponseMessage {
   channels: [];
 }
@@ -8,6 +8,10 @@ interface FetchChannelsResponse extends ResponseMessage {
 // there are method to check channel and port from blockchain directly
 // you can find port and channel
 const fetchChannels = async (restUrl: string) => {
+  if (!restUrl) {
+    toast.error('Missing the necessary interface parameters!');
+    return [];
+  }
   const { data } = await axios.get<FetchChannelsResponse>(
     `/ibc/core/channel/v1/channels`,
     {
