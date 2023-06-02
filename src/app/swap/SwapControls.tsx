@@ -9,7 +9,7 @@ import {
 } from 'react-icons/md';
 import { getBalanceList, useAssetsStore } from '@/store/assets';
 import { usePoolStore } from '@/store/pool';
-import { useSwapStore, updateCoinAmount, onSwap } from '@/store/swap';
+import { useSwapStore, updateCoinAmount, onSwap, swapStore } from '@/store/swap';
 import { useChainStore } from '@/store/chain';
 import SwapCoins from './SwapCoins';
 import { ConnectWalletBtn } from '@/components/ConnectWalletBtn';
