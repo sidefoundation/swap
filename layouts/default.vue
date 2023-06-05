@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-100">
     <BaseNavTop />
-    <NuxtPage />
+    <NuxtPage id="content"/>
     <BaseNavBottom />
   </div>
 </template>

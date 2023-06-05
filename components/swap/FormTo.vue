@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex items-center text-xs justify-between text-gray-500">
-      <div>To</div>
+      <div>Buy</div>
       <div>BALANCE: 0</div>
     </div>
 
