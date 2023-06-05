@@ -1,51 +1,51 @@
 import { Coin, CoinSDKType } from "../../../../cosmos/base/v1beta1/coin";
 import * as _m0 from "protobufjs/minimal";
 import { DeepPartial } from "../../../../helpers";
-export enum PoolSide {
-  NATIVE = 0,
-  REMOTE = 1,
+export enum PoolAssetSide {
+  SOURCE = 0,
+  TARGET = 1,
   UNRECOGNIZED = -1,
 }
-export const PoolSideSDKType = PoolSide;
-export function poolSideFromJSON(object: any): PoolSide {
+export const PoolAssetSideSDKType = PoolAssetSide;
+export function poolAssetSideFromJSON(object: any): PoolAssetSide {
   switch (object) {
     case 0:
-    case "NATIVE":
-      return PoolSide.NATIVE;
+    case "SOURCE":
+      return PoolAssetSide.SOURCE;
     case 1:
-    case "REMOTE":
-      return PoolSide.REMOTE;
+    case "TARGET":
+      return PoolAssetSide.TARGET;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return PoolSide.UNRECOGNIZED;
+      return PoolAssetSide.UNRECOGNIZED;
   }
 }
-export function poolSideToJSON(object: PoolSide): string {
+export function poolAssetSideToJSON(object: PoolAssetSide): string {
   switch (object) {
-    case PoolSide.NATIVE:
-      return "NATIVE";
-    case PoolSide.REMOTE:
-      return "REMOTE";
-    case PoolSide.UNRECOGNIZED:
+    case PoolAssetSide.SOURCE:
+      return "SOURCE";
+    case PoolAssetSide.TARGET:
+      return "TARGET";
+    case PoolAssetSide.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
 }
 export enum PoolStatus {
-  POOL_STATUS_INITIAL = 0,
-  POOL_STATUS_READY = 1,
+  INITIALIZED = 0,
+  ACTIVE = 1,
   UNRECOGNIZED = -1,
 }
 export const PoolStatusSDKType = PoolStatus;
 export function poolStatusFromJSON(object: any): PoolStatus {
   switch (object) {
     case 0:
-    case "POOL_STATUS_INITIAL":
-      return PoolStatus.POOL_STATUS_INITIAL;
+    case "INITIALIZED":
+      return PoolStatus.INITIALIZED;
     case 1:
-    case "POOL_STATUS_READY":
-      return PoolStatus.POOL_STATUS_READY;
+    case "ACTIVE":
+      return PoolStatus.ACTIVE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -54,58 +54,58 @@ export function poolStatusFromJSON(object: any): PoolStatus {
 }
 export function poolStatusToJSON(object: PoolStatus): string {
   switch (object) {
-    case PoolStatus.POOL_STATUS_INITIAL:
-      return "POOL_STATUS_INITIAL";
-    case PoolStatus.POOL_STATUS_READY:
-      return "POOL_STATUS_READY";
+    case PoolStatus.INITIALIZED:
+      return "INITIALIZED";
+    case PoolStatus.ACTIVE:
+      return "ACTIVE";
     case PoolStatus.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
 }
 export interface PoolAsset {
-  side: PoolSide;
+  side: PoolAssetSide;
   balance?: Coin;
   weight: number;
   decimal: number;
 }
 export interface PoolAssetSDKType {
-  side: PoolSide;
+  side: PoolAssetSide;
   balance?: CoinSDKType;
   weight: number;
   decimal: number;
 }
 export interface InterchainLiquidityPool {
-  poolId: string;
+  id: string;
   creator: string;
   assets: PoolAsset[];
+  swapFee: number;
   supply?: Coin;
-  poolPrice: number;
   status: PoolStatus;
-  creatorChainId: string;
-  encounterPartyPort: string;
-  encounterPartyChannel: string;
+  poolPrice: number;
+  originatingChainId: string;
+  counterPartyPort: string;
+  counterPartyChannel: string;
 }
 export interface InterchainLiquidityPoolSDKType {
-  poolId: string;
+  id: string;
   creator: string;
   assets: PoolAssetSDKType[];
+  swapFee: number;
   supply?: CoinSDKType;
-  pool_price: number;
   status: PoolStatus;
-  creatorChainId: string;
-  encounterPartyPort: string;
-  encounterPartyChannel: string;
+  pool_price: number;
+  originatingChainId: string;
+  counterPartyPort: string;
+  counterPartyChannel: string;
 }
 export interface InterchainMarketMaker {
   poolId: string;
   pool?: InterchainLiquidityPool;
-  feeRate: number;
 }
 export interface InterchainMarketMakerSDKType {
   poolId: string;
   pool?: InterchainLiquidityPoolSDKType;
-  feeRate: number;
 }
 /** @deprecated */
 export interface MarketFeeUpdateProposal {
@@ -182,21 +182,22 @@ export const PoolAsset = {
 };
 function createBaseInterchainLiquidityPool(): InterchainLiquidityPool {
   return {
-    poolId: "",
+    id: "",
     creator: "",
     assets: [],
+    swapFee: 0,
     supply: undefined,
-    poolPrice: 0,
     status: 0,
-    creatorChainId: "",
-    encounterPartyPort: "",
-    encounterPartyChannel: ""
+    poolPrice: 0,
+    originatingChainId: "",
+    counterPartyPort: "",
+    counterPartyChannel: ""
   };
 }
 export const InterchainLiquidityPool = {
   encode(message: InterchainLiquidityPool, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.poolId !== "") {
-      writer.uint32(10).string(message.poolId);
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
     }
     if (message.creator !== "") {
       writer.uint32(18).string(message.creator);
@@ -204,23 +205,26 @@ export const InterchainLiquidityPool = {
     for (const v of message.assets) {
       PoolAsset.encode(v!, writer.uint32(26).fork()).ldelim();
     }
-    if (message.supply !== undefined) {
-      Coin.encode(message.supply, writer.uint32(34).fork()).ldelim();
+    if (message.swapFee !== 0) {
+      writer.uint32(32).uint32(message.swapFee);
     }
-    if (message.poolPrice !== 0) {
-      writer.uint32(45).float(message.poolPrice);
+    if (message.supply !== undefined) {
+      Coin.encode(message.supply, writer.uint32(42).fork()).ldelim();
     }
     if (message.status !== 0) {
       writer.uint32(48).int32(message.status);
     }
-    if (message.creatorChainId !== "") {
-      writer.uint32(58).string(message.creatorChainId);
+    if (message.poolPrice !== 0) {
+      writer.uint32(61).float(message.poolPrice);
     }
-    if (message.encounterPartyPort !== "") {
-      writer.uint32(66).string(message.encounterPartyPort);
+    if (message.originatingChainId !== "") {
+      writer.uint32(66).string(message.originatingChainId);
     }
-    if (message.encounterPartyChannel !== "") {
-      writer.uint32(74).string(message.encounterPartyChannel);
+    if (message.counterPartyPort !== "") {
+      writer.uint32(74).string(message.counterPartyPort);
+    }
+    if (message.counterPartyChannel !== "") {
+      writer.uint32(82).string(message.counterPartyChannel);
     }
     return writer;
   },
@@ -232,7 +236,7 @@ export const InterchainLiquidityPool = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.poolId = reader.string();
+          message.id = reader.string();
           break;
         case 2:
           message.creator = reader.string();
@@ -241,22 +245,25 @@ export const InterchainLiquidityPool = {
           message.assets.push(PoolAsset.decode(reader, reader.uint32()));
           break;
         case 4:
-          message.supply = Coin.decode(reader, reader.uint32());
+          message.swapFee = reader.uint32();
           break;
         case 5:
-          message.poolPrice = reader.float();
+          message.supply = Coin.decode(reader, reader.uint32());
           break;
         case 6:
           message.status = (reader.int32() as any);
           break;
         case 7:
-          message.creatorChainId = reader.string();
+          message.poolPrice = reader.float();
           break;
         case 8:
-          message.encounterPartyPort = reader.string();
+          message.originatingChainId = reader.string();
           break;
         case 9:
-          message.encounterPartyChannel = reader.string();
+          message.counterPartyPort = reader.string();
+          break;
+        case 10:
+          message.counterPartyChannel = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -267,23 +274,23 @@ export const InterchainLiquidityPool = {
   },
   fromPartial(object: DeepPartial<InterchainLiquidityPool>): InterchainLiquidityPool {
     const message = createBaseInterchainLiquidityPool();
-    message.poolId = object.poolId ?? "";
+    message.id = object.id ?? "";
     message.creator = object.creator ?? "";
     message.assets = object.assets?.map(e => PoolAsset.fromPartial(e)) || [];
+    message.swapFee = object.swapFee ?? 0;
     message.supply = object.supply !== undefined && object.supply !== null ? Coin.fromPartial(object.supply) : undefined;
-    message.poolPrice = object.poolPrice ?? 0;
     message.status = object.status ?? 0;
-    message.creatorChainId = object.creatorChainId ?? "";
-    message.encounterPartyPort = object.encounterPartyPort ?? "";
-    message.encounterPartyChannel = object.encounterPartyChannel ?? "";
+    message.poolPrice = object.poolPrice ?? 0;
+    message.originatingChainId = object.originatingChainId ?? "";
+    message.counterPartyPort = object.counterPartyPort ?? "";
+    message.counterPartyChannel = object.counterPartyChannel ?? "";
     return message;
   }
 };
 function createBaseInterchainMarketMaker(): InterchainMarketMaker {
   return {
     poolId: "",
-    pool: undefined,
-    feeRate: 0
+    pool: undefined
   };
 }
 export const InterchainMarketMaker = {
@@ -293,9 +300,6 @@ export const InterchainMarketMaker = {
     }
     if (message.pool !== undefined) {
       InterchainLiquidityPool.encode(message.pool, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.feeRate !== 0) {
-      writer.uint32(24).uint32(message.feeRate);
     }
     return writer;
   },
@@ -312,9 +316,6 @@ export const InterchainMarketMaker = {
         case 2:
           message.pool = InterchainLiquidityPool.decode(reader, reader.uint32());
           break;
-        case 3:
-          message.feeRate = reader.uint32();
-          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -326,7 +327,6 @@ export const InterchainMarketMaker = {
     const message = createBaseInterchainMarketMaker();
     message.poolId = object.poolId ?? "";
     message.pool = object.pool !== undefined && object.pool !== null ? InterchainLiquidityPool.fromPartial(object.pool) : undefined;
-    message.feeRate = object.feeRate ?? 0;
     return message;
   }
 };

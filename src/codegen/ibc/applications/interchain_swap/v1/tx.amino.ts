@@ -1,19 +1,25 @@
+import { poolAssetSideFromJSON } from "./market";
 import { AminoMsg } from "@cosmjs/amino";
-import { AminoHeight, omitDefault, Long } from "../../../../helpers";
-import { MsgSingleAssetWithdrawRequest, swapMsgTypeFromJSON, MsgCreatePoolRequest, MsgSingleAssetDepositRequest, MsgMultiAssetDepositRequest, MsgMultiAssetWithdrawRequest, MsgSwapRequest } from "./tx";
+import { AminoHeight, Long, omitDefault } from "../../../../helpers";
+import { swapMsgTypeFromJSON, MsgCreatePoolRequest, MsgSingleAssetDepositRequest, MsgMultiAssetDepositRequest, MsgSingleAssetWithdrawRequest, MsgMultiAssetWithdrawRequest, MsgSwapRequest } from "./tx";
 export interface MsgCreatePoolRequestAminoType extends AminoMsg {
   type: "cosmos-sdk/MsgCreatePoolRequest";
   value: {
     sourcePort: string;
     sourceChannel: string;
-    sender: string;
-    chainId: string;
-    tokens: {
-      denom: string;
-      amount: string;
+    creator: string;
+    counterPartyCreator: string;
+    liquidity: {
+      side: number;
+      balance: {
+        denom: string;
+        amount: string;
+      };
+      weight: number;
+      decimal: number;
     }[];
-    decimals: number[];
-    weight: string;
+    swapFee: number;
+    counterPartySig: Uint8Array;
     timeoutHeight: AminoHeight;
     timeoutTimeStamp: string;
   };
@@ -35,22 +41,14 @@ export interface MsgMultiAssetDepositRequestAminoType extends AminoMsg {
   type: "cosmos-sdk/MsgMultiAssetDepositRequest";
   value: {
     poolId: string;
-    localDeposit: {
+    deposits: {
       sender: string;
-      token: {
+      balance: {
         denom: string;
         amount: string;
       };
-    };
-    remoteDeposit: {
-      sender: string;
-      token: {
-        denom: string;
-        amount: string;
-      };
-      sequence: string;
       signature: Uint8Array;
-    };
+    }[];
     timeoutHeight: AminoHeight;
     timeoutTimeStamp: string;
   };
@@ -59,7 +57,6 @@ export interface MsgSingleAssetWithdrawRequestAminoType extends AminoMsg {
   type: "cosmos-sdk/MsgSingleAssetWithdrawRequest";
   value: {
     sender: string;
-    denomOut: string;
     poolCoin: {
       denom: string;
       amount: string;
@@ -71,26 +68,15 @@ export interface MsgSingleAssetWithdrawRequestAminoType extends AminoMsg {
 export interface MsgMultiAssetWithdrawRequestAminoType extends AminoMsg {
   type: "cosmos-sdk/MsgMultiAssetWithdrawRequest";
   value: {
-    localWithdraw: {
-      sender: string;
-      denomOut: string;
-      poolCoin: {
+    poolId: string;
+    sender: string;
+    withdraws: {
+      receiver: string;
+      balance: {
         denom: string;
         amount: string;
       };
-      timeoutHeight: AminoHeight;
-      timeoutTimeStamp: string;
-    };
-    remoteWithdraw: {
-      sender: string;
-      denomOut: string;
-      poolCoin: {
-        denom: string;
-        amount: string;
-      };
-      timeoutHeight: AminoHeight;
-      timeoutTimeStamp: string;
-    };
+    }[];
     timeoutHeight: AminoHeight;
     timeoutTimeStamp: string;
   };
@@ -120,25 +106,30 @@ export const AminoConverter = {
     toAmino: ({
       sourcePort,
       sourceChannel,
-      sender,
-      chainId,
-      tokens,
-      decimals,
-      weight,
+      creator,
+      counterPartyCreator,
+      liquidity,
+      swapFee,
+      counterPartySig,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgCreatePoolRequest): MsgCreatePoolRequestAminoType["value"] => {
       return {
         sourcePort,
         sourceChannel,
-        sender,
-        chainId,
-        tokens: tokens.map(el0 => ({
-          denom: el0.denom,
-          amount: el0.amount
+        creator,
+        counterPartyCreator,
+        liquidity: liquidity.map(el0 => ({
+          side: el0.side,
+          balance: {
+            denom: el0.balance.denom,
+            amount: Long.fromValue(el0.balance.amount).toString()
+          },
+          weight: el0.weight,
+          decimal: el0.decimal
         })),
-        decimals,
-        weight,
+        swapFee,
+        counterPartySig,
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
           revision_number: omitDefault(timeoutHeight.revisionNumber)?.toString()
@@ -149,25 +140,30 @@ export const AminoConverter = {
     fromAmino: ({
       sourcePort,
       sourceChannel,
-      sender,
-      chainId,
-      tokens,
-      decimals,
-      weight,
+      creator,
+      counterPartyCreator,
+      liquidity,
+      swapFee,
+      counterPartySig,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgCreatePoolRequestAminoType["value"]): MsgCreatePoolRequest => {
       return {
         sourcePort,
         sourceChannel,
-        sender,
-        chainId,
-        tokens: tokens.map(el0 => ({
-          denom: el0.denom,
-          amount: el0.amount
+        creator,
+        counterPartyCreator,
+        liquidity: liquidity.map(el0 => ({
+          side: poolAssetSideFromJSON(el0.side),
+          balance: {
+            denom: el0.balance.denom,
+            amount: el0.balance.amount
+          },
+          weight: el0.weight,
+          decimal: el0.decimal
         })),
-        decimals,
-        weight,
+        swapFee,
+        counterPartySig,
         timeoutHeight: timeoutHeight ? {
           revisionHeight: Long.fromString(timeoutHeight.revision_height || "0", true),
           revisionNumber: Long.fromString(timeoutHeight.revision_number || "0", true)
@@ -225,29 +221,20 @@ export const AminoConverter = {
     aminoType: "cosmos-sdk/MsgMultiAssetDepositRequest",
     toAmino: ({
       poolId,
-      localDeposit,
-      remoteDeposit,
+      deposits,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgMultiAssetDepositRequest): MsgMultiAssetDepositRequestAminoType["value"] => {
       return {
         poolId,
-        localDeposit: {
-          sender: localDeposit.sender,
-          token: {
-            denom: localDeposit.token.denom,
-            amount: Long.fromValue(localDeposit.token.amount).toString()
-          }
-        },
-        remoteDeposit: {
-          sender: remoteDeposit.sender,
-          token: {
-            denom: remoteDeposit.token.denom,
-            amount: Long.fromValue(remoteDeposit.token.amount).toString()
+        deposits: deposits.map(el0 => ({
+          sender: el0.sender,
+          balance: {
+            denom: el0.balance.denom,
+            amount: Long.fromValue(el0.balance.amount).toString()
           },
-          sequence: remoteDeposit.sequence.toString(),
-          signature: remoteDeposit.signature
-        },
+          signature: el0.signature
+        })),
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
           revision_number: omitDefault(timeoutHeight.revisionNumber)?.toString()
@@ -257,29 +244,20 @@ export const AminoConverter = {
     },
     fromAmino: ({
       poolId,
-      localDeposit,
-      remoteDeposit,
+      deposits,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgMultiAssetDepositRequestAminoType["value"]): MsgMultiAssetDepositRequest => {
       return {
         poolId,
-        localDeposit: {
-          sender: localDeposit.sender,
-          token: {
-            denom: localDeposit.token.denom,
-            amount: localDeposit.token.amount
-          }
-        },
-        remoteDeposit: {
-          sender: remoteDeposit.sender,
-          token: {
-            denom: remoteDeposit.token.denom,
-            amount: remoteDeposit.token.amount
+        deposits: deposits.map(el0 => ({
+          sender: el0.sender,
+          balance: {
+            denom: el0.balance.denom,
+            amount: el0.balance.amount
           },
-          sequence: Long.fromString(remoteDeposit.sequence),
-          signature: remoteDeposit.signature
-        },
+          signature: el0.signature
+        })),
         timeoutHeight: timeoutHeight ? {
           revisionHeight: Long.fromString(timeoutHeight.revision_height || "0", true),
           revisionNumber: Long.fromString(timeoutHeight.revision_number || "0", true)
@@ -292,14 +270,12 @@ export const AminoConverter = {
     aminoType: "cosmos-sdk/MsgSingleAssetWithdrawRequest",
     toAmino: ({
       sender,
-      denomOut,
       poolCoin,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgSingleAssetWithdrawRequest): MsgSingleAssetWithdrawRequestAminoType["value"] => {
       return {
         sender,
-        denomOut,
         poolCoin: {
           denom: poolCoin.denom,
           amount: Long.fromValue(poolCoin.amount).toString()
@@ -313,14 +289,12 @@ export const AminoConverter = {
     },
     fromAmino: ({
       sender,
-      denomOut,
       poolCoin,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgSingleAssetWithdrawRequestAminoType["value"]): MsgSingleAssetWithdrawRequest => {
       return {
         sender,
-        denomOut,
         poolCoin: {
           denom: poolCoin.denom,
           amount: poolCoin.amount
@@ -336,38 +310,22 @@ export const AminoConverter = {
   "/ibc.applications.interchain_swap.v1.MsgMultiAssetWithdrawRequest": {
     aminoType: "cosmos-sdk/MsgMultiAssetWithdrawRequest",
     toAmino: ({
-      localWithdraw,
-      remoteWithdraw,
+      poolId,
+      sender,
+      withdraws,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgMultiAssetWithdrawRequest): MsgMultiAssetWithdrawRequestAminoType["value"] => {
       return {
-        localWithdraw: {
-          sender: localWithdraw.sender,
-          denomOut: localWithdraw.denomOut,
-          poolCoin: {
-            denom: localWithdraw.poolCoin.denom,
-            amount: Long.fromValue(localWithdraw.poolCoin.amount).toString()
-          },
-          timeoutHeight: localWithdraw.timeoutHeight ? {
-            revision_height: omitDefault(localWithdraw.timeoutHeight.revisionHeight)?.toString(),
-            revision_number: omitDefault(localWithdraw.timeoutHeight.revisionNumber)?.toString()
-          } : {},
-          timeoutTimeStamp: localWithdraw.timeoutTimeStamp.toString()
-        },
-        remoteWithdraw: {
-          sender: remoteWithdraw.sender,
-          denomOut: remoteWithdraw.denomOut,
-          poolCoin: {
-            denom: remoteWithdraw.poolCoin.denom,
-            amount: Long.fromValue(remoteWithdraw.poolCoin.amount).toString()
-          },
-          timeoutHeight: remoteWithdraw.timeoutHeight ? {
-            revision_height: omitDefault(remoteWithdraw.timeoutHeight.revisionHeight)?.toString(),
-            revision_number: omitDefault(remoteWithdraw.timeoutHeight.revisionNumber)?.toString()
-          } : {},
-          timeoutTimeStamp: remoteWithdraw.timeoutTimeStamp.toString()
-        },
+        poolId,
+        sender,
+        withdraws: withdraws.map(el0 => ({
+          receiver: el0.receiver,
+          balance: {
+            denom: el0.balance.denom,
+            amount: Long.fromValue(el0.balance.amount).toString()
+          }
+        })),
         timeoutHeight: timeoutHeight ? {
           revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
           revision_number: omitDefault(timeoutHeight.revisionNumber)?.toString()
@@ -376,38 +334,22 @@ export const AminoConverter = {
       };
     },
     fromAmino: ({
-      localWithdraw,
-      remoteWithdraw,
+      poolId,
+      sender,
+      withdraws,
       timeoutHeight,
       timeoutTimeStamp
     }: MsgMultiAssetWithdrawRequestAminoType["value"]): MsgMultiAssetWithdrawRequest => {
       return {
-        localWithdraw: {
-          sender: localWithdraw.sender,
-          denomOut: localWithdraw.denomOut,
-          poolCoin: {
-            denom: localWithdraw.poolCoin.denom,
-            amount: localWithdraw.poolCoin.amount
-          },
-          timeoutHeight: localWithdraw.timeoutHeight ? {
-            revisionHeight: Long.fromString(localWithdraw.timeoutHeight.revision_height || "0", true),
-            revisionNumber: Long.fromString(localWithdraw.timeoutHeight.revision_number || "0", true)
-          } : undefined,
-          timeoutTimeStamp: Long.fromString(localWithdraw.timeoutTimeStamp)
-        },
-        remoteWithdraw: {
-          sender: remoteWithdraw.sender,
-          denomOut: remoteWithdraw.denomOut,
-          poolCoin: {
-            denom: remoteWithdraw.poolCoin.denom,
-            amount: remoteWithdraw.poolCoin.amount
-          },
-          timeoutHeight: remoteWithdraw.timeoutHeight ? {
-            revisionHeight: Long.fromString(remoteWithdraw.timeoutHeight.revision_height || "0", true),
-            revisionNumber: Long.fromString(remoteWithdraw.timeoutHeight.revision_number || "0", true)
-          } : undefined,
-          timeoutTimeStamp: Long.fromString(remoteWithdraw.timeoutTimeStamp)
-        },
+        poolId,
+        sender,
+        withdraws: withdraws.map(el0 => ({
+          receiver: el0.receiver,
+          balance: {
+            denom: el0.balance.denom,
+            amount: el0.balance.amount
+          }
+        })),
         timeoutHeight: timeoutHeight ? {
           revisionHeight: Long.fromString(timeoutHeight.revision_height || "0", true),
           revisionNumber: Long.fromString(timeoutHeight.revision_number || "0", true)
