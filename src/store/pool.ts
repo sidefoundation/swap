@@ -14,7 +14,10 @@ import {
   MsgCreatePoolRequest,
 } from '@/codegen/ibc/applications/interchain_swap/v1/tx';
 import fetchTxs from '@/http/requests/get/fetchTxs';
-
+import {
+  PoolAsset,
+  PoolAssetSide,
+} from '@/codegen/ibc/applications/interchain_swap/v1/market';
 import fetchAccount from '@/http/requests/get/fetchAccount';
 import fetchLiquidityPools from '../http/requests/get/fetchLiquidityPools';
 import { Wallet } from './wallet';
@@ -697,15 +700,43 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
           amount: poolStore.poolFormCreate.native.amount,
         };
 
+    // sourcePort: string;
+    // sourceChannel: string;
+    // creator: string;
+    // counterPartyCreator: string;
+    // liquidity: PoolAsset[];
+    // swapFee: number;
+    // counterPartySig: Uint8Array;
+    // timeoutHeight?: Height;
+    // timeoutTimeStamp: Long;
+
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
-      poolEnabler: poolStore.poolFormCreate.poolEnabler,
       // sourceChannel: 'channel-0',
       sourceChannel: poolStore.poolFormCreate.counterParty?.channelId,
-      sender: wallet!.address,
-      tokens: [nativeToken, remoteToken],
-      decimals: [18, 18],
-      weight: `${poolStore?.poolFormCreate?.native?.weight}:${poolStore?.poolFormCreate?.remote?.weight}`,
+      creator: '' || wallet.address,
+      counterPartyCreator: '' || wallet!.address,
+      liquidity: [
+        {
+          side: PoolAssetSide.SOURCE,
+          balance: nativeToken,
+          weight: poolStore?.poolFormCreate?.native?.weight,
+          decimal: 18,
+        },
+        {
+          side: PoolAssetSide.TARGET,
+          balance: remoteToken,
+          weight: poolStore?.poolFormCreate?.remote?.weight,
+          decimal: 18,
+        },
+      ],
+      counterPartySig: 'test',
+      swapFee: 300,
+      // poolEnabler: poolStore.poolFormCreate.poolEnabler,
+      // sender: wallet!.address,
+      // tokens: [nativeToken, remoteToken],
+      // decimals: [18, 18],
+      // weight: `${poolStore?.poolFormCreate?.native?.weight}:${poolStore?.poolFormCreate?.remote?.weight}`,
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
@@ -758,4 +789,3 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
     console.log('error', error);
   }
 };
-
