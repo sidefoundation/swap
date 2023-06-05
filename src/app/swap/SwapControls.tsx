@@ -51,12 +51,6 @@ const SwapControls: React.FC<SwapControlsProps> = () => {
   return (
     <div className="p-5 bg-base-100 w-[500px] rounded-lg mx-auto mt-10 shadow mb-20">
       <div className="flex items-center justify-between mb-5">
-        <div className="inline-flex items-center bg-gray-100 rounded-full tabs dark:bg-gray-700">
-          <div className="tab tab-sm px-4 bg-primary text-white rounded-full">
-            Swap
-          </div>
-        </div>
-
         <label htmlFor="modal-swap-setting" className="!hidden">
           <MdOutlineSettings className="text-xl cursor-pointer" />
         </label>
