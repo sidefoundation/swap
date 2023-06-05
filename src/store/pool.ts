@@ -5,9 +5,10 @@ import Long from 'long';
 import type { ILiquidityPool } from '@/shared/types/liquidity';
 import { BriefChainInfo } from '../shared/types/chain';
 import {
-  LocalDeposit,
+  // LocalDeposit,
   MsgMultiAssetDepositRequest,
-  RemoteDeposit,
+  DepositAsset,
+  // RemoteDeposit,
   MsgSingleAssetDepositRequest,
   MsgSingleAssetWithdrawRequest,
   MsgMultiAssetWithdrawRequest,
@@ -255,7 +256,7 @@ export const addPoolItemMulti = async (
 
     const client = await getClient(wallet!.chainInfo);
 
-    const localDepositMsg: LocalDeposit = {
+    const localDepositMsg = {
       sender: wallet.address,
       token: localDepositCoin,
     };
@@ -285,15 +286,26 @@ export const addPoolItemMulti = async (
     // const signature = base64StringToUnit8Array(sig);
     // console.log('sig', signature);
 
-    const signBytes = LocalDeposit.encode(localDepositMsg).finish();
-    const sig = await client!.signToMsg(
-      remoteWallet.address,
-      signBytes,
-      remoteWallet.chainInfo
-    );
+    // const signBytes = DepositAsset.encode(localDepositMsg).finish();
+    // const sig = await client!.signToMsg(
+    //   remoteWallet.address,
+    //   signBytes,
+    //   remoteWallet.chainInfo
+    // );
 
+    // const nativeSig = await client!.signToMsg(
+    //   wallet.address,
+    //   DepositAsset.encode({
+    //     sender: remoteWallet.address,
+    //     balance: remoteDepositCoin,
+    //     signature: 
+    //   }).finish(),
+    //   wallet.chainInfo
+    // );
+    const encoder = new TextEncoder(); 
+    const sig = encoder.encode("test")
     // encode the string
-    const remoteDepositMsg: RemoteDeposit = {
+    const remoteDepositMsg = {
       ...remoteDepositSignMsg,
       signature: sig,
     };
@@ -302,9 +314,20 @@ export const addPoolItemMulti = async (
 
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
       poolId: poolStore.poolItem.poolId,
-      localDeposit: localDepositMsg,
-      remoteDeposit: remoteDepositMsg,
-
+      // localDeposit: localDepositMsg,
+      // remoteDeposit: remoteDepositMsg,
+      deposits: [
+        {
+          sender: wallet?.address,
+          balance: localDepositCoin,
+          signature: sig,
+        },
+        {
+          sender: remoteWallet.address,
+          balance: remoteDepositCoin,
+          signature: sig,
+        },
+      ],
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
@@ -699,16 +722,6 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
           denom: poolStore.poolFormCreate.native.coin.denom,
           amount: poolStore.poolFormCreate.native.amount,
         };
-
-    // sourcePort: string;
-    // sourceChannel: string;
-    // creator: string;
-    // counterPartyCreator: string;
-    // liquidity: PoolAsset[];
-    // swapFee: number;
-    // counterPartySig: Uint8Array;
-    // timeoutHeight?: Height;
-    // timeoutTimeStamp: Long;
 
     const createPoolMsg: MsgCreatePoolRequest = {
       sourcePort: 'interchainswap',
