@@ -281,7 +281,7 @@ export const addPoolItemMulti = async (
     console.log('Remote deposit sign', remoteDepositMsg);
 
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
-      poolId: poolStore.poolItem.poolId,
+      poolId: poolStore.poolItem.id,
       deposits: [
         {
           sender: wallet?.address,
@@ -374,7 +374,7 @@ export const addPoolItemSingle = async (
   try {
     const client = await getClient(wallet!.chainInfo);
     const singleDepositMsg: MsgSingleAssetDepositRequest = {
-      poolId: poolStore?.poolItem?.poolId,
+      poolId: poolStore?.poolItem?.id,
       sender: wallet!.address,
       token: deposit,
       timeoutHeight: {
@@ -501,7 +501,7 @@ export const redeemPoolItemMulti = async (
       sender: wallet.address,
       denomOut: localDenom,
       poolCoin: {
-        denom: poolStore.poolItem.poolId,
+        denom: poolStore.poolItem.id,
         amount: localDepositCoin.amount,
       },
     };
@@ -510,7 +510,7 @@ export const redeemPoolItemMulti = async (
       sender: remoteWallet.address,
       denomOut: remoteDenom,
       poolCoin: {
-        denom: poolStore.poolItem.poolId,
+        denom: poolStore.poolItem.id,
         amount: remoteDepositCoin.amount,
       },
     };

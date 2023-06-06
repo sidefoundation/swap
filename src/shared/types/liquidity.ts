@@ -1,14 +1,16 @@
 import type { IAsset, ICoin } from './asset';
 
 export interface ILiquidityPool {
-  findAssetByDenom(denom: string): unknown;
-  poolId: string;
-  creator: string;
-  creatorChainId: string;
   assets: IAsset[];
-  supply: ICoin;
+  counterPartyChannel: string;
+  counterPartyPort: string;
+  creator: string;
+  id: string;
+  originatingChainId:string;
   pool_price: string;
-  status: 'POOL_STATUS_READY' | 'POOL_STATUS_INITIAL';
-  encounterPartyPort: string;
-  encounterPartyChannel: string;
+  status: 'ACTIVE' | string;
+  supply: ICoin;
+  swapFee: string
+  findAssetByDenom(denom: string): unknown;
+  creatorChainId?: string;
 }

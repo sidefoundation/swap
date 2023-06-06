@@ -22,13 +22,11 @@ import React from 'react';
 export type PoolDetailsProps = {
   keyIndex: number;
   pool: ILiquidityPool;
-  onEnablePool: (pool: ILiquidityPool) => void;
 };
 
 export default function PoolDetails({
   keyIndex,
   pool,
-  onEnablePool,
 }: PoolDetailsProps) {
   const { wallets, getClient, setLoading, isConnected } = useWalletStore();
   const [depositCoin, setDepositCoin] = useState<Map<string, Coin>>();
@@ -54,7 +52,7 @@ export default function PoolDetails({
     try {
       const client = await getClient(wallet!.chainInfo);
       const singleDepositMsg: MsgSingleAssetDepositRequest = {
-        poolId: pool.poolId,
+        poolId: pool.id,
         sender: wallet!.address,
         token: deposit,
         timeoutHeight: {
@@ -181,7 +179,7 @@ export default function PoolDetails({
       console.log('Remote deposit sign', remoteDepositMsg);
 
       const multiDepositMsg: MsgMultiAssetDepositRequest = {
-        poolId: pool.poolId,
+        poolId: pool.id,
         localDeposit: localDepositMsg,
         remoteDeposit: remoteDepositMsg,
 
@@ -246,7 +244,7 @@ export default function PoolDetails({
       const client = await getClient(wallet!.chainInfo);
       const singleWithdrawMsg: MsgSingleAssetWithdrawRequest = {
         sender: wallet!.address,
-        poolCoin: { denom: pool.poolId, amount: deposit.amount },
+        poolCoin: { denom: pool.id, amount: deposit.amount },
         timeoutHeight: {
           revisionHeight: Long.fromInt(10),
           revisionNumber: Long.fromInt(10000000000),
@@ -338,13 +336,13 @@ export default function PoolDetails({
       const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
         sender: wallet.address,
         denomOut: localDenom,
-        poolCoin: { denom: pool.poolId, amount: localDepositCoin.amount },
+        poolCoin: { denom: pool.id, amount: localDepositCoin.amount },
       };
 
       const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
         sender: remoteWallet.address,
         denomOut: remoteDenom,
-        poolCoin: { denom: pool.poolId, amount: remoteDepositCoin.amount },
+        poolCoin: { denom: pool.id, amount: remoteDepositCoin.amount },
       };
 
       const multiWithdrawtMsg: MsgMultiAssetWithdrawRequest = {
@@ -407,9 +405,9 @@ export default function PoolDetails({
                 {pool?.assets?.[0]?.weight}:{pool?.assets?.[1]?.weight}
               </div>
             </div>
-            {/* <div className="tooltip" data-tip={pool?.poolId}> */}
+            {/* <div className="tooltip" data-tip={pool?.id}> */}
             <div className="text-sm opacity-50 truncate w-[200px]">
-              {pool.poolId}
+              {pool.id}
               {/* </div> */}
             </div>
           </div>
@@ -429,30 +427,19 @@ export default function PoolDetails({
       </td>
       <td>{pool?.pool_price}</td>
       <td>{pool?.supply.amount}</td>
-      <td>{pool?.encounterPartyChannel}</td>
+      <td>{pool?.counterPartyChannel}</td>
       <td>
-        {pool.status === 'POOL_STATUS_READY' && (
-          <div className="text-green-500">POOL_STATUS_READY</div>
+        {pool.status === 'ACTIVE' && (
+          <div className="text-green-500">{pool.status}</div>
         )}
-        {pool.status === 'POOL_STATUS_INITIAL' && (
+        {pool.status !== 'ACTIVE' && (
           <div className="flex items-center justify-between w-full">
-            <div className="text-red-500">POOL_STATUS_INITIAL</div>
+            <div className="text-red-500">{pool.status}L</div>
           </div>
         )}
       </td>
 
       <td>
-        {pool.status === 'POOL_STATUS_INITIAL' && (
-          <button
-            className="btn btn-primary btn-sm mr-2 capitalize"
-            disabled={!isConnected}
-            onClick={() => {
-              onEnablePool(pool);
-            }}
-          >
-            Enable Pool
-          </button>
-        )}
         <button
           className="btn-ghost border-gray-400 capitalize px-4 hover:bg-gray-100 btn-sm btn mr-2"
           disabled={!isConnected}
