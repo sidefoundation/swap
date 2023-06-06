@@ -259,11 +259,6 @@ export const addPoolItemMulti = async (
 
     const client = await getClient(wallet!.chainInfo);
 
-    const localDepositMsg = {
-      sender: wallet.address,
-      token: localDepositCoin,
-    };
-
     const acc = await fetchAccount(
       remoteWallet.chainInfo.restUrl,
       wallet.address
@@ -274,37 +269,7 @@ export const addPoolItemMulti = async (
       sender: remoteWallet.address,
       token: remoteDepositCoin,
     };
-
-    const remoteClient = await getClient(remoteWallet.chainInfo);
-
-    // const rawRemoteDepositMsg =
-    //   RemoteDeposit.encode(remoteDepositSignMsg).finish();
-
-    // const sig = await remoteClient!.signToMsg(
-    //   remoteWallet.address,
-    //   rawRemoteDepositMsg,
-    //   remoteWallet.chainInfo
-    // );
-
-    // const signature = base64StringToUnit8Array(sig);
-    // console.log('sig', signature);
-
-    // const signBytes = DepositAsset.encode(localDepositMsg).finish();
-    // const sig = await client!.signToMsg(
-    //   remoteWallet.address,
-    //   signBytes,
-    //   remoteWallet.chainInfo
-    // );
-
-    // const nativeSig = await client!.signToMsg(
-    //   wallet.address,
-    //   DepositAsset.encode({
-    //     sender: remoteWallet.address,
-    //     balance: remoteDepositCoin,
-    //     signature: 
-    //   }).finish(),
-    //   wallet.chainInfo
-    // );
+   
     const encoder = new TextEncoder(); 
     const sig = encoder.encode("test")
     // encode the string
@@ -317,8 +282,6 @@ export const addPoolItemMulti = async (
 
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
       poolId: poolStore.poolItem.poolId,
-      // localDeposit: localDepositMsg,
-      // remoteDeposit: remoteDepositMsg,
       deposits: [
         {
           sender: wallet?.address,
