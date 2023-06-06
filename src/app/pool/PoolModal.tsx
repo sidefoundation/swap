@@ -271,14 +271,14 @@ function PoolModal() {
                   <div className="text-xs">
                     Available:{' '}
                     {poolForm?.action === 'add'
-                      ? poolStore?.poolForm?.single?.side === 'NATIVE'
+                      ? poolStore?.poolForm?.single?.side === 'SOURCE'
                         ? balanceMap?.[poolForm?.single?.balance?.denom] ?? '0'
                         : balanceRemoteMap?.[
                             poolForm?.single?.balance?.denom
                           ] ?? '0'
                       : '0'}
                     {poolForm?.action === 'redeem'
-                      ? poolStore?.poolForm?.single?.side === 'NATIVE'
+                      ? poolStore?.poolForm?.single?.side === 'SOURCE'
                         ? balanceMap?.[poolItem?.poolId] ?? '0'
                         : balanceRemoteMap?.[poolItem?.poolId] ?? '0'
                       : '0'}

@@ -38,13 +38,13 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
       const client = await getClient(wallet!.chainInfo);
       console.log(
         'here',
-        pool.assets.find((item) => item.side == 'NATIVE')!.balance
+        pool.assets.find((item) => item.side === 'SOURCE')!.balance
       );
 
       const singleDepositMsg: MsgSingleAssetDepositRequest = {
         poolId: pool.poolId,
         sender: wallet!.address,
-        token: pool.assets.find((item) => item.side == 'NATIVE')!.balance,
+        token: pool.assets.find((item) => item.side === 'SOURCE')!.balance,
         timeoutHeight: {
           revisionHeight: Long.fromInt(10),
           revisionNumber: Long.fromInt(10000000000),

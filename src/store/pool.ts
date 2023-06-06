@@ -125,7 +125,7 @@ export const usePoolNativeList = () => {
   let sellList: any = [];
   poolList.forEach((pool) => {
     pool?.assets?.forEach((asset) => {
-      if (asset.side === 'NATIVE') {
+      if (asset.side === 'SOURCE') {
         const hasCoin =
           sellList.find((sellItem) => {
             if (sellItem?.balance?.denom === asset?.balance?.denom) {
@@ -151,13 +151,13 @@ export const usePoolRemoteListByNative = () => {
   let buyList: any = [];
   poolList.forEach((pool) => {
     const isSameNative = pool.assets.find((item) => {
-      if (item.side === 'NATIVE' && item.balance.denom === native.denom) {
+      if (item.side === 'SOURCE' && item.balance.denom === native.denom) {
         return item;
       }
     });
     if (isSameNative?.side) {
       pool?.assets?.forEach((asset) => {
-        if (asset.side === 'REMOTE') {
+        if (asset.side === 'TARGET') {
           const hasCoin =
             buyList.find((buyItem) => {
               if (buyItem?.balance?.denom === asset?.balance?.denom) {
@@ -205,14 +205,14 @@ export const addPoolItemMulti = async (
   let remoteDepositCoin = {} as Coin;
 
   for (const asset of poolAssets) {
-    if (asset?.side === 'REMOTE') {
+    if (asset?.side === 'TARGET') {
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
         amount: form.remoteAmount,
       };
     }
-    if (asset?.side === 'NATIVE') {
+    if (asset?.side === 'SOURCE') {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
@@ -220,6 +220,9 @@ export const addPoolItemMulti = async (
       };
     }
   }
+  console.log(remoteDepositCoin, 'remoteDepositCoin')
+  console.log(localDepositCoin, 'localDepositCoin')
+
   //
   const wallet = wallets.find(
     (wallet) => wallet.chainInfo.denom === selectedChain.denom
@@ -480,14 +483,14 @@ export const redeemPoolItemMulti = async (
   let remoteDenom = '';
   let remoteDepositCoin = {} as Coin;
   for (const asset of poolAssets) {
-    if (asset?.side?.toLowerCase() === 'remote') {
+    if (asset?.side?.toLowerCase() === 'target') {
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
         amount: form.remoteAmount,
       };
     }
-    if (asset?.side?.toLowerCase() === 'native') {
+    if (asset?.side?.toLowerCase() === 'source') {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,

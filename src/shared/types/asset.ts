@@ -3,7 +3,7 @@ export interface ICoin {
   amount: string;
 }
 export interface IAsset {
-  side: 'NATIVE' | 'REMOTE';
+  side: 'SOURCE' | 'TARGET';
   balance: ICoin;
   weight: number;
   decimal: number;
