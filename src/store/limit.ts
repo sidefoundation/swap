@@ -55,14 +55,14 @@ export const useLimitStore = () => {
   return useSnapshot(limitStore);
 };
 export const useLimitRate = () => {
-  const nativeAmount = useSnapshot(limitStore.limitNative).amount;
-  const remoteAmount = useSnapshot(limitStore.limitRemote).amount;
+  const sourceAmount = useSnapshot(limitStore.limitNative).amount;
+  const targetAmount = useSnapshot(limitStore.limitRemote).amount;
   let limitRate = '0';
-  if (!!parseFloat(nativeAmount) || !!parseFloat(remoteAmount)) {
+  if (!!parseFloat(sourceAmount) || !!parseFloat(targetAmount)) {
     limitRate = '0';
   }
-  if (!!parseFloat(nativeAmount) && !!parseFloat(remoteAmount)) {
-    const rate = (parseFloat(nativeAmount) / parseFloat(remoteAmount)).toFixed(
+  if (!!parseFloat(sourceAmount) && !!parseFloat(targetAmount)) {
+    const rate = (parseFloat(sourceAmount) / parseFloat(targetAmount)).toFixed(
       8
     );
     limitRate = rate;

@@ -43,8 +43,8 @@ type Store = {
     action: 'add' | 'redeem';
     single: IAsset;
     signleAmount: string;
-    remoteAmount: string;
-    nativeAmount: string;
+    targetAmount: string;
+    sourceAmount: string;
     modalShow: boolean;
   };
   poolFormCreate: {
@@ -79,8 +79,8 @@ export const poolStore = proxy<Store>({
     action: 'add',
     single: {} as ILiquidityPool,
     signleAmount: '',
-    remoteAmount: '',
-    nativeAmount: '',
+    targetAmount: '',
+    sourceAmount: '',
     modalShow: false,
   },
   poolFormCreate: {
@@ -138,7 +138,6 @@ export const usePoolNativeList = () => {
       }
     });
   });
-  // swapStore.swapPair.native = sellList[0]
   return {
     nativeList: sellList,
   };
@@ -209,14 +208,14 @@ export const addPoolItemMulti = async (
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
-        amount: form.remoteAmount,
+        amount: form.targetAmount,
       };
     }
     if (asset?.side === 'SOURCE') {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
-        amount: form.nativeAmount,
+        amount: form.sourceAmount,
       };
     }
   }
@@ -240,13 +239,15 @@ export const addPoolItemMulti = async (
   }
 
   const ratio = market.getRatio(remoteDenom, localDenom);
+  console.log(ratio, 'ratio')
   const slippage =
     Math.abs(
       (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
     ) * 100;
+    console.log(slippage, 'slippage')
   if (slippage > 5) {
-    poolStore.poolForm.nativeAmount = '';
-    poolStore.poolForm.remoteAmount = '';
+    poolStore.poolForm.sourceAmount = '';
+    poolStore.poolForm.targetAmount = '';
     toast.error(
       'Your original input incorrect in ratio. Pleas try with current pair!'
     );
@@ -300,6 +301,7 @@ export const addPoolItemMulti = async (
       },
       timeoutTimeStamp: timeoutTimeStamp,
     };
+    console.log(multiDepositMsg, 'multiDepositMsg')
 
     const msg = {
       typeUrl:
@@ -450,14 +452,14 @@ export const redeemPoolItemMulti = async (
       remoteDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
-        amount: form.remoteAmount,
+        amount: form.targetAmount,
       };
     }
     if (asset?.side?.toLowerCase() === 'source') {
       localDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
-        amount: form.nativeAmount,
+        amount: form.sourceAmount,
       };
     }
   }
@@ -485,8 +487,8 @@ export const redeemPoolItemMulti = async (
   console.log(slippage);
 
   if (slippage > 5) {
-    poolStore.poolForm.nativeAmount = '';
-    poolStore.poolForm.remoteAmount = '';
+    poolStore.poolForm.sourceAmount = '';
+    poolStore.poolForm.targetAmount = '';
     toast.error(
       'Your original input incorrect in ratio. Pleas try with current pair!'
     );
