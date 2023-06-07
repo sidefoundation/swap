@@ -339,7 +339,8 @@ export const addPoolItemMulti = async (
           toast.success('Add liquidity Success', {
             // id: toastItem,
           });
-          // getBalanceList(chainStore.chainCurrent?.restUrl, wallet!.address);
+          poolStore.poolForm.modalShow = false;
+          getPoolList(wallet!.chainInfo?.restUrl);
         }
       }
     } else {
@@ -423,6 +424,8 @@ export const addPoolItemSingle = async (
           toast.success('Add liquidity Success', {
             // id: toastItem,
           });
+          poolStore.poolForm.modalShow = false;
+          getPoolList(wallet!.chainInfo?.restUrl);
         }
       }
     } else {
@@ -564,6 +567,8 @@ export const redeemPoolItemMulti = async (
           toast.success('Redeem Success', {
             // id: toastItem,
           });
+          poolStore.poolForm.modalShow = false;
+          getPoolList(wallet!.chainInfo?.restUrl);
         }
       }
     } else {
@@ -651,6 +656,8 @@ export const redeemPoolItemSingle = async (
           toast.success('Redeem Success', {
             // id: toastItem,
           });
+          poolStore.poolForm.modalShow = false;
+          getPoolList(wallet!.chainInfo?.restUrl);
         }
       }
     } else {
