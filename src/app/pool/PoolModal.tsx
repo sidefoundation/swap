@@ -126,94 +126,147 @@ function PoolModal() {
           {/* all assets */}
           {tab === 'all' ? (
             <div>
-              <div className="flex items-center py-3 pl-4 pr-4 mb-4 border rounded-lg dark:border-gray-600">
-                <div className="flex items-center mr-5 text-xl font-semibold">
-                  {poolAsset1?.weight}%
+              {/* asset0 */}
+              <div className="py-3 pl-4 pr-4 mb-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center">
+                  <div className="flex items-center mr-5 text-xl font-semibold">
+                    {poolAsset1?.weight}%
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-semibold capitalize">
+                        {poolAsset1?.balance?.denom}
+                      </div>
+                      <input
+                        className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
+                        type="number"
+                        value={
+                          poolForm?.[
+                            `${poolAsset1?.side?.toLowerCase()}Amount`
+                          ] || ''
+                        }
+                        onChange={(e) => {
+                          poolStore.poolForm[
+                            `${poolAsset1?.side?.toLowerCase()}Amount`
+                          ] = e.target.value;
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-500">
+                        {poolAsset1?.side}
+                      </div>
+                      <div className="text-xs">
+                        Available:{' '}
+                        {poolForm?.action !== 'redeem'
+                          ? balanceMap?.[poolAsset1?.balance?.denom] ?? ''
+                          : ''}
+                        {poolForm?.action === 'redeem'
+                          ? balanceRemoteMap?.[poolItem?.id] ?? '0'
+                          : balanceRemoteMap?.[poolAsset1?.balance?.denom] ??
+                            '0'}{' '}
+                        <span className="capitalize ml-1">
+                          {poolAsset1?.balance?.denom}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="text-lg font-semibold capitalize">
-                      {poolAsset1?.balance?.denom}
+
+                {poolForm?.action === 'redeem' ? (
+                  <div className="flex flex-col items-center mt-2">
+                    <div className="w-full flex justify-between ">
+                      <span className="text-sm">Receiver Address</span>
+                      <span className="text-right text-xs">(Option)</span>
                     </div>
                     <input
+                      className="w-full h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                       value={
                         poolForm?.[
-                          `${poolAsset1?.side?.toLowerCase()}Amount`
+                          `${poolAsset1?.side?.toLowerCase()}Address`
                         ] || ''
                       }
                       onChange={(e) => {
                         poolStore.poolForm[
-                          `${poolAsset1?.side?.toLowerCase()}Amount`
+                          `${poolAsset1?.side?.toLowerCase()}Address`
                         ] = e.target.value;
                       }}
-                      className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                     />
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                      {poolAsset1?.side}
-                    </div>
-                    <div className="text-xs">
-                      Available:{' '}
-                      {poolForm?.action !== 'redeem'
-                        ? balanceMap?.[poolAsset1?.balance?.denom] ?? ''
-                        : ''}
-                      {poolForm?.action === 'redeem'
-                        ? balanceRemoteMap?.[poolItem?.id] ?? '0'
-                        : balanceRemoteMap?.[poolAsset1?.balance?.denom] ??
-                          '0'}{' '}
-                      <span className="capitalize">
-                        {poolAsset1?.balance?.denom}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                ) : null}
               </div>
 
-              <div className="flex items-center py-3 pl-4 pr-4 border rounded-lg dark:border-gray-600">
-                <div className="flex items-center mr-5 text-xl font-semibold">
-                  {poolAsset2?.weight}%
+              {/* asset1 */}
+              <div className="py-3 pl-4 pr-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center ">
+                  <div className="flex items-center mr-5 text-xl font-semibold">
+                    {poolAsset2?.weight}%
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-semibold capitalize">
+                        {poolAsset2?.balance?.denom}
+                      </div>
+                      <input
+                        type="number"
+                        value={
+                          poolForm?.[
+                            `${poolAsset2?.side?.toLowerCase()}Amount`
+                          ] || ''
+                        }
+                        onChange={(e) => {
+                          poolStore.poolForm[
+                            `${poolAsset2?.side?.toLowerCase()}Amount`
+                          ] = e.target.value;
+                        }}
+                        className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-500">
+                        {poolAsset2?.side}
+                      </div>
+                      <div className="text-xs">
+                        Available:{' '}
+                        {poolForm?.action !== 'redeem'
+                          ? balanceMap?.[poolAsset2?.balance?.denom] || ''
+                          : ''}
+                        {poolForm?.action === 'redeem'
+                          ? balanceRemoteMap?.[poolItem?.id] ?? '0'
+                          : balanceRemoteMap?.[poolAsset2?.balance?.denom] ??
+                            '0'}{' '}
+                        <span className="capitalize ml-1">
+                          {poolAsset2?.balance?.denom}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="text-lg font-semibold capitalize">
-                      {poolAsset2?.balance?.denom}
+                {poolForm?.action === 'redeem' ? (
+                  <div className="flex flex-col items-center mt-2">
+                    <div className="w-full flex justify-between ">
+                      <span className="text-sm">Receiver Address</span>
+                      <span className="text-right text-xs">(Option)</span>
                     </div>
                     <input
+                      className="w-full h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
+                      type="number"
+                      placeholder=""
                       value={
                         poolForm?.[
-                          `${poolAsset2?.side?.toLowerCase()}Amount`
+                          `${poolAsset2?.side?.toLowerCase()}Address`
                         ] || ''
                       }
                       onChange={(e) => {
                         poolStore.poolForm[
-                          `${poolAsset2?.side?.toLowerCase()}Amount`
+                          `${poolAsset2?.side?.toLowerCase()}Address`
                         ] = e.target.value;
                       }}
-                      className="h-8 px-4 mb-2 text-lg text-right bg-gray-100 rounded dark:bg-gray-700 dark:text-white focus-within:outline-none"
                     />
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                      {poolAsset2?.side}
-                    </div>
-                    <div className="text-xs">
-                      Available:{' '}
-                      {poolForm?.action !== 'redeem'
-                        ? balanceMap?.[poolAsset2?.balance?.denom] || ''
-                        : ''}
-                      {poolForm?.action === 'redeem'
-                        ? balanceRemoteMap?.[poolItem?.id] ?? '0'
-                        : balanceRemoteMap?.[poolAsset2?.balance?.denom] ??
-                          '0'}{' '}
-                      <span className="capitalize">
-                        {poolAsset2?.balance?.denom}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                ) : null}
               </div>
             </div>
           ) : null}
@@ -260,6 +313,7 @@ function PoolModal() {
                     </ul>
                   </div>
                   <input
+                    type="number"
                     value={poolForm?.signleAmount || ''}
                     onChange={(e) => {
                       poolStore.poolForm.signleAmount = e.target.value;

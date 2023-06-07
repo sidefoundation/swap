@@ -45,7 +45,9 @@ type Store = {
     single: IAsset;
     signleAmount: string;
     targetAmount: string;
+    targetAddress: string;
     sourceAmount: string;
+    sourceAddress: string;
     modalShow: boolean;
   };
   poolFormCreate: {
@@ -464,34 +466,15 @@ export const redeemPoolItemMulti = async (
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
   try {
     const client = await getClient(wallet!.chainInfo);
-
-    // const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
-    //   sender: wallet.address,
-    //   poolCoin: {
-    //     denom: poolStore.poolItem.id,
-    //     amount: localDepositCoin.amount,
-    //   },
-    //   // denomOut: localDenom,
-    // };
-
-    // const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
-    //   sender: remoteWallet.address,
-    //   // denomOut: remoteDenom,
-    //   poolCoin: {
-    //     denom: poolStore.poolItem.id,
-    //     amount: remoteDepositCoin.amount,
-    //   },
-    // };
-
     const sourceWithdraw: WithdrawAsset = {
-      receiver: wallet.address,
+      receiver:  poolStore.poolForm.sourceAddress || wallet.address,
       balance: {
         denom: poolStore.poolItem.id,
         amount: localDepositCoin.amount,
       },
     };
     const targetWithdraw: WithdrawAsset = {
-      receiver: remoteWallet.address,
+      receiver: poolStore.poolForm.targetAddress || remoteWallet.address,
       balance: {
         denom: poolStore.poolItem.id,
         amount: remoteDepositCoin.amount,
