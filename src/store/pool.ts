@@ -196,34 +196,8 @@ export const addPoolItemMulti = async (
   market: MarketMaker,
   getClient
 ) => {
-  console.log('selectedchain', selectedChain);
   const poolAssets = poolStore.poolItem.assets;
-  console.log(poolAssets, 'poolAssets');
   const form = poolStore.poolForm;
-
-  let localDenom = '';
-  let localDepositCoin = {} as Coin;
-  let remoteDenom = '';
-  let remoteDepositCoin = {} as Coin;
-
-  for (const asset of poolAssets) {
-    if (asset?.side === 'TARGET') {
-      remoteDenom = asset.balance.denom;
-      remoteDepositCoin = {
-        denom: asset.balance.denom,
-        amount: form.targetAmount,
-      };
-    }
-    if (asset?.side === 'SOURCE') {
-      localDenom = asset.balance.denom;
-      localDepositCoin = {
-        denom: asset.balance.denom,
-        amount: form.sourceAmount,
-      };
-    }
-  }
-  console.log(remoteDepositCoin, 'remoteDepositCoin');
-  console.log(localDepositCoin, 'localDepositCoin');
 
   //
   const wallet = wallets.find(
@@ -237,17 +211,39 @@ export const addPoolItemMulti = async (
     return;
   }
 
-  if (localDepositCoin === undefined || remoteDepositCoin === undefined) {
+  //
+  let sourceDenom = '';
+  let localDepositCoin = {} as Coin;
+  let targetDenom = '';
+  let remoteDepositCoin = {} as Coin;
+
+  for (const asset of poolAssets) {
+    if (asset?.side === 'TARGET') {
+      targetDenom = asset.balance.denom;
+      remoteDepositCoin = {
+        denom: asset.balance.denom,
+        amount: form.targetAmount,
+      };
+    }
+    if (asset?.side === 'SOURCE') {
+      sourceDenom = asset.balance.denom;
+      localDepositCoin = {
+        denom: asset.balance.denom,
+        amount: form.sourceAmount,
+      };
+    }
+  }
+
+  if (form.targetAmount === undefined || form.sourceAmount === undefined) {
+    toast.error('Please enter the quantity!');
     return;
   }
 
-  const ratio = market.getRatio(remoteDenom, localDenom);
-  console.log(ratio, 'ratio');
+  const ratio = market.getRatio(targetDenom, sourceDenom);
   const slippage =
     Math.abs(
       (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
     ) * 100;
-  console.log(slippage, 'slippage');
   if (slippage > 5) {
     poolStore.poolForm.sourceAmount = '';
     poolStore.poolForm.targetAmount = '';
@@ -259,30 +255,25 @@ export const addPoolItemMulti = async (
 
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
   try {
-    console.log(wallet.chainInfo);
-
     const client = await getClient(wallet!.chainInfo);
-
-    const acc = await fetchAccount(
-      remoteWallet.chainInfo.restUrl,
-      wallet.address
-    );
-
-    const remoteDepositSignMsg = {
-      sequence: Long.fromInt(+acc.base_account.sequence + 1),
-      sender: remoteWallet.address,
-      token: remoteDepositCoin,
-    };
+    // const acc = await fetchAccount(
+    //   remoteWallet.chainInfo.restUrl,
+    //   wallet.address
+    // );
+    // const remoteDepositSignMsg = {
+    //   sequence: Long.fromInt(+acc.base_account.sequence + 1),
+    //   sender: remoteWallet.address,
+    //   token: remoteDepositCoin,
+    // };
 
     const encoder = new TextEncoder();
     const sig = encoder.encode('test');
     // encode the string
-    const remoteDepositMsg = {
-      ...remoteDepositSignMsg,
-      signature: sig,
-    };
+    // const remoteDepositMsg = {
+    //   ...remoteDepositSignMsg,
+    //   signature: sig,
+    // };
 
-    console.log('Remote deposit sign', remoteDepositMsg);
     const sourceAsset: DepositAsset = {
       sender: wallet?.address,
       balance: localDepositCoin,
@@ -293,7 +284,6 @@ export const addPoolItemMulti = async (
       balance: remoteDepositCoin,
       signature: sig,
     };
-    console.log(sourceAsset, targetAsset, 'sourceAsset,targetAsset');
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
       poolId: poolStore.poolItem.id,
       deposits: [sourceAsset, targetAsset],
@@ -303,7 +293,6 @@ export const addPoolItemMulti = async (
       },
       timeoutTimeStamp: timeoutTimeStamp,
     };
-    console.log(multiDepositMsg, 'multiDepositMsg');
 
     const msg = {
       typeUrl:
@@ -411,20 +400,20 @@ export const redeemPoolItemMulti = async (
   const poolAssets = poolStore.poolItem.assets;
   const form = poolStore.poolForm;
 
-  let localDenom = '';
+  let sourceDenom = '';
   let localDepositCoin = {} as Coin;
-  let remoteDenom = '';
+  let targetDenom = '';
   let remoteDepositCoin = {} as Coin;
   for (const asset of poolAssets) {
     if (asset?.side?.toLowerCase() === 'target') {
-      remoteDenom = asset.balance.denom;
+      targetDenom = asset.balance.denom;
       remoteDepositCoin = {
         denom: asset.balance.denom,
         amount: form.targetAmount,
       };
     }
     if (asset?.side?.toLowerCase() === 'source') {
-      localDenom = asset.balance.denom;
+      sourceDenom = asset.balance.denom;
       localDepositCoin = {
         denom: asset.balance.denom,
         amount: form.sourceAmount,
@@ -447,7 +436,7 @@ export const redeemPoolItemMulti = async (
     return;
   }
 
-  const ratio = market.getRatio(remoteDenom, localDenom);
+  const ratio = market.getRatio(targetDenom, sourceDenom);
   const slippage =
     Math.abs(
       (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
@@ -467,7 +456,7 @@ export const redeemPoolItemMulti = async (
   try {
     const client = await getClient(wallet!.chainInfo);
     const sourceWithdraw: WithdrawAsset = {
-      receiver:  poolStore.poolForm.sourceAddress || wallet.address,
+      receiver: poolStore.poolForm.sourceAddress || wallet.address,
       balance: {
         denom: poolStore.poolItem.id,
         amount: localDepositCoin.amount,
