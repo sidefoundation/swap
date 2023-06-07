@@ -160,12 +160,13 @@ function PoolModal() {
                       <div className="text-xs">
                         Available:{' '}
                         {poolForm?.action !== 'redeem'
-                          ? balanceMap?.[poolAsset1?.balance?.denom] ?? ''
-                          : ''}
-                        {poolForm?.action === 'redeem'
-                          ? balanceRemoteMap?.[poolItem?.id] ?? '0'
-                          : balanceRemoteMap?.[poolAsset1?.balance?.denom] ??
-                            '0'}{' '}
+                          ? poolAsset1?.side === 'SOURCE'
+                            ? balanceMap?.[poolAsset1?.balance?.denom] ?? '0'
+                            : balanceRemoteMap?.[poolAsset1?.balance?.denom] ??
+                              '0'
+                          : poolAsset1?.side === 'SOURCE'
+                          ? balanceMap?.[poolItem?.id] ?? '0'
+                          : balanceRemoteMap?.[poolItem?.id] ?? '0'}
                         <span className="capitalize ml-1">
                           {poolAsset1?.balance?.denom}
                         </span>
@@ -231,12 +232,13 @@ function PoolModal() {
                       <div className="text-xs">
                         Available:{' '}
                         {poolForm?.action !== 'redeem'
-                          ? balanceMap?.[poolAsset2?.balance?.denom] || ''
-                          : ''}
-                        {poolForm?.action === 'redeem'
-                          ? balanceRemoteMap?.[poolItem?.id] ?? '0'
-                          : balanceRemoteMap?.[poolAsset2?.balance?.denom] ??
-                            '0'}{' '}
+                          ? poolAsset2?.side === 'SOURCE'
+                            ? balanceMap?.[poolAsset2?.balance?.denom] ?? '0'
+                            : balanceRemoteMap?.[poolAsset2?.balance?.denom] ??
+                              '0'
+                          : poolAsset2?.side === 'SOURCE'
+                          ? balanceMap?.[poolItem?.id] ?? '0'
+                          : balanceRemoteMap?.[poolItem?.id] ?? '0'}
                         <span className="capitalize ml-1">
                           {poolAsset2?.balance?.denom}
                         </span>
