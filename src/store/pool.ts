@@ -6,9 +6,9 @@ import type { ILiquidityPool } from '@/shared/types/liquidity';
 import { BriefChainInfo } from '../shared/types/chain';
 import {
   // LocalDeposit,
+  // RemoteDeposit,
   MsgMultiAssetDepositRequest,
   DepositAsset,
-  // RemoteDeposit,
   MsgSingleAssetDepositRequest,
   MsgSingleAssetWithdrawRequest,
   MsgMultiAssetWithdrawRequest,
@@ -219,8 +219,8 @@ export const addPoolItemMulti = async (
       };
     }
   }
-  console.log(remoteDepositCoin, 'remoteDepositCoin')
-  console.log(localDepositCoin, 'localDepositCoin')
+  console.log(remoteDepositCoin, 'remoteDepositCoin');
+  console.log(localDepositCoin, 'localDepositCoin');
 
   //
   const wallet = wallets.find(
@@ -239,12 +239,12 @@ export const addPoolItemMulti = async (
   }
 
   const ratio = market.getRatio(remoteDenom, localDenom);
-  console.log(ratio, 'ratio')
+  console.log(ratio, 'ratio');
   const slippage =
     Math.abs(
       (ratio - +remoteDepositCoin.amount / +localDepositCoin.amount) / ratio
     ) * 100;
-    console.log(slippage, 'slippage')
+  console.log(slippage, 'slippage');
   if (slippage > 5) {
     poolStore.poolForm.sourceAmount = '';
     poolStore.poolForm.targetAmount = '';
@@ -270,9 +270,9 @@ export const addPoolItemMulti = async (
       sender: remoteWallet.address,
       token: remoteDepositCoin,
     };
-   
-    const encoder = new TextEncoder(); 
-    const sig = encoder.encode("test")
+
+    const encoder = new TextEncoder();
+    const sig = encoder.encode('test');
     // encode the string
     const remoteDepositMsg = {
       ...remoteDepositSignMsg,
@@ -280,28 +280,27 @@ export const addPoolItemMulti = async (
     };
 
     console.log('Remote deposit sign', remoteDepositMsg);
-
+    const sourceAsset: DepositAsset = {
+      sender: wallet?.address,
+      balance: localDepositCoin,
+      signature: sig,
+    };
+    const targetAsset: DepositAsset = {
+      sender: remoteWallet.address,
+      balance: remoteDepositCoin,
+      signature: sig,
+    };
+    console.log(sourceAsset,targetAsset, 'sourceAsset,targetAsset')
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
       poolId: poolStore.poolItem.id,
-      deposits: [
-        {
-          sender: wallet?.address,
-          balance: localDepositCoin,
-          signature: sig,
-        },
-        {
-          sender: remoteWallet.address,
-          balance: remoteDepositCoin,
-          signature: sig,
-        },
-      ],
+      deposits: [sourceAsset, targetAsset],
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
     };
-    console.log(multiDepositMsg, 'multiDepositMsg')
+    console.log(multiDepositMsg, 'multiDepositMsg');
 
     const msg = {
       typeUrl:
@@ -504,16 +503,17 @@ export const redeemPoolItemMulti = async (
 
     const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
       sender: wallet.address,
-      denomOut: localDenom,
       poolCoin: {
         denom: poolStore.poolItem.id,
         amount: localDepositCoin.amount,
       },
+      // denomOut: localDenom,
+      
     };
 
     const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
       sender: remoteWallet.address,
-      denomOut: remoteDenom,
+      // denomOut: remoteDenom,
       poolCoin: {
         denom: poolStore.poolItem.id,
         amount: remoteDepositCoin.amount,
@@ -605,6 +605,7 @@ export const redeemPoolItemSingle = async (
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
   try {
     const client = await getClient(wallet!.chainInfo);
+
     const singleWithdrawMsg: MsgSingleAssetWithdrawRequest = {
       sender: wallet!.address,
       poolCoin: {
@@ -616,7 +617,7 @@ export const redeemPoolItemSingle = async (
         revisionNumber: Long.fromInt(10000000000),
       },
       timeoutTimeStamp: timeoutTimeStamp,
-      denomOut: poolStore.poolForm.single?.balance?.denom,
+      // denomOut: poolStore.poolForm.single?.balance?.denom,
     };
     console.log(singleWithdrawMsg, 'poolStore.poolItem.supply?.denom');
 
