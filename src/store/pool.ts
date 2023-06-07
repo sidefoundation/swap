@@ -322,7 +322,6 @@ export const addPoolItemMulti = async (
       fee,
       'test'
     );
-    console.log('Signed data', data);
     handleTxFn({
       data,
       restUrl: wallet!.chainInfo?.restUrl,
@@ -389,7 +388,6 @@ export const addPoolItemSingle = async (
       fee,
       'test'
     );
-    console.log('Signed data', data);
     handleTxFn({
       data,
       restUrl: wallet!.chainInfo?.restUrl,
@@ -531,7 +529,6 @@ export const redeemPoolItemMulti = async (
       fee,
       'test'
     );
-    console.log('Signed data', data);
     handleTxFn({
       data,
       restUrl: selectedChain.restUrl,
@@ -602,7 +599,6 @@ export const redeemPoolItemSingle = async (
       fee,
       'test'
     );
-    console.log('Signed data', data);
     handleTxFn({
       data,
       restUrl: selectedChain.restUrl,
@@ -694,7 +690,6 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
       fee,
       'test'
     );
-    console.log('Signed data', data);
     handleTxFn({
       data,
       restUrl: selectedChain?.chainInfo.restUrl,
@@ -722,7 +717,6 @@ export const handleTxFn = async (params: {
       const result = await fetchTxs(restUrl, txHash);
       console.log(result, 'result');
       if (`${result?.code}` !== '0') {
-        console.log(result?.raw_log, 'raw_log');
         toast.error(result?.raw_log, {
           // id: toastItem,
           duration: 5000,
