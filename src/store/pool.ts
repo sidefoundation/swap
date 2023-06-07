@@ -432,10 +432,10 @@ export const redeemPoolItemMulti = async (
     }
   }
   const wallet = wallets.find(
-    (wallet) => wallet.chainInfo.denom === localDenom
+    (wallet) => wallet.chainInfo.chainID === selectedChain.chainID
   );
   const remoteWallet = wallets.find(
-    (item) => item.chainInfo.denom === remoteDenom
+    (item) => item.chainInfo.chainID !== selectedChain.chainID
   );
 
   console.log(wallet, remoteWallet, localDepositCoin, remoteDepositCoin);
