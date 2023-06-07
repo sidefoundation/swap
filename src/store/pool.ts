@@ -9,6 +9,7 @@ import {
   // RemoteDeposit,
   MsgMultiAssetDepositRequest,
   DepositAsset,
+  WithdrawAsset,
   MsgSingleAssetDepositRequest,
   MsgSingleAssetWithdrawRequest,
   MsgMultiAssetWithdrawRequest,
@@ -290,7 +291,7 @@ export const addPoolItemMulti = async (
       balance: remoteDepositCoin,
       signature: sig,
     };
-    console.log(sourceAsset,targetAsset, 'sourceAsset,targetAsset')
+    console.log(sourceAsset, targetAsset, 'sourceAsset,targetAsset');
     const multiDepositMsg: MsgMultiAssetDepositRequest = {
       poolId: poolStore.poolItem.id,
       deposits: [sourceAsset, targetAsset],
@@ -501,29 +502,44 @@ export const redeemPoolItemMulti = async (
   try {
     const client = await getClient(wallet!.chainInfo);
 
-    const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
-      sender: wallet.address,
-      poolCoin: {
+    // const localWithdrawMsg: MsgSingleAssetWithdrawRequest = {
+    //   sender: wallet.address,
+    //   poolCoin: {
+    //     denom: poolStore.poolItem.id,
+    //     amount: localDepositCoin.amount,
+    //   },
+    //   // denomOut: localDenom,
+    // };
+
+    // const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
+    //   sender: remoteWallet.address,
+    //   // denomOut: remoteDenom,
+    //   poolCoin: {
+    //     denom: poolStore.poolItem.id,
+    //     amount: remoteDepositCoin.amount,
+    //   },
+    // };
+
+    const sourceWithdraw: WithdrawAsset = {
+      receiver: wallet.address,
+      balance: {
         denom: poolStore.poolItem.id,
         amount: localDepositCoin.amount,
       },
-      // denomOut: localDenom,
-      
     };
-
-    const remoteWithdrawMsg: MsgSingleAssetWithdrawRequest = {
-      sender: remoteWallet.address,
-      // denomOut: remoteDenom,
-      poolCoin: {
+    const targetWithdraw: WithdrawAsset = {
+      receiver: remoteWallet.address,
+      balance: {
         denom: poolStore.poolItem.id,
         amount: remoteDepositCoin.amount,
       },
     };
-
     const multiWithdrawtMsg: MsgMultiAssetWithdrawRequest = {
-      localWithdraw: localWithdrawMsg,
-      remoteWithdraw: remoteWithdrawMsg,
-
+      poolId: poolStore.poolItem.id,
+      sender: wallet.address,
+      withdraws: [sourceWithdraw, targetWithdraw],
+      // localWithdraw: localWithdrawMsg,
+      // remoteWithdraw: remoteWithdrawMsg,
       timeoutHeight: {
         revisionHeight: Long.fromInt(10),
         revisionNumber: Long.fromInt(10000000000),
@@ -551,29 +567,35 @@ export const redeemPoolItemMulti = async (
       'test'
     );
     console.log('Signed data', data);
-    if (data !== undefined) {
-      const { txHash, status, rawLog } = await client!.broadCastTx(data);
-      console.log('TxHash:', txHash);
-      if (status !== 'error') {
-        const result = await fetchTxs(selectedChain.restUrl, txHash);
-        console.log(result, 'result');
-        if (`${result?.code}` !== '0') {
-          console.log(result?.raw_log, 'raw_log');
-          toast.error(result?.raw_log, {
-            // id: toastItem,
-            duration: 5000,
-          });
-        } else {
-          toast.success('Redeem Success', {
-            // id: toastItem,
-          });
-          poolStore.poolForm.modalShow = false;
-          getPoolList(wallet!.chainInfo?.restUrl);
-        }
-      }
-    } else {
-      console.log('there are problem in encoding');
-    }
+    handleTxFn({
+      data,
+      restUrl: selectedChain.restUrl,
+      wallet,
+      client,
+    });
+    // if (data !== undefined) {
+    //   const { txHash, status, rawLog } = await client!.broadCastTx(data);
+    //   console.log('TxHash:', txHash);
+    //   if (status !== 'error') {
+    //     const result = await fetchTxs(selectedChain.restUrl, txHash);
+    //     console.log(result, 'result');
+    //     if (`${result?.code}` !== '0') {
+    //       console.log(result?.raw_log, 'raw_log');
+    //       toast.error(result?.raw_log, {
+    //         // id: toastItem,
+    //         duration: 5000,
+    //       });
+    //     } else {
+    //       toast.success('Redeem Success', {
+    //         // id: toastItem,
+    //       });
+    //       poolStore.poolForm.modalShow = false;
+    //       getPoolList(wallet!.chainInfo?.restUrl);
+    //     }
+    //   }
+    // } else {
+    //   console.log('there are problem in encoding');
+    // }
   } catch (error) {
     console.log('error', error);
   }
@@ -776,5 +798,38 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
   } catch (error) {
     toast.error(error);
     console.log('error', error);
+  }
+};
+
+export const handleTxFn = async (params: {
+  data: any;
+  restUrl: string;
+  wallet: Wallet;
+  client: any;
+}) => {
+  const { data, restUrl, wallet, client } = params;
+  console.log('Signed data', data);
+  if (data !== undefined) {
+    const { txHash, status, rawLog } = await client!.broadCastTx(data);
+    console.log('TxHash:', txHash);
+    if (status !== 'error') {
+      const result = await fetchTxs(restUrl, txHash);
+      console.log(result, 'result');
+      if (`${result?.code}` !== '0') {
+        console.log(result?.raw_log, 'raw_log');
+        toast.error(result?.raw_log, {
+          // id: toastItem,
+          duration: 5000,
+        });
+      } else {
+        toast.success('Redeem Success', {
+          // id: toastItem,
+        });
+        poolStore.poolForm.modalShow = false;
+        getPoolList(wallet!.chainInfo?.restUrl);
+      }
+    }
+  } else {
+    console.log('there are problem in encoding');
   }
 };
