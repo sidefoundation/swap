@@ -38,14 +38,16 @@ function PoolModal() {
   const { wallets, getClient } = useWalletStore();
 
   useEffect(() => {
-    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address);
-    const otherChain = AppConfig?.chains?.find((item) => {
+    getBalanceList(chainCurrent?.restUrl, wallets?.[0]?.address || '');
+    const otherChain = AppConfig?.chains?.find((item: any) => {
       if (item.restUrl !== chainCurrent?.restUrl) {
         return item;
       }
     });
-    console.log(otherChain?.restUrl, wallets?.[1]?.address, 999);
-    setRemoteBalanceList(otherChain?.restUrl, wallets?.[1]?.address);
+    setRemoteBalanceList(
+      otherChain?.restUrl || '',
+      wallets?.[1]?.address || ''
+    );
   }, [chainCurrent, wallets]);
 
   const confirmAdd = () => {
@@ -80,6 +82,7 @@ function PoolModal() {
             event.stopPropagation();
           }}
         >
+          {/* header */}
           <div className="flex items-center justify-between">
             <div className="text-lg font-bold">
               <span className="capitalize ">{poolForm?.action}</span> liquidity
@@ -101,11 +104,12 @@ function PoolModal() {
               <MdOutlineClose className="text-2xl text-gray-500 dark:text-gray-400" />
             </label>
           </div>
+          {/* tabs */}
           <div className="inline-flex items-center mt-4 mb-4 bg-gray-100 rounded-full tabs dark:bg-gray-700">
             <TabItem tab={tab} setTab={setTab} title="All assets" value="all" />
             <TabItem
               tab={tab}
-              setTab={(val) => {
+              setTab={(val: string) => {
                 setTab(val);
                 poolStore.poolForm.single = poolAsset2;
               }}
@@ -113,9 +117,9 @@ function PoolModal() {
               value="single"
             />
           </div>
-
+          {/* subtitle */}
           <div className="flex items-center mb-4 text-sm">
-            Use autosawp to {poolForm?.action} liquidity with
+            Use autoswap to {poolForm?.action} liquidity with
             {tab === 'all' ? ' all assets' : ' a single asset'}
           </div>
 
@@ -276,13 +280,10 @@ function PoolModal() {
                         : balanceRemoteMap?.[
                             poolForm?.single?.balance?.denom
                           ] ?? '0'
-                      : '0'}
-                    {poolForm?.action === 'redeem'
-                      ? poolStore?.poolForm?.single?.side === 'SOURCE'
-                        ? balanceMap?.[poolItem?.id] ?? '0'
-                        : balanceRemoteMap?.[poolItem?.id] ?? '0'
-                      : '0'}
-                    <span className="capitalize">
+                      : poolStore?.poolForm?.single?.side === 'SOURCE'
+                      ? balanceMap?.[poolItem?.id] ?? '0'
+                      : balanceRemoteMap?.[poolItem?.id] ?? '0'}
+                    <span className="capitalize ml-1">
                       {poolForm?.single?.balance?.denom}
                     </span>
                   </div>
@@ -291,6 +292,7 @@ function PoolModal() {
             </div>
           ) : null}
 
+          {/* footer btn */}
           <div className="mt-6">
             <button
               className="w-full btn btn-primary"
