@@ -323,29 +323,12 @@ export const addPoolItemMulti = async (
       'test'
     );
     console.log('Signed data', data);
-    if (data !== undefined) {
-      const { txHash, status, rawLog } = await client!.broadCastTx(data);
-      console.log('TxHash:', txHash);
-      if (status !== 'error') {
-        const result = await fetchTxs(selectedChain.restUrl, txHash);
-        console.log(result, 'result');
-        if (`${result?.code}` !== '0') {
-          console.log(result?.raw_log, 'raw_log');
-          toast.error(result?.raw_log, {
-            // id: toastItem,
-            duration: 5000,
-          });
-        } else {
-          toast.success('Add liquidity Success', {
-            // id: toastItem,
-          });
-          poolStore.poolForm.modalShow = false;
-          getPoolList(wallet!.chainInfo?.restUrl);
-        }
-      }
-    } else {
-      console.log('there are problem in encoding');
-    }
+    handleTxFn({
+      data,
+      restUrl: wallet!.chainInfo?.restUrl,
+      client,
+      tipMsg: 'Add liquidity Success',
+    });
   } catch (error) {
     console.log('error', error);
   }
@@ -407,30 +390,12 @@ export const addPoolItemSingle = async (
       'test'
     );
     console.log('Signed data', data);
-    if (data !== undefined) {
-      const { txHash, status, rawLog } = await client!.broadCastTx(data);
-
-      console.log('TxHash:', txHash);
-      if (status !== 'error') {
-        const result = await fetchTxs(selectedChain.restUrl, txHash);
-        console.log(result, 'result');
-        if (`${result?.code}` !== '0') {
-          console.log(result?.raw_log, 'raw_log');
-          toast.error(result?.raw_log, {
-            // id: toastItem,
-            duration: 5000,
-          });
-        } else {
-          toast.success('Add liquidity Success', {
-            // id: toastItem,
-          });
-          poolStore.poolForm.modalShow = false;
-          getPoolList(wallet!.chainInfo?.restUrl);
-        }
-      }
-    } else {
-      console.log('there are problem in encoding');
-    }
+    handleTxFn({
+      data,
+      restUrl: wallet!.chainInfo?.restUrl,
+      client,
+      tipMsg: 'Add liquidity Success',
+    });
   } catch (error) {
     console.log('error', error);
   }
@@ -570,32 +535,9 @@ export const redeemPoolItemMulti = async (
     handleTxFn({
       data,
       restUrl: selectedChain.restUrl,
-      wallet,
       client,
+      tipMsg: 'Redeem Success',
     });
-    // if (data !== undefined) {
-    //   const { txHash, status, rawLog } = await client!.broadCastTx(data);
-    //   console.log('TxHash:', txHash);
-    //   if (status !== 'error') {
-    //     const result = await fetchTxs(selectedChain.restUrl, txHash);
-    //     console.log(result, 'result');
-    //     if (`${result?.code}` !== '0') {
-    //       console.log(result?.raw_log, 'raw_log');
-    //       toast.error(result?.raw_log, {
-    //         // id: toastItem,
-    //         duration: 5000,
-    //       });
-    //     } else {
-    //       toast.success('Redeem Success', {
-    //         // id: toastItem,
-    //       });
-    //       poolStore.poolForm.modalShow = false;
-    //       getPoolList(wallet!.chainInfo?.restUrl);
-    //     }
-    //   }
-    // } else {
-    //   console.log('there are problem in encoding');
-    // }
   } catch (error) {
     console.log('error', error);
   }
@@ -613,13 +555,12 @@ export const redeemPoolItemSingle = async (
   if (wallet === undefined) {
     return;
   }
-  console.log(wallet, 'wallet', selectedChain);
   const deposit = {
     denom: poolStore.poolItem.supply?.denom,
     amount: poolStore.poolForm.signleAmount,
   };
 
-  if (!deposit?.amount) {
+  if (!deposit?.amount || parseFloat(deposit?.amount) <= 0) {
     toast.error('Please input amount');
     return;
   }
@@ -627,7 +568,6 @@ export const redeemPoolItemSingle = async (
   const timeoutTimeStamp = Long.fromNumber((Date.now() + 60 * 1000) * 1000000); // 1 hour from now
   try {
     const client = await getClient(wallet!.chainInfo);
-
     const singleWithdrawMsg: MsgSingleAssetWithdrawRequest = {
       sender: wallet!.address,
       poolCoin: {
@@ -663,29 +603,12 @@ export const redeemPoolItemSingle = async (
       'test'
     );
     console.log('Signed data', data);
-    if (data !== undefined) {
-      const { txHash, status, rawLog } = await client!.broadCastTx(data);
-      console.log('TxHash:', txHash);
-      if (status !== 'error') {
-        const result = await fetchTxs(selectedChain.restUrl, txHash);
-        console.log(result, 'result');
-        if (`${result?.code}` !== '0') {
-          console.log(result?.raw_log, 'raw_log');
-          toast.error(result?.raw_log, {
-            // id: toastItem,
-            duration: 5000,
-          });
-        } else {
-          toast.success('Redeem Success', {
-            // id: toastItem,
-          });
-          poolStore.poolForm.modalShow = false;
-          getPoolList(wallet!.chainInfo?.restUrl);
-        }
-      }
-    } else {
-      console.log('there are problem in encoding');
-    }
+    handleTxFn({
+      data,
+      restUrl: selectedChain.restUrl,
+      client,
+      tipMsg: 'Redeem Success',
+    });
   } catch (error) {
     console.log('error', error);
   }
@@ -772,29 +695,12 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
       'test'
     );
     console.log('Signed data', data);
-    if (data !== undefined) {
-      const { txHash, status, rawLog } = await client!.broadCastTx(data);
-      console.log('TxHash:', txHash);
-      if (status !== 'error') {
-        const result = await fetchTxs(selectedChain.chainInfo.restUrl, txHash);
-        console.log(result, 'result');
-        if (`${result?.code}` !== '0') {
-          console.log(result?.raw_log, 'raw_log');
-          toast.error(result?.raw_log, {
-            // id: toastItem,
-            duration: 5000,
-          });
-        } else {
-          toast.success('Pool Create Success', {
-            // id: toastItem,
-          });
-          poolStore.poolFormCreate.modalShow = false;
-          getPoolList(selectedChain?.chainInfo?.restUrl);
-        }
-      }
-    } else {
-      toast.error('Error');
-    }
+    handleTxFn({
+      data,
+      restUrl: selectedChain?.chainInfo.restUrl,
+      client,
+      tipMsg: 'Pool Create Success',
+    });
   } catch (error) {
     toast.error(error);
     console.log('error', error);
@@ -804,10 +710,10 @@ export const postPoolCreate = async (selectedChain: Wallet, getClient) => {
 export const handleTxFn = async (params: {
   data: any;
   restUrl: string;
-  wallet: Wallet;
   client: any;
+  tipMsg: string;
 }) => {
-  const { data, restUrl, wallet, client } = params;
+  const { data, restUrl, client, tipMsg } = params;
   console.log('Signed data', data);
   if (data !== undefined) {
     const { txHash, status, rawLog } = await client!.broadCastTx(data);
@@ -822,14 +728,14 @@ export const handleTxFn = async (params: {
           duration: 5000,
         });
       } else {
-        toast.success('Redeem Success', {
+        toast.success(tipMsg, {
           // id: toastItem,
         });
         poolStore.poolForm.modalShow = false;
-        getPoolList(wallet!.chainInfo?.restUrl);
+        getPoolList(restUrl);
       }
     }
   } else {
-    console.log('there are problem in encoding');
+    console.log('Error');
   }
 };
