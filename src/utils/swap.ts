@@ -30,7 +30,7 @@ export class MarketMaker {
       1 + parseFloat(tokenIn.amount) / parseFloat(asset.balance.amount);
     const factor: number = Math.pow(ratio, weight) - 1;
     const issueAmount = factor * this.pool.supply.amount.parseToFloat();
-    return { denom: this.pool.poolId, amount: `${Math.floor(issueAmount)}` };
+    return { denom: this.pool.id, amount: `${Math.floor(issueAmount)}` };
   }
 
   multiDeposit(tokenIns: Coin[]): Coin[] {

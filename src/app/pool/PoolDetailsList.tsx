@@ -19,68 +19,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
   const { setLoading, wallets, suggestChain, getClient } = useWalletStore();
   const { poolList } = usePoolStore();
 
-  const onEnablePool = async (pool: ILiquidityPool) => {
-    if (chainCurrent.chainID === pool.creatorChainId) {
-      toast.error('Please select counter party chain');
-      return;
-    }
-    //setLoading(true)
-    await suggestChain(chainStore.chainCurrent);
-
-    const wallet = wallets.find(
-      (wallet) => wallet.chainInfo.chainID === chainCurrent.chainID
-    );
-
-    const timeoutTimeStamp = Long.fromNumber(
-      (Date.now() + 60 * 1000) * 1000000
-    ); // 1 hour from now
-    try {
-      const client = await getClient(wallet!.chainInfo);
-      console.log(
-        'here',
-        pool.assets.find((item) => item.side == 'NATIVE')!.balance
-      );
-
-      const singleDepositMsg: MsgSingleAssetDepositRequest = {
-        poolId: pool.poolId,
-        sender: wallet!.address,
-        token: pool.assets.find((item) => item.side == 'NATIVE')!.balance,
-        timeoutHeight: {
-          revisionHeight: Long.fromInt(10),
-          revisionNumber: Long.fromInt(10000000000),
-        },
-        timeoutTimeStamp: timeoutTimeStamp,
-      };
-
-      const msg = {
-        typeUrl:
-          '/ibc.applications.interchain_swap.v1.MsgSingleAssetDepositRequest',
-        value: singleDepositMsg,
-      };
-
-      const fee: StdFee = {
-        amount: [{ denom: wallet!.chainInfo.denom, amount: '0.01' }],
-        gas: '200000',
-      };
-      const data = await client!.signWithEthermint(
-        wallet!.address,
-        [msg],
-        wallet!.chainInfo,
-        fee,
-        'test'
-      );
-      if (data !== undefined) {
-        const { txHash } = await client!.broadCastTx(data);
-        console.log('TxHash:', txHash);
-        getPoolList(chainStore.chainCurrent.restUrl);
-      } else {
-        console.log('there are problem in encoding');
-      }
-    } catch (error) {
-      console.log('error', error);
-    }
-    setLoading(false);
-  };
   return (
     <div>
       {/* image-header */}
@@ -114,7 +52,6 @@ const PoolDetailsList: React.FC<PoolDetailsListProps> = () => {
                   keyIndex={index}
                   key={index}
                   pool={pool}
-                  onEnablePool={onEnablePool}
                 />
               ))}
             </tbody>

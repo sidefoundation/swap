@@ -42,7 +42,7 @@ export const updateCoinAmount = (
     swapStore.swapPair.native.denom,
     swapStore.swapPair.remote.denom,
   ]);
-  const pool = pools?.find((pool: ILiquidityPool) => pool.poolId == poolId);
+  const pool = pools?.find((pool: ILiquidityPool) => pool.id == poolId);
   const tokenIn: Coin = {
     denom: swapStore.swapPair[side].denom,
     amount: value,
